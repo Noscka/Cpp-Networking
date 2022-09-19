@@ -3,38 +3,34 @@
 #include <boost/asio.hpp>
 #include "../Headers/SharedClass.h"
 
-using boost::asio::ip::tcp;
-
-int main(int argc, char* argv[])
+int main()
 {
     try
     {
-        if (argc != 2)
-        {
-            std::cerr << "Usage: client <host>" << std::endl;
-            return 1;
-        }
+        boost::asio::io_context io_context; /* Main point of the client networking */
+        
+        /* socket which is connected to the server */
+        boost::asio::ip::tcp::socket socket(io_context);
 
-        boost::asio::io_context io_context;
+        /* Connects to the function using `resolver` which resolves the address (Noscka.com -> 123.123.123.123) */
+        boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve("localhost", "daytime"));
 
-        tcp::resolver resolver(io_context);
-        tcp::resolver::results_type endpoints =
-            resolver.resolve(argv[1], "daytime");
+        printf("Connected to server\n"); /* message to confirm to the user the program connected */
 
-        tcp::socket socket(io_context);
-        boost::asio::connect(socket, endpoints);
-        printf("Connected to server\n");
+        boost::asio::streambuf buf;
+        EmployeeData emp("chandan", 34, "microsoft");
+
+        std::ostream oss(&buf);
+
+        //saving data in oss
+        emp.save(oss);
+
+        printf(emp.toString().c_str());
 
         boost::system::error_code ignored_error;
-        for (;;)
-        {
-            std::string message;
+
+        boost::asio::write(socket, buf, ignored_error);
         
-            std::getline(std::cin, message);
-            message += "\n";
-        
-            boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
-        }
     }
     catch (std::exception& e)
     {

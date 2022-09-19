@@ -8,7 +8,17 @@
 #include <boost/thread.hpp>
 #include "../Headers/SharedClass.h"
 
-using boost::asio::ip::tcp;
+std::string read_(boost::asio::ip::tcp::socket& socket, boost::system::error_code *error)
+{
+    boost::asio::streambuf buf;
+    auto bytes = boost::asio::read(socket, buf, boost::asio::transfer_all(), *error);
+    std::ostream oss(&buf);
+    std::stringstream ss;
+    ss << (oss.rdbuf());
+    std::string str_data = ss.str();
+    return str_data;
+}
+
 
 class tcp_connection
     : public boost::enable_shared_from_this<tcp_connection>
@@ -21,7 +31,7 @@ public:
         return pointer(new tcp_connection(io_context));
     }
 
-    tcp::socket& socket()
+    boost::asio::ip::tcp::socket& socket()
     {
         return socket_;
     }
@@ -32,17 +42,16 @@ public:
         {
             for (;;)
             {
-                boost::array<char, 128> buf;
                 boost::system::error_code error;
 
-                size_t len = socket_.read_some(boost::asio::buffer(buf), error);
+                EmployeeData newEmp;
+                newEmp.load(read_(socket_, &error));
+                std::cout << "Loaded: " << newEmp.toString() << std::endl;
 
                 if (error == boost::asio::error::eof)
                     break; // Connection closed cleanly by client.
                 else if (error)
                     throw boost::system::system_error(error); // Some other error.
-
-                std::cout.write(buf.data(), len);
             }
         }
         catch (std::exception& e)
@@ -57,13 +66,13 @@ private:
     {
     }
 
-    tcp::socket socket_;
+    boost::asio::ip::tcp::socket socket_;
 };
 
 class tcp_server
 {
 public:
-    tcp_server(boost::asio::io_context& io_context) : io_context_(io_context), acceptor_(io_context, tcp::endpoint(tcp::v4(), 13))
+    tcp_server(boost::asio::io_context& io_context) : io_context_(io_context), acceptor_(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 13))
     {
         start_accept();
     }
@@ -91,7 +100,7 @@ private:
     }
 
     boost::asio::io_context& io_context_;
-    tcp::acceptor acceptor_;
+    boost::asio::ip::tcp::acceptor acceptor_;
 };
 
 int main()
