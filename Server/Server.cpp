@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <boost/array.hpp>
 #include <boost/bind/bind.hpp>
@@ -7,18 +8,6 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include "../Headers/SharedClass.h"
-
-std::string read_(boost::asio::ip::tcp::socket& socket, boost::system::error_code *error)
-{
-    boost::asio::streambuf buf;
-    auto bytes = boost::asio::read(socket, buf, boost::asio::transfer_all(), *error);
-    std::ostream oss(&buf);
-    std::stringstream ss;
-    ss << (oss.rdbuf());
-    std::string str_data = ss.str();
-    return str_data;
-}
-
 
 class tcp_connection
     : public boost::enable_shared_from_this<tcp_connection>
@@ -43,9 +32,11 @@ public:
             for (;;)
             {
                 boost::system::error_code error;
+                boost::asio::streambuf buf;
 
-                EmployeeData newEmp;
-                newEmp.load(read_(socket_, &error));
+                boost::asio::read(socket_, buf, boost::asio::transfer_all(), error);
+
+                EmployeeData newEmp(&buf);
                 std::cout << "Loaded: " << newEmp.toString() << std::endl;
 
                 if (error == boost::asio::error::eof)
