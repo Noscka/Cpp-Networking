@@ -25,27 +25,16 @@ int main(int argc, char* argv[])
         boost::asio::connect(socket, endpoints);
         printf("Connected to server\n");
 
-        SharingData data = SharingData();
-        data.FirstInt = 12;
-
-        std::vector<uint16_t> net(1, 0);
-
-        net[0] = htons(data.FirstInt);
-
         boost::system::error_code ignored_error;
-        boost::asio::write(socket, boost::asio::buffer((char*)&net.front(), 6), ignored_error);
-
-        //for (;;)
-        //{
-        //    std::string message;
-        //
-        //    std::getline(std::cin, message);
-        //    message += "\n";
-        //
-        //    //boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
-        //
-        //    
-        //}
+        for (;;)
+        {
+            std::string message;
+        
+            std::getline(std::cin, message);
+            message += "\n";
+        
+            boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
+        }
     }
     catch (std::exception& e)
     {

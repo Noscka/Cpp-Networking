@@ -35,21 +35,14 @@ public:
                 boost::array<char, 128> buf;
                 boost::system::error_code error;
 
-                //size_t len = socket_.read_some(boost::asio::buffer(buf), error);
-
-                std::vector<uint16_t> net(1, 0);
-                SharingData data = SharingData();
-
-                size_t len = socket_.read_some( boost::asio::buffer((char*)&net.front(), 6), error);
-
-                net[0] = htons(data.FirstInt);
+                size_t len = socket_.read_some(boost::asio::buffer(buf), error);
 
                 if (error == boost::asio::error::eof)
                     break; // Connection closed cleanly by client.
                 else if (error)
                     throw boost::system::system_error(error); // Some other error.
 
-                std::cout.write(std::to_string(data.FirstInt).c_str(), len);
+                std::cout.write(buf.data(), len);
             }
         }
         catch (std::exception& e)
@@ -91,7 +84,7 @@ private:
     {
         if (!error)
         {
-            boost::thread *ClientThread = new boost::thread(boost::bind(&tcp_connection::start, new_connection));
+            boost::thread* ClientThread = new boost::thread(boost::bind(&tcp_connection::start, new_connection));
         }
 
         start_accept();

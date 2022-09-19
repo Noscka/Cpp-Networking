@@ -1,5 +1,7 @@
 #pragma once
-typedef struct
+class TestObject
 {
-    int FirstInt;
-} SharingData;
+private:
+public:
+	int TestInt;
+};
