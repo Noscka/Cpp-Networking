@@ -3,10 +3,20 @@
 #include <boost/asio.hpp>
 #include "../Headers/SharedClass.h"
 
+#include <fstream>
+
+
 int main()
 {
+    std::fstream filestream("text.txt", std::ios::binary);
+    std::cout << filestream.;
+
+    getchar();
+    return 0;
+
     try
     {
+
         boost::asio::io_context io_context; /* Main point of the client networking */
         
         /* socket which is connected to the server */

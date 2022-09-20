@@ -8,6 +8,25 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/asio.hpp>
 
+class FileObject
+{
+private:
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive&, const unsigned int version);
+
+    std::string FileName;
+
+
+public:
+    FileObject(std::string FileAddress)
+    {
+
+    }
+};
+
+
 class EmployeeData
 {
 private:
