@@ -41,7 +41,7 @@ public:
 
                 std::string OutputText((std::istreambuf_iterator<char>(&buf)), std::istreambuf_iterator<char>());
 
-                std::cout << OutputText << std::endl;
+                std::cout << "Received " << OutputText.size() << " characters of data" << std::endl;
 
                 FileStream.write(OutputText.c_str(), OutputText.size());
 
