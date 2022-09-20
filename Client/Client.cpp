@@ -21,7 +21,7 @@ int main()
         /* socket which is connected to the server */
         boost::asio::ip::tcp::socket socket(io_context);
 
-        /* Connects to the function using `resolver` which resolves the address (Noscka.com -> 123.123.123.123) */
+        /* Connects to the function using `resolver` which resolves the address e.g. (Noscka.com -> 123.123.123.123) */
         boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve("localhost", "daytime"));
 
         printf("Connected to server\n"); /* message to confirm to the user the program connected */
