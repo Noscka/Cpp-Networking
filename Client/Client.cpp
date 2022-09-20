@@ -8,11 +8,10 @@
 
 int main()
 {
-    std::fstream filestream("text.txt", std::ios::binary);
-    std::cout << filestream.;
+    std::ifstream filestream("Console Loading Screen.exe", std::ios::binary);
 
-    getchar();
-    return 0;
+    // copies all data into buffer
+    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(filestream), {});
 
     try
     {
@@ -27,19 +26,9 @@ int main()
 
         printf("Connected to server\n"); /* message to confirm to the user the program connected */
 
-        boost::asio::streambuf buf;
-        EmployeeData emp("chandan", 34, "microsoft");
-
-        std::ostream oss(&buf);
-
-        //saving data in oss
-        emp.save(oss);
-
-        printf(emp.toString().c_str());
-
         boost::system::error_code ignored_error;
 
-        boost::asio::write(socket, buf, ignored_error);
+        boost::asio::write(socket, boost::asio::buffer(buffer), ignored_error);
         
     }
     catch (std::exception& e)
@@ -47,5 +36,6 @@ int main()
         std::cerr << e.what() << std::endl;
     }
 
+    getchar();
     return 0;
 }

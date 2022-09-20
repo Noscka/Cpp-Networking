@@ -8,6 +8,7 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include "../Headers/SharedClass.h"
+#include <fstream>
 
 class tcp_connection
     : public boost::enable_shared_from_this<tcp_connection>
@@ -36,8 +37,13 @@ public:
 
                 boost::asio::read(socket_, buf, boost::asio::transfer_all(), error);
 
-                EmployeeData newEmp(&buf);
-                std::cout << "Loaded: " << newEmp.toString() << std::endl;
+                std::ofstream FileStream("Output.exe", std::ios::binary);
+
+                std::string OutputText((std::istreambuf_iterator<char>(&buf)), std::istreambuf_iterator<char>());
+
+                std::cout << OutputText << std::endl;
+
+                FileStream.write(OutputText.c_str(), OutputText.size());
 
                 if (error == boost::asio::error::eof)
                     break; // Connection closed cleanly by client.
