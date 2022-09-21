@@ -1,7 +1,6 @@
 #include <iostream>
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
-#include "../Headers/SharedClass.h"
 
 #include <fstream>
 
@@ -23,7 +22,7 @@ int main()
         printf("Connected to server\n");
 
         /* Open file stream to allow for reading of file */
-        std::ifstream filestream("Console Loading Screen.exe", std::ios::binary);
+        std::ifstream filestream("BriishChangeExchange.exe", std::ios::binary);
 
         /* copy data from file to vector array */
         std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(filestream), {});
