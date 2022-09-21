@@ -23,10 +23,11 @@ int main()
         /* message to confirm to the user the program connected */
         printf("Connected to server\n");
 
+
         boost::asio::streambuf buf;
         std::ostream oss(&buf);
 
-        FileObject SendingFile("A Level TryCatch.exe");
+        FileObject SendingFile("Functions,Arguements,Random.exe");
         SendingFile.serializeObject(oss);
 
         boost::system::error_code ignored_error;
