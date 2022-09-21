@@ -38,12 +38,19 @@ public:
 
                 boost::asio::read(socket_, buf, boost::asio::transfer_all(), error);
 
-                FileObject ReceivedFile(&buf);
+                std::vector<unsigned char> buffer;
+                {
+                    boost::archive::binary_iarchive ia(buf);
+                    ia& buffer;
+                }
 
-                std::ofstream OutFileStream(ReceivedFile.FileName);
-                OutFileStream.write(ReceivedFile.FileContentsStringed.c_str(), ReceivedFile.FileContentsStringed.size());
+                std::ofstream FileStream("Output.exe", std::ios::binary);
 
-                //ReceivedFile.write();
+                std::string OutputText(buffer.begin(), buffer.end());
+
+                std::cout << "Received " << OutputText.size() << " characters of data" << std::endl;
+
+                FileStream.write(OutputText.c_str(), OutputText.size());
 
                 if (error == boost::asio::error::eof)
                     break; // Connection closed cleanly by client.

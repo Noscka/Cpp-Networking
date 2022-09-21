@@ -1,10 +1,11 @@
 #include <iostream>
+#include <fstream>
+
+#include<boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
-
-#include "../Headers/SharedClass.h" 
-
-#include <fstream>
 
 
 int main()
@@ -23,14 +24,22 @@ int main()
         /* message to confirm to the user the program connected */
         printf("Connected to server\n");
 
-
+        /* Stream buffer */
         boost::asio::streambuf buf;
-        std::ostream oss(&buf);
 
-        FileObject SendingFile("Functions,Arguements,Random.exe");
-        SendingFile.serializeObject(oss);
+        /* file to serialize */
+        std::ifstream filestream("Functions,Arguements,Random.exe", std::ios::binary);
+        
+        /* copy data from file to vector array */
+        std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(filestream), {});
 
         boost::system::error_code ignored_error;
+
+        /* Serialize File */
+        {
+            boost::archive::binary_oarchive oa(buf);
+            oa& buffer;
+        }
 
         /* buffers the vector array and writes to the socket stream */
         boost::asio::write(socket, buf, ignored_error);
