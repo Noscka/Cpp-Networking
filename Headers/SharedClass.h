@@ -20,11 +20,9 @@ private:
     template<class Archive>
     void serialize(Archive&, const unsigned int version);
 
-   
-
 public:
     std::string FileName;
-    std::vector<unsigned char> FileContents;
+    std::vector<char> FileContents;
     std::string FileContentsStringed;
 
     FileObject(std::string FileAddress)
@@ -36,7 +34,7 @@ public:
         FileName = std::filesystem::path(FileAddress).filename().string();
 
         /* copy data from file to vector array */
-        FileContents = std::vector<unsigned char>(std::istreambuf_iterator<char>(filestream), {});
+        FileContents = std::vector<char>(std::istreambuf_iterator<char>(filestream), {});
         FileContentsStringed = std::string(FileContents.begin(), FileContents.end());
     }
 

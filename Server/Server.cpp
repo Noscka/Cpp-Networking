@@ -40,7 +40,10 @@ public:
 
                 FileObject ReceivedFile(&buf);
 
-                ReceivedFile.write();
+                std::ofstream OutFileStream(ReceivedFile.FileName);
+                OutFileStream.write(ReceivedFile.FileContentsStringed.c_str(), ReceivedFile.FileContentsStringed.size());
+
+                //ReceivedFile.write();
 
                 if (error == boost::asio::error::eof)
                     break; // Connection closed cleanly by client.
