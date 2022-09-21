@@ -1,9 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include "../Headers/SharedClass.h"
 
-#include<boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 
@@ -27,19 +25,11 @@ int main()
         /* Stream buffer */
         boost::asio::streambuf buf;
 
-        /* file to serialize */
-        std::ifstream filestream("Functions,Arguements,Random.exe", std::ios::binary);
-        
-        /* copy data from file to vector array */
-        std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(filestream), {});
+        FileObject SendingFile("Functions,Arguements,Random.exe");
+
+        SendingFile.SerializeContents(&buf);
 
         boost::system::error_code ignored_error;
-
-        /* Serialize File */
-        {
-            boost::archive::binary_oarchive oa(buf);
-            oa& buffer;
-        }
 
         /* buffers the vector array and writes to the socket stream */
         boost::asio::write(socket, buf, ignored_error);

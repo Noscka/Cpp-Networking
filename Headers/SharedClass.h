@@ -3,14 +3,13 @@
 #include<iostream>
 #include<sstream>
 #include<string>
+#include <fstream>
+#include <filesystem>
 
 #include<boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/asio.hpp>
-
-#include <fstream>
-#include <filesystem>
 
 class FileObject
 {
@@ -23,7 +22,6 @@ private:
 public:
     std::string FileName;
     std::vector<unsigned char> FileContents;
-    std::string FileContentsStringed;
 
     FileObject(std::string FileAddress)
     {
@@ -35,26 +33,50 @@ public:
 
         /* copy data from file to vector array */
         FileContents = std::vector<unsigned char>(std::istreambuf_iterator<char>(filestream), {});
-        FileContentsStringed = std::string(FileContents.begin(), FileContents.end());
     }
 
-    FileObject(boost::asio::streambuf* buf)
+    FileObject(boost::asio::streambuf* Streambuf)
     {
-        std::istringstream iss(std::string((std::istreambuf_iterator<char>(&*buf)), std::istreambuf_iterator<char>()));
-        boost::archive::binary_iarchive ia(iss);
+        boost::archive::binary_iarchive ia(*Streambuf);
         ia&* (this);
     }
 
-    void serializeObject(std::ostream& oss)
+    FileObject()
     {
-        boost::archive::binary_oarchive oa(oss);
+
+    }
+
+    void serializeObject(std::streambuf* Streambuf)
+    {
+        boost::archive::binary_oarchive oa(*Streambuf);
         oa&* (this);
+    }
+
+    void DeserializeObject(boost::asio::streambuf* Streambuf)
+    {
+        boost::archive::binary_iarchive ia(*Streambuf);
+        ia&* (this);
+    }
+
+    void SerializeContents(std::streambuf* Streambuf)
+    {
+        boost::archive::binary_oarchive oa(*Streambuf);
+        oa& (FileContents);
+    }
+
+    std::vector<unsigned char> DeserializeContents(std::streambuf* Streambuf)
+    {
+        std::vector<unsigned char> VectorOutput;
+        boost::archive::binary_iarchive ia(*Streambuf);
+        ia& (VectorOutput);
+        return VectorOutput;
     }
 
     void write()
     {
         std::ofstream OutFileStream(FileName);
-        OutFileStream.write(FileContentsStringed.c_str(), FileContentsStringed.size());
+        std::string TempString(FileContents.begin(), FileContents.end());
+        OutFileStream.write(TempString.c_str(), TempString.size());
     }
 };
 
@@ -63,7 +85,6 @@ void FileObject::serialize(Archive& archive, const unsigned int version)
 {
     archive& FileName;
     archive& FileContents;
-    archive& FileContentsStringed;
 }
 
 BOOST_CLASS_VERSION(FileObject, 1)

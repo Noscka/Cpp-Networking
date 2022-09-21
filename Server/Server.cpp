@@ -38,17 +38,12 @@ public:
 
                 boost::asio::read(socket_, buf, boost::asio::transfer_all(), error);
 
-                std::vector<unsigned char> buffer;
-                {
-                    boost::archive::binary_iarchive ia(buf);
-                    ia& buffer;
-                }
+                FileObject ReceivedFile;
+                std::vector<unsigned char> Output = ReceivedFile.DeserializeContents(&buf);
 
                 std::ofstream FileStream("Output.exe", std::ios::binary);
 
-                std::string OutputText(buffer.begin(), buffer.end());
-
-                std::cout << "Received " << OutputText.size() << " characters of data" << std::endl;
+                std::string OutputText(Output.begin(), Output.end());
 
                 FileStream.write(OutputText.c_str(), OutputText.size());
 
