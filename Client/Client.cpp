@@ -2,6 +2,8 @@
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 
+#include "../Headers/SharedClass.h" 
+
 #include <fstream>
 
 
@@ -21,16 +23,16 @@ int main()
         /* message to confirm to the user the program connected */
         printf("Connected to server\n");
 
-        /* Open file stream to allow for reading of file */
-        std::ifstream filestream("BriishChangeExchange.exe", std::ios::binary);
+        boost::asio::streambuf buf;
+        std::ostream oss(&buf);
 
-        /* copy data from file to vector array */
-        std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(filestream), {});
+        FileObject SendingFile("A Level TryCatch.exe");
+        SendingFile.serializeObject(oss);
 
         boost::system::error_code ignored_error;
 
         /* buffers the vector array and writes to the socket stream */
-        boost::asio::write(socket, boost::asio::buffer(buffer), ignored_error);
+        boost::asio::write(socket, buf, ignored_error);
         
     }
     catch (std::exception& e)

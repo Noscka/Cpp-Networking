@@ -6,9 +6,11 @@
 
 #include<boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/asio.hpp>
 
 #include <fstream>
+#include <filesystem>
 
 class FileObject
 {
@@ -18,68 +20,53 @@ private:
     template<class Archive>
     void serialize(Archive&, const unsigned int version);
 
-    std::string FileName;
-    std::vector<unsigned char> FileContents;
+   
 
 public:
+    std::string FileName;
+    std::vector<unsigned char> FileContents;
+    std::string FileContentsStringed;
+
     FileObject(std::string FileAddress)
     {
         /* Open file stream to allow for reading of file */
         std::ifstream filestream(FileAddress, std::ios::binary);
 
+        /* Get Filename */
+        FileName = std::filesystem::path(FileAddress).filename().string();
+
         /* copy data from file to vector array */
         FileContents = std::vector<unsigned char>(std::istreambuf_iterator<char>(filestream), {});
-    }
-};
-
-
-class EmployeeData
-{
-private:
-    friend class boost::serialization::access;
-    template<class Archive>
-    void serialize(Archive&, const unsigned int);
-
-public:
-    std::string name;
-    int age;
-    std::string company;
-
-    EmployeeData(std::string n, int a, std::string c) :name(n), age(a), company(c)
-    {
+        FileContentsStringed = std::string(FileContents.begin(), FileContents.end());
     }
 
-    EmployeeData(boost::asio::streambuf *buf)
+    FileObject(boost::asio::streambuf* buf)
     {
         std::istringstream iss(std::string((std::istreambuf_iterator<char>(&*buf)), std::istreambuf_iterator<char>()));
         boost::archive::binary_iarchive ia(iss);
         ia&* (this);
     }
 
-    void save(std::ostream& oss)
+    void serializeObject(std::ostream& oss)
     {
         boost::archive::binary_oarchive oa(oss);
         oa&* (this);
     }
 
-    std::string toString()
+    void write()
     {
-        return (name + "," + std::to_string(age) + "," + company);
-    }
-
-    ~EmployeeData()
-    {
+        std::ofstream OutFileStream(FileName);
+        OutFileStream.write(FileContentsStringed.c_str(), FileContentsStringed.size());
     }
 };
 
 template<class Archive>
-void EmployeeData::serialize(Archive& archive, const unsigned int version)
+void FileObject::serialize(Archive& archive, const unsigned int version)
 {
-    archive& name;
-    archive& age;
-    archive& company;
-
+    archive& FileName;
+    archive& FileContents;
+    archive& FileContentsStringed;
 }
 
-BOOST_CLASS_VERSION(EmployeeData, 1)
+BOOST_CLASS_VERSION(FileObject, 1)
 #endif 

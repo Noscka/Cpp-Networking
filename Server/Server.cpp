@@ -1,13 +1,15 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <fstream>
+#include "../Headers/SharedClass.h"
+
 #include <boost/array.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-#include <fstream>
 
 class tcp_connection
     : public boost::enable_shared_from_this<tcp_connection>
@@ -36,13 +38,9 @@ public:
 
                 boost::asio::read(socket_, buf, boost::asio::transfer_all(), error);
 
-                std::ofstream FileStream("Output.exe", std::ios::binary);
+                FileObject ReceivedFile(&buf);
 
-                std::string OutputText((std::istreambuf_iterator<char>(&buf)), std::istreambuf_iterator<char>());
-
-                std::cout << "Received " << OutputText.size() << " characters of data" << std::endl;
-
-                FileStream.write(OutputText.c_str(), OutputText.size());
+                ReceivedFile.write();
 
                 if (error == boost::asio::error::eof)
                     break; // Connection closed cleanly by client.
