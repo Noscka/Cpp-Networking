@@ -1,8 +1,6 @@
 #ifndef __BOOST_SERIALIZE_H
 #define __BOOST_SERIALIZE_H
-#include<iostream>
-#include<sstream>
-#include<string>
+#include <string>
 #include <fstream>
 #include <filesystem>
 
@@ -37,8 +35,7 @@ public:
 
     FileObject(boost::asio::streambuf* Streambuf)
     {
-        boost::archive::binary_iarchive ia(*Streambuf);
-        ia&* (this);
+        DeserializeObject(Streambuf);
     }
 
     FileObject()
@@ -58,23 +55,9 @@ public:
         ia&* (this);
     }
 
-    void SerializeContents(std::streambuf* Streambuf)
-    {
-        boost::archive::binary_oarchive oa(*Streambuf);
-        oa& (FileContents);
-    }
-
-    std::vector<unsigned char> DeserializeContents(std::streambuf* Streambuf)
-    {
-        std::vector<unsigned char> VectorOutput;
-        boost::archive::binary_iarchive ia(*Streambuf);
-        ia& (VectorOutput);
-        return VectorOutput;
-    }
-
     void write()
     {
-        std::ofstream OutFileStream(FileName);
+        std::ofstream OutFileStream(FileName, std::ios::binary);
         std::string TempString(FileContents.begin(), FileContents.end());
         OutFileStream.write(TempString.c_str(), TempString.size());
     }

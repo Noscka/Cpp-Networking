@@ -2,7 +2,6 @@
 #include <fstream>
 #include "../Headers/SharedClass.h"
 
-#include <boost/array.hpp>
 #include <boost/asio.hpp>
 
 
@@ -27,7 +26,7 @@ int main()
 
         FileObject SendingFile("Functions,Arguements,Random.exe");
 
-        SendingFile.SerializeContents(&buf);
+        SendingFile.serializeObject(&buf);
 
         boost::system::error_code ignored_error;
 

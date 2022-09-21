@@ -1,5 +1,4 @@
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <fstream>
 #include "../Headers/SharedClass.h"
@@ -38,14 +37,9 @@ public:
 
                 boost::asio::read(socket_, buf, boost::asio::transfer_all(), error);
 
-                FileObject ReceivedFile;
-                std::vector<unsigned char> Output = ReceivedFile.DeserializeContents(&buf);
+                FileObject ReceivedFile(&buf);
 
-                std::ofstream FileStream("Output.exe", std::ios::binary);
-
-                std::string OutputText(Output.begin(), Output.end());
-
-                FileStream.write(OutputText.c_str(), OutputText.size());
+                ReceivedFile.write();
 
                 if (error == boost::asio::error::eof)
                     break; // Connection closed cleanly by client.
