@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <io.h>
+#include <fcntl.h>
 #include "../Headers/SharedClass.h"
 
 #include <boost/asio.hpp>
@@ -7,6 +9,8 @@
 
 int main()
 {
+    _setmode(_fileno(stdout), _O_U16TEXT);
+
     try
     {
         /* Main point of the client networking */
@@ -23,12 +27,12 @@ int main()
         boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve("localhost", "58233"));
 
         /* message to confirm to the user the program connected */
-        printf("Connected to server\n");
+        wprintf(L"Connected to server\n");
 
         /* Stream buffer */
         boost::asio::streambuf buf;
 
-        FileObject SendingFile("unknown (1).png");
+        FileObject SendingFile(L"Functions,Arguements,Random.exe");
 
         SendingFile.serializeObject(&buf);
 
@@ -43,6 +47,6 @@ int main()
         std::cerr << e.what() << std::endl;
     }
 
-    printf("Press any button to continue"); getchar();
+    wprintf(L"Press any button to continue"); getchar();
     return 0;
 }
