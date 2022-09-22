@@ -13,8 +13,7 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 
-class tcp_connection
-    : public boost::enable_shared_from_this<tcp_connection>
+class tcp_connection : public boost::enable_shared_from_this<tcp_connection>
 {
 public:
     typedef boost::shared_ptr<tcp_connection> pointer;
@@ -66,39 +65,13 @@ private:
     boost::asio::ip::tcp::socket socket_;
 };
 
-class tcp_server
+void handle_accept(tcp_connection::pointer new_connection, const boost::system::error_code& error)
 {
-public:
-    tcp_server(boost::asio::io_context& io_context) : io_context_(io_context), acceptor_(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 58233))
+    if (!error)
     {
-        SetConsoleTitle(std::wstring(L"File Server at " + GlobalFunction::ReturnAddress(acceptor_.local_endpoint())).c_str());
-        start_accept();
+        boost::thread* ClientThread = new boost::thread(boost::bind(&tcp_connection::start, new_connection));
     }
-
-private:
-    void start_accept()
-    {
-        tcp_connection::pointer new_connection =
-            tcp_connection::create(io_context_);
-
-        acceptor_.async_accept(new_connection->socket(),
-                               boost::bind(&tcp_server::handle_accept, this, new_connection,
-                               boost::asio::placeholders::error));
-    }
-
-    void handle_accept(tcp_connection::pointer new_connection, const boost::system::error_code& error)
-    {
-        if (!error)
-        {
-            boost::thread* ClientThread = new boost::thread(boost::bind(&tcp_connection::start, new_connection));
-        }
-
-        start_accept();
-    }
-
-    boost::asio::io_context& io_context_;
-    boost::asio::ip::tcp::acceptor acceptor_;
-};
+}
 
 int main()
 {
@@ -107,8 +80,20 @@ int main()
     try
     {
         boost::asio::io_context io_context;
-        tcp_server server(io_context);
-        io_context.run();
+        boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 58233));
+
+        SetConsoleTitle(std::wstring(L"File Server at " + GlobalFunction::ReturnAddress(acceptor.local_endpoint())).c_str());
+
+        while (true)
+        {
+            tcp_connection::pointer new_connection = tcp_connection::create(io_context);
+
+            boost::system::error_code error;
+
+            acceptor.accept(new_connection->socket(), error);
+            handle_accept(new_connection, error);
+            wprintf(L"User Connected\n");
+        }
     }
     catch (std::exception& e)
     {

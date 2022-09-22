@@ -31,16 +31,17 @@ int main()
 
         /* Stream buffer */
         boost::asio::streambuf buf;
+        boost::system::error_code error;
 
         FileObject SendingFile(L"Functions,Arguements,Random.exe");
 
         SendingFile.serializeObject(&buf);
 
-        boost::system::error_code ignored_error;
-
         /* buffers the vector array and writes to the socket stream */
-        boost::asio::write(socket, buf, ignored_error);
+        boost::asio::write(socket, buf, error);
         
+        if (error != boost::asio::error::eof)
+            throw boost::system::system_error(error); // Some other error.
     }
     catch (std::exception& e)
     {
