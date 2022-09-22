@@ -15,8 +15,12 @@ int main()
         /* socket which is connected to the server */
         boost::asio::ip::tcp::socket socket(io_context);
 
-        /* Connects to the function using `resolver` which resolves the address e.g. (Noscka.com -> 123.123.123.123) */
-        boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve("localhost", "daytime"));
+        /* 
+        Connects to the function using `resolver` which resolves the address e.g. (Noscka.com -> 123.123.123.123) 
+        Host - Hostname/Ip address
+        Service - Service(Hostname for ports)/Port number
+        */
+        boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve("localhost", "58233"));
 
         /* message to confirm to the user the program connected */
         printf("Connected to server\n");
@@ -24,7 +28,7 @@ int main()
         /* Stream buffer */
         boost::asio::streambuf buf;
 
-        FileObject SendingFile("Functions,Arguements,Random.exe");
+        FileObject SendingFile("unknown (1).png");
 
         SendingFile.serializeObject(&buf);
 

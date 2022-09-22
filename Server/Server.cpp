@@ -2,6 +2,8 @@
 #include <string>
 #include <fstream>
 #include "../Headers/SharedClass.h"
+#include <format>
+
 
 #include <boost/array.hpp>
 #include <boost/bind/bind.hpp>
@@ -28,6 +30,8 @@ public:
 
     void start()
     {
+        printf(std::format("Client Connected from {}:{}\n", socket_.remote_endpoint().address().to_v4().to_string(), socket_.remote_endpoint().port()).c_str());
+
         try
         {
             for (;;)
@@ -65,8 +69,9 @@ private:
 class tcp_server
 {
 public:
-    tcp_server(boost::asio::io_context& io_context) : io_context_(io_context), acceptor_(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 13))
+    tcp_server(boost::asio::io_context& io_context) : io_context_(io_context), acceptor_(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 58233))
     {
+        SetConsoleTitleA(std::string("File Server at " + acceptor_.local_endpoint().address().to_v4().to_string() + std::to_string(acceptor_.local_endpoint().port())).c_str());
         start_accept();
     }
 
