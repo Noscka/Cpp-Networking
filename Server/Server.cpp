@@ -8,29 +8,23 @@
 
 #include <boost/array.hpp>
 #include <boost/bind/bind.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 
-class tcp_connection : public boost::enable_shared_from_this<tcp_connection>
+class tcp_connection
 {
+private:
+    boost::asio::ip::tcp::socket socket;
+
+    tcp_connection(boost::asio::io_context& io_context) : socket(io_context) {}
 public:
-    typedef boost::shared_ptr<tcp_connection> pointer;
+    static tcp_connection* create(boost::asio::io_context& io_context) {return new tcp_connection(io_context);}
 
-    static pointer create(boost::asio::io_context& io_context)
-    {
-        return pointer(new tcp_connection(io_context));
-    }
-
-    boost::asio::ip::tcp::socket& socket()
-    {
-        return socket_;
-    }
+    boost::asio::ip::tcp::socket& ConSocket() {return socket;}
 
     void start()
     {
-        wprintf(std::format(L"Client Connected from {}\n", GlobalFunction::ReturnAddress(socket_.local_endpoint())).c_str());
+        wprintf(std::format(L"Client Connected from {}\n", GlobalFunction::ReturnAddress(socket.local_endpoint())).c_str());
 
         try
         {
@@ -39,7 +33,7 @@ public:
                 boost::system::error_code error;
                 boost::asio::streambuf buf;
 
-                boost::asio::read(socket_, buf, boost::asio::transfer_all(), error);
+                boost::asio::read(socket, buf, boost::asio::transfer_all(), error);
 
                 FileObject ReceivedFile(&buf);
 
@@ -56,22 +50,7 @@ public:
             std::cerr << e.what() << std::endl;
         }
     }
-
-private:
-    tcp_connection(boost::asio::io_context& io_context) : socket_(io_context)
-    {
-    }
-
-    boost::asio::ip::tcp::socket socket_;
 };
-
-void handle_accept(tcp_connection::pointer new_connection, const boost::system::error_code& error)
-{
-    if (!error)
-    {
-        boost::thread* ClientThread = new boost::thread(boost::bind(&tcp_connection::start, new_connection));
-    }
-}
 
 int main()
 {
@@ -86,12 +65,12 @@ int main()
 
         while (true)
         {
-            tcp_connection::pointer new_connection = tcp_connection::create(io_context);
+            tcp_connection *newConSim = tcp_connection::create(io_context);
 
             boost::system::error_code error;
 
-            acceptor.accept(new_connection->socket(), error);
-            handle_accept(new_connection, error);
+            acceptor.accept(newConSim->ConSocket(), error);
+            if (!error) {boost::thread* ClientThread = new boost::thread(boost::bind(&tcp_connection::start, newConSim));}
             wprintf(L"User Connected\n");
         }
     }
