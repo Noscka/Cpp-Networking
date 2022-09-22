@@ -65,13 +65,16 @@ int main()
 
         while (true)
         {
+            /* tcp_connection object which allows for managed of multiple users */
             tcp_connection *newConSim = tcp_connection::create(io_context);
 
             boost::system::error_code error;
 
+            /* accept incoming connection and assigned it to the tcp_connection object socket */
             acceptor.accept(newConSim->ConSocket(), error);
+
+            /* if no errors, create thread for the new connection */
             if (!error) {boost::thread* ClientThread = new boost::thread(boost::bind(&tcp_connection::start, newConSim));}
-            wprintf(L"User Connected\n");
         }
     }
     catch (std::exception& e)
