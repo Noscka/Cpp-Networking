@@ -28,23 +28,29 @@ public:
 
         try
         {
-            //for (;;)
-            //{
+            for (;;)
+            {
                 boost::asio::streambuf buf;
                 boost::system::error_code error;
 
-                FileObject SendingFile(L"Functions,Arguements,Random.exe");
+                //FileObject SendingFile(L"Functions,Arguements,Random.exe");
+                //
+                //SendingFile.serializeObject(&buf);
 
-                SendingFile.serializeObject(&buf);
+                std::string message;
+                
+                wprintf(L"send message: ");
+                std::getline(std::cin, message);
+                message += "\n";
 
                 boost::asio::write(socket, buf, error);
-                socket.close();
+                //socket.close();
 
-                //if (error == boost::asio::error::eof)
-                //    break; // Connection closed cleanly by client.
-                //else if (error)
-                //    throw boost::system::system_error(error); // Some other error.
-            //}
+                if (error == boost::asio::error::eof)
+                    break; // Connection closed cleanly by client.
+                else if (error)
+                    throw boost::system::system_error(error); // Some other error.
+            }
         }
         catch (std::exception& e)
         {

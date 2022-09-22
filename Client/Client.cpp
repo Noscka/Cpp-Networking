@@ -5,7 +5,7 @@
 #include "../Headers/SharedClass.h"
 
 #include <boost/asio.hpp>
-
+#include <boost/array.hpp>
 
 int main()
 {
@@ -29,13 +29,17 @@ int main()
         for (;;)
         {
             boost::asio::streambuf buf;
+            boost::asio::streambuf::mutable_buffers_type mutableBuffer = buf.prepare(2);
             boost::system::error_code error;
 
-            boost::asio::read(socket, buf, boost::asio::transfer_all(), error);
+            size_t len = socket.read_some(mutableBuffer, error);
 
-            FileObject ReceivedFile(&buf);
+            std::wcout << std::wstring((std::istreambuf_iterator<char>(&buf)), std::istreambuf_iterator<char>()) << std::endl;
+            std::wcout << std::wstring(mutableBuffer.begin(), mutableBuffer.end()) << std::endl;
 
-            ReceivedFile.write();
+            //FileObject ReceivedFile(&buf);
+            //
+            //ReceivedFile.write();
 
             if (error == boost::asio::error::eof)
                 break; // Connection closed cleanly by client.
