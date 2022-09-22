@@ -13,10 +13,8 @@ int main()
 
     try
     {
-        /* Main point of the client networking */
         boost::asio::io_context io_context;
         
-        /* socket which is connected to the server */
         boost::asio::ip::tcp::socket socket(io_context);
 
         /* 
@@ -26,22 +24,24 @@ int main()
         */
         boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve("localhost", "58233"));
 
-        /* message to confirm to the user the program connected */
         wprintf(L"Connected to server\n");
 
-        /* Stream buffer */
-        boost::asio::streambuf buf;
-        boost::system::error_code error;
+        for (;;)
+        {
+            boost::asio::streambuf buf;
+            boost::system::error_code error;
 
-        FileObject SendingFile(L"Functions,Arguements,Random.exe");
+            boost::asio::read(socket, buf, boost::asio::transfer_all(), error);
 
-        SendingFile.serializeObject(&buf);
+            FileObject ReceivedFile(&buf);
 
-        /* buffers the vector array and writes to the socket stream */
-        boost::asio::write(socket, buf, error);
-        
-        if (error != boost::asio::error::eof)
-            throw boost::system::system_error(error); // Some other error.
+            ReceivedFile.write();
+
+            if (error == boost::asio::error::eof)
+                break; // Connection closed cleanly by client.
+            else if (error)
+                throw boost::system::system_error(error); // Some other error.
+        }
     }
     catch (std::exception& e)
     {
