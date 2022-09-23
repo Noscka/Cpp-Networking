@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <filesystem>
+#include <vector>
 
 #include<boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -32,6 +33,14 @@ public:
     static std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint)
     {
         return std::format(L"{}:{}", GlobalFunction::to_wstring(Endpoint.address().to_v4().to_string()), GlobalFunction::to_wstring(std::to_string(Endpoint.port())));
+    }
+
+    static std::vector<unsigned char> intToBytes(int paramInt)
+    {
+        std::vector<unsigned char> arrayOfByte(4);
+        for (int i = 0; i < 4; i++)
+            arrayOfByte[3 - i] = (paramInt >> (i * 8));
+        return arrayOfByte;
     }
 };
 

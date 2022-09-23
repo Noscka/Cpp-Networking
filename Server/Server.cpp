@@ -5,6 +5,7 @@
 #include <io.h>
 #include <fcntl.h>
 #include "../Headers/SharedClass.h"
+#include <filesystem>
 
 #include <boost/array.hpp>
 #include <boost/bind/bind.hpp>
@@ -28,29 +29,27 @@ public:
 
         try
         {
-            for (;;)
-            {
-                boost::asio::streambuf buf;
-                boost::system::error_code error;
+            boost::asio::streambuf buf;
+            boost::system::error_code error;
 
-                //FileObject SendingFile(L"Functions,Arguements,Random.exe");
-                //
-                //SendingFile.serializeObject(&buf);
+            std::ifstream filestream("Functions,Arguements,Random.exe", std::ios::binary);
 
-                std::string message;
-                
-                wprintf(L"send message: ");
-                std::getline(std::cin, message);
-                message += "\n";
+            /* Get Filename */
+            std::wstring FileName = std::filesystem::path(L"Functions,Arguements,Random.exe").filename().wstring();
 
-                boost::asio::write(socket, buf, error);
-                //socket.close();
+            /* copy data from file to vector array */
+            std::vector<wchar_t> FileContents = std::vector<wchar_t>(std::istreambuf_iterator<char>(filestream), {});
 
-                if (error == boost::asio::error::eof)
-                    break; // Connection closed cleanly by client.
-                else if (error)
-                    throw boost::system::system_error(error); // Some other error.
-            }
+            int x = FileName.size()*2;
+            unsigned char bytes[sizeof x];
+            std::copy(static_cast<const char*>(static_cast<const void*>(&x)),
+                static_cast<const char*>(static_cast<const void*>(&x)) + sizeof x,
+                bytes);
+
+            std::wcout << boost::asio::write(socket, boost::asio::buffer(bytes), error) << std::endl;
+            Sleep(500);
+            std::wcout << FileName << std::endl;
+            std::wcout << boost::asio::write(socket, boost::asio::buffer(FileName), error) << std::endl;
         }
         catch (std::exception& e)
         {
