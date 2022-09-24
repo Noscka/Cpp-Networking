@@ -43,9 +43,7 @@ int main()
             SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), output.begin(), output.end());
         }
         
-         
-        unsigned char byte = SendingRawByteBuffer[0];
-        
+
         unsigned char bytes[4]{};
         
         for (int i = 0; i < 4; i++)
@@ -56,16 +54,11 @@ int main()
         int Metadata_lenght;
         assert(sizeof Metadata_lenght == sizeof bytes);
         std::memcpy(&Metadata_lenght, bytes, sizeof bytes);
-        
-        unsigned char* innit = new unsigned char[Metadata_lenght];
 
-        for (int i = 4; i < Metadata_lenght; i++)
-        {
-            (innit[i]) = SendingRawByteBuffer[i];
-        }
+        std::wstring output(&SendingRawByteBuffer[4], &SendingRawByteBuffer[4] + Metadata_lenght);
 
         std::wcout << Metadata_lenght << std::endl;
-        std::wcout << std::wstring(reinterpret_cast<wchar_t*>(innit)) << std::endl;
+        std::wcout << L"|" << output << L"|" << std::endl;
         std::wcout << std::wstring(SendingRawByteBuffer.begin(), SendingRawByteBuffer.end()) << std::endl;
     }
     catch (std::exception& e)
