@@ -11,7 +11,14 @@
 #include <boost/asio.hpp>
 class GlobalFunction
 {
+private:
+    inline static const std::string Delimiter = "\n\r\n\r";
 public:
+    static std::string GetDelimiter()
+    {
+        return Delimiter;
+    }
+
     static std::wstring to_wstring(const std::string& str)
     {
         if (str.empty()) return std::wstring();

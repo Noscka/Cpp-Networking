@@ -26,14 +26,26 @@ int main()
 
         wprintf(L"Connected to server\n");
 
+
+        //for (;;)
+        //{
+        //    boost::system::error_code error;
+        //    boost::array<char, 10> buf;
+        //
+        //    size_t len = socket.read_some( boost::asio::buffer(buf), error);
+        //
+        //    output += GlobalFunction::to_wstring(std::string(buf.data(), len));
+        //}
+        //std::wcout << output << std::endl;
+
         boost::system::error_code error;
-        boost::array<char, 128> buf;
-        //boost::asio::streambuf buffer;
-        std::string output;
+        boost::asio::streambuf streamBuffer;
+        size_t bytes_transferred = boost::asio::read_until(socket, streamBuffer, std::string("\n\r\n\r"), error);
+        std::wstring output = GlobalFunction::to_wstring(std::string{
+                                                        boost::asio::buffers_begin(streamBuffer.data()),
+                                                        boost::asio::buffers_begin(streamBuffer.data()) + bytes_transferred - GlobalFunction::GetDelimiter().size()});
 
-        size_t len = socket.read_some(boost::asio::buffer(buf), error);
-
-        std::wcout << GlobalFunction::to_wstring(std::string(buf.data(), len)) << std::endl;
+        std::wcout << output << std::endl;
 
         //unsigned char bytes[4];
 

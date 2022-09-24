@@ -37,12 +37,15 @@ public:
             /* Get Filename */
             std::wstring FileName = std::filesystem::path(L"Functions,Arguements,Random.exe").filename().wstring();
 
-            std::string SimpleString = "Hello\n";
 
             /* copy data from file to vector array */
             std::vector<wchar_t> FileContents = std::vector<wchar_t>(std::istreambuf_iterator<char>(filestream), {});
 
-            socket.write_some(boost::asio::buffer(SimpleString), error);
+            std::wstring SimpleString = L"Hellooijsgduigesuhijgeshiuoghesiouhgesiuhgesiugnesiuges";
+
+            boost::asio::write(socket, boost::asio::buffer("Hellooijsgduigesuhijgeshiuoghesiouhgesiuhgesiugnesiuges" + GlobalFunction::GetDelimiter()), error);
+
+            wprintf(L"sent tings");
 
             //int x = FileName.size()*2;
             //unsigned char bytes[sizeof x];
