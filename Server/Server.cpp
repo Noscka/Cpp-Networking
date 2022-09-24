@@ -31,28 +31,34 @@ public:
         {
             boost::system::error_code error;
 
-            std::ifstream filestream("Functions,Arguements,Random.exe", std::ios::binary);
+            std::ifstream filestream("SendingTing.exe", std::ios::binary);
 
             /* Get Filename */
-            std::wstring FileName = std::filesystem::path(L"Functions,Arguements,Random.exe").filename().wstring();
+            std::wstring FileName = std::filesystem::path(L"SendingTing.exe").filename().wstring();
 
             /* copy data from file to vector array */
             std::vector<unsigned char> FileContents = std::vector<unsigned char>(std::istreambuf_iterator<char>(filestream), {});
 
-            std::wstring SimpleString = L"Hello Bruv ting";
 
-            int MetaData_section_size = SimpleString.size();
+            int MetaData_section_size = FileName.size();
             unsigned char MetaData_section_size_Bytes[sizeof MetaData_section_size];
             std::copy(static_cast<const char*>(static_cast<const void*>(&MetaData_section_size)),
-                static_cast<const char*>(static_cast<const void*>(&MetaData_section_size)) + sizeof MetaData_section_size,
-                MetaData_section_size_Bytes);
+                      static_cast<const char*>(static_cast<const void*>(&MetaData_section_size)) + sizeof MetaData_section_size,
+                      MetaData_section_size_Bytes);
 
-            std::wstring RandomData = L"RandomDataStart oogaBooganijlgdsijhbgadbhiud RandomDataEnd";
+            int Content_section_size = FileContents.size();
+            unsigned char Content_section_size_Bytes[sizeof Content_section_size];
+            std::copy(static_cast<const char*>(static_cast<const void*>(&Content_section_size)),
+                      static_cast<const char*>(static_cast<const void*>(&Content_section_size)) + sizeof Content_section_size,
+                      Content_section_size_Bytes);
 
+
+            /* Structer of the vector |(int)metadata size|(metadata object)metadata|(int)content size|(vector<unsigned char>)content| */
             std::vector<unsigned char> SendingRawByteBuffer;
             SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), MetaData_section_size_Bytes, MetaData_section_size_Bytes + sizeof MetaData_section_size);
-            SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), SimpleString.begin(), SimpleString.end());
-            SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), RandomData.begin(), RandomData.end());
+            SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), FileName.begin(), FileName.end());
+            SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), Content_section_size_Bytes, Content_section_size_Bytes + sizeof Content_section_size_Bytes);
+            SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), FileContents.begin(), FileContents.end());
             {
                 std::string DelimiterTemp = GlobalFunction::to_string(GlobalFunction::GetDelimiter());
                 SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), DelimiterTemp.begin(), DelimiterTemp.end());
@@ -61,9 +67,13 @@ public:
 
             std::wcout << L"Bytes sent: " << boost::asio::write(socket, boost::asio::buffer(SendingRawByteBuffer), error) << std::endl;
 
-            std::wcout << std::format(L"|{}|{}|y|data|delimiter", MetaData_section_size, SimpleString) << std::endl;
+            std::wstring contentDisplay;
+            if(FileContents.size() > 30)
+                contentDisplay = std::to_wstring(FileContents.size());
+            else
+                contentDisplay = std::wstring(FileContents.begin(), FileContents.end());
 
-            wprintf(L"sent tings");
+            std::wcout << std::format(L"Sent |{}|{}|{}|{}|{}|", MetaData_section_size, FileName, Content_section_size, contentDisplay, GlobalFunction::GetRawDelimiter()) << std::endl;
         }
         catch (std::exception& e)
         {

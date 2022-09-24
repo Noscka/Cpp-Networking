@@ -4,19 +4,31 @@
 #include <fstream>
 #include <filesystem>
 #include <vector>
+#include <algorithm>
 
-#include<boost/archive/binary_iarchive.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/asio.hpp>
 class GlobalFunction
 {
 private:
-    inline static const std::wstring Delimiter = L"\n\r\n\r\n\n";
+    inline static const std::wstring Delimiter = L"\n\r\n\r\n\013\x4\n";
 public:
     static std::wstring GetDelimiter()
     {
         return Delimiter;
+    }
+
+    static std::wstring GetRawDelimiter()
+    {
+        std::wstring returnString = Delimiter;
+        boost::replace_all(returnString, L"\n", L"\\n");
+        boost::replace_all(returnString, L"\r", L"\\r");
+        boost::replace_all(returnString, L"\013", L"\\013");
+        boost::replace_all(returnString, L"\x4", L"\\x4");
+        return returnString;
     }
 
     static std::wstring to_wstring(const std::string& str)
@@ -61,7 +73,7 @@ private:
     void serialize(Archive&, const unsigned int version);
 
 public:
-    std::wstring FileName;
+    std::wstring Filename;
     std::vector<wchar_t> FileContents;
 
     FileObject(std::wstring FileAddress)
@@ -70,7 +82,7 @@ public:
         std::ifstream filestream(FileAddress, std::ios::binary);
 
         /* Get Filename */
-        FileName = std::filesystem::path(FileAddress).filename().wstring();
+        Filename = std::filesystem::path(FileAddress).filename().wstring();
 
         /* copy data from file to vector array */
         FileContents = std::vector<wchar_t>(std::istreambuf_iterator<char>(filestream), {});
@@ -100,7 +112,7 @@ public:
 
     void write()
     {
-        std::ofstream OutFileStream(FileName, std::ios::binary);
+        std::ofstream OutFileStream(Filename, std::ios::binary);
         std::string TempString(FileContents.begin(), FileContents.end());
         OutFileStream.write(TempString.c_str(), TempString.size());
     }
@@ -109,7 +121,7 @@ public:
 template<class Archive>
 void FileObject::serialize(Archive& archive, const unsigned int version)
 {
-    archive& FileName;
+    archive& Filename;
     archive& FileContents;
 }
 
