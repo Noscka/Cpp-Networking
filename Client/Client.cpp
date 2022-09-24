@@ -51,52 +51,9 @@ int main()
             }
         }
 
-        /* Getting Metadata Lenght */
-        int Metadata_length;
-        {
-            unsigned char Metadata_lenght_bytes[4]{};
-            for (int i = 0; i < 4; i++)
-            {
-                Metadata_lenght_bytes[i] = ReceivedRawData[i];
-            }
-
-            assert(sizeof Metadata_length == sizeof Metadata_lenght_bytes);
-            std::memcpy(&Metadata_length, Metadata_lenght_bytes, sizeof Metadata_lenght_bytes);
-        }
-        /* Getting Metadata Lenght */
-        
-        /* Getting Metadata */
-        std::wstring Filename(&ReceivedRawData[4], &ReceivedRawData[4] + Metadata_length);
-        /* Getting Metadata */
-
-        /* Getting Content Lenght */
-        int content_length;
-        int offsetRead = 4 + (Metadata_length);
-        {
-            unsigned char content_lenght_bytes[4]{};
-            for (int i = offsetRead; i < 4 + offsetRead; i++)
-            {
-                content_lenght_bytes[i - (offsetRead)] = ReceivedRawData[i];
-            }
-            assert(sizeof content_length == sizeof content_lenght_bytes);
-            std::memcpy(&content_length, content_lenght_bytes, sizeof content_lenght_bytes);
-        }
-        /* Getting Content Lenght */
-
-        /* Getting content */
-        std::ofstream OutFileStream(Filename, std::ios::binary);
-        std::string TempString(&ReceivedRawData[4 + offsetRead], &ReceivedRawData[4 + offsetRead] + content_length);
-        OutFileStream.write(TempString.c_str(), TempString.size());
-        /* Getting content */
-
-        std::wstring contentDisplay;
-        if (TempString.size() > 30)
-            contentDisplay = std::to_wstring(TempString.size());
-        else
-            contentDisplay = GlobalFunction::to_wstring(TempString);
-
-        /* Output */
-        std::wcout << std::format(L"Received |{}|{}|{}|{}|", Metadata_length, Filename, content_length, contentDisplay) << std::endl;
+        std::wstring InfoString;
+        GlobalFunction::DesectionFile(ReceivedRawData,&InfoString,true);
+        wprintf(InfoString.c_str());
     }
     catch (std::exception& e)
     {
