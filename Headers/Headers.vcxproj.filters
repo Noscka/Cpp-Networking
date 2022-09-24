@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SharedClass.h">
+    <ClInclude Include="SharedClass.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

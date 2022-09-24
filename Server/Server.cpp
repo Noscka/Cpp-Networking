@@ -1,10 +1,10 @@
+#include <SharedClass.hpp>
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <format>
 #include <io.h>
 #include <fcntl.h>
-#include "../Headers/SharedClass.h"
 #include <filesystem>
 
 #include <boost/array.hpp>
@@ -33,7 +33,7 @@ public:
 
             std::wstring InfoString;
 
-            std::wcout << L"Bytes sent: " << boost::asio::write(socket, boost::asio::buffer(GlobalFunction::SectionFile(L"Footage.mkv", &InfoString, true)), error) << std::endl;
+            std::wcout << L"Bytes sent: " << boost::asio::write(socket, boost::asio::buffer(GlobalFunction::SectionFile(L"Simple.txt", &InfoString, true)), error) << std::endl;
             wprintf(InfoString.c_str());
         }
         catch (std::exception& e)

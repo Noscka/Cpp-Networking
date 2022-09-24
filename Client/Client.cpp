@@ -1,8 +1,8 @@
+#include <SharedClass.hpp>
 #include <iostream>
 #include <fstream>
 #include <io.h>
 #include <fcntl.h>
-#include "../Headers/SharedClass.h"
 
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
@@ -40,11 +40,13 @@ int main()
 
         std::vector<unsigned char> ReceivedRawData;
 
+        std::wstring size;
         {
             boost::system::error_code error;
             boost::asio::streambuf streamBuffer;
 
             size_t bytes_transferred = boost::asio::read_until(socket, streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
+            size = std::to_wstring(bytes_transferred);
             {
                 std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
                 ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
@@ -54,6 +56,7 @@ int main()
         std::wstring InfoString;
         GlobalFunction::DesectionFile(ReceivedRawData,&InfoString,true);
         wprintf(InfoString.c_str());
+        wprintf(size.c_str());
     }
     catch (std::exception& e)
     {

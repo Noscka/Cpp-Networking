@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SharedClass.h" />
+    <ClInclude Include="SharedClass.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SharedClass.cpp" />
