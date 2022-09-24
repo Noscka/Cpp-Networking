@@ -37,19 +37,27 @@ public:
             /* Get Filename */
             std::wstring FileName = std::filesystem::path(L"Functions,Arguements,Random.exe").filename().wstring();
 
+            std::string SimpleString = "Hello\n";
+
             /* copy data from file to vector array */
             std::vector<wchar_t> FileContents = std::vector<wchar_t>(std::istreambuf_iterator<char>(filestream), {});
 
-            int x = FileName.size()*2;
-            unsigned char bytes[sizeof x];
-            std::copy(static_cast<const char*>(static_cast<const void*>(&x)),
-                static_cast<const char*>(static_cast<const void*>(&x)) + sizeof x,
-                bytes);
+            socket.write_some(boost::asio::buffer(SimpleString), error);
 
-            std::wcout << boost::asio::write(socket, boost::asio::buffer(bytes), error) << std::endl;
-            Sleep(500);
-            std::wcout << FileName << std::endl;
-            std::wcout << boost::asio::write(socket, boost::asio::buffer(FileName), error) << std::endl;
+            //int x = FileName.size()*2;
+            //unsigned char bytes[sizeof x];
+            //std::copy(static_cast<const char*>(static_cast<const void*>(&x)),
+            //    static_cast<const char*>(static_cast<const void*>(&x)) + sizeof x,
+            //    bytes);
+            //
+            //std::vector<unsigned char> SendingRawByteBuffer;
+            //SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), bytes, bytes + sizeof x);
+            //SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), SimpleString.begin(), SimpleString.end());
+            //
+            //std::wcout << boost::asio::write(socket, boost::asio::buffer(SendingRawByteBuffer), error) << std::endl;
+            //Sleep(500);
+            //std::wcout << FileName << std::endl;
+            //std::wcout << boost::asio::write(socket, boost::asio::buffer(FileName), error) << std::endl;
         }
         catch (std::exception& e)
         {

@@ -27,24 +27,34 @@ int main()
         wprintf(L"Connected to server\n");
 
         boost::system::error_code error;
-        unsigned char bytes[4];
+        boost::array<char, 128> buf;
+        //boost::asio::streambuf buffer;
+        std::string output;
+
+        size_t len = socket.read_some(boost::asio::buffer(buf), error);
+
+        std::wcout << GlobalFunction::to_wstring(std::string(buf.data(), len)) << std::endl;
+
+        //unsigned char bytes[4];
 
         /* Get string lenght */
-        std::wcout << boost::asio::read(socket, boost::asio::buffer(bytes), boost::asio::transfer_exactly(4), error) << std::endl;
-
-        int StringLenght;
-        assert(sizeof StringLenght == sizeof bytes);
-        std::memcpy(&StringLenght, bytes, sizeof bytes);
-
-        std::wcout << StringLenght << std::endl;
-
-        Sleep(1000);
-
-        std::wstring FileName;
-
-        std::wcout << boost::asio::read(socket, boost::asio::buffer(FileName), boost::asio::transfer_exactly(StringLenght), error) << std::endl;
-
-        std::wcout << FileName << std::endl;
+        //std::wcout << boost::asio::read(socket, boost::asio::buffer(bytes), boost::asio::transfer_exactly(4), error) << std::endl;
+        //
+        //std::wcout << GlobalFunction::to_wstring(error.message()) << std::endl;
+        //int StringLenght;
+        //assert(sizeof StringLenght == sizeof bytes);
+        //std::memcpy(&StringLenght, bytes, sizeof bytes);
+        //
+        //std::wcout << StringLenght << std::endl;
+        //
+        //Sleep(1000);
+        //
+        //std::wstring FileName;
+        //
+        //std::wcout << boost::asio::read(socket, boost::asio::buffer(FileName), boost::asio::transfer_exactly(StringLenght), error) << std::endl;
+        //
+        //std::wcout << FileName << std::endl;
+        //std::wcout << GlobalFunction::to_wstring(error.message()) << std::endl;
     }
     catch (std::exception& e)
     {
