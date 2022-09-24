@@ -38,27 +38,31 @@ int main()
 
         wprintf(L"Connected to server\n");
 
-        boost::system::error_code error;
-        boost::asio::streambuf streamBuffer;
         std::vector<unsigned char> ReceivedRawData;
 
-        size_t bytes_transferred = boost::asio::read_until(socket, streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
         {
-            std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
-            ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
+            boost::system::error_code error;
+            boost::asio::streambuf streamBuffer;
+
+            size_t bytes_transferred = boost::asio::read_until(socket, streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
+            {
+                std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
+                ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
+            }
         }
 
         /* Getting Metadata Lenght */
         int Metadata_length;
-
-        unsigned char Metadata_lenght_bytes[4]{};
-        for (int i = 0; i < 4; i++)
         {
-            Metadata_lenght_bytes[i] = ReceivedRawData[i];
+            unsigned char Metadata_lenght_bytes[4]{};
+            for (int i = 0; i < 4; i++)
+            {
+                Metadata_lenght_bytes[i] = ReceivedRawData[i];
+            }
+
+            assert(sizeof Metadata_length == sizeof Metadata_lenght_bytes);
+            std::memcpy(&Metadata_length, Metadata_lenght_bytes, sizeof Metadata_lenght_bytes);
         }
-        
-        assert(sizeof Metadata_length == sizeof Metadata_lenght_bytes);
-        std::memcpy(&Metadata_length, Metadata_lenght_bytes, sizeof Metadata_lenght_bytes);
         /* Getting Metadata Lenght */
         
         /* Getting Metadata */
@@ -67,15 +71,16 @@ int main()
 
         /* Getting Content Lenght */
         int content_length;
-
-        unsigned char content_lenght_bytes[4]{};
         int offsetRead = 4 + (Metadata_length);
-        for (int i = offsetRead; i < 4 + offsetRead; i++)
         {
-            content_lenght_bytes[i - (offsetRead)] = ReceivedRawData[i];
+            unsigned char content_lenght_bytes[4]{};
+            for (int i = offsetRead; i < 4 + offsetRead; i++)
+            {
+                content_lenght_bytes[i - (offsetRead)] = ReceivedRawData[i];
+            }
+            assert(sizeof content_length == sizeof content_lenght_bytes);
+            std::memcpy(&content_length, content_lenght_bytes, sizeof content_lenght_bytes);
         }
-        assert(sizeof content_length == sizeof content_lenght_bytes);
-        std::memcpy(&content_length, content_lenght_bytes, sizeof content_lenght_bytes);
         /* Getting Content Lenght */
 
         /* Getting content */
