@@ -121,7 +121,7 @@ public:
             else
                 contentDisplay = std::wstring(FileContents.begin(), FileContents.end());
 
-            *InfoString = std::format(L"Sectioned |{}|{}|{}|{}|{}|\n", MetaData_section_size, Filename, Content_section_size, contentDisplay, GlobalFunction::GetRawDelimiter());
+            *InfoString = std::format(L"Sectioned: |{}|{}|{}|{}|{}|\n", MetaData_section_size, Filename, Content_section_size, contentDisplay, GlobalFunction::GetRawDelimiter());
         }
 
         return SendingRawByteBuffer;
@@ -175,7 +175,7 @@ public:
                 contentDisplay = GlobalFunction::to_wstring(TempString);
 
             /* Output */
-            *InfoString = std::format(L"Desectioned |{}|{}|{}|{}|\n", Metadata_length, Filename, content_length, contentDisplay);
+            *InfoString = std::format(L"Desectioned: |{}|{}|{}|{}|\n", Metadata_length, Filename, content_length, contentDisplay);
         }
     }
 };

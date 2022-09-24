@@ -33,7 +33,7 @@ public:
 
             std::wstring InfoString;
 
-            std::wcout << L"Bytes sent: " << boost::asio::write(socket, boost::asio::buffer(GlobalFunction::SectionFile(L"SendingTing.exe", &InfoString, true)), error) << std::endl;
+            std::wcout << L"Bytes sent: " << boost::asio::write(socket, boost::asio::buffer(GlobalFunction::SectionFile(L"Footage.mkv", &InfoString, true)), error) << std::endl;
             wprintf(InfoString.c_str());
         }
         catch (std::exception& e)
