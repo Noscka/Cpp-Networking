@@ -7,9 +7,15 @@
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 
-std::wstring streamBufferToWstring(boost::asio::streambuf* streamBuffer, size_t bytes_transferred)
+/// <summary>
+/// convert stream buffer to wide string and removing delimiter
+/// </summary>
+/// <param name="streamBuffer"> - stream buffer pointer needed </param>
+/// <param name="bytes_received"> - amount of bytes received</param>
+/// <returns>wide string</returns>
+std::wstring streamBufferToWstring(boost::asio::streambuf* streamBuffer, size_t bytes_received)
 {
-    return std::wstring{boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_transferred - GlobalFunction::GetDelimiter().size()};
+    return std::wstring{boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_received - GlobalFunction::GetDelimiter().size()};
 }
 
 
@@ -41,7 +47,7 @@ int main()
             std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
             ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
         }
-        
+
         /* Getting Metadata Lenght */
         int Metadata_length;
 
