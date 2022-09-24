@@ -12,9 +12,9 @@
 class GlobalFunction
 {
 private:
-    inline static const std::string Delimiter = "\n\r\n\r";
+    inline static const std::wstring Delimiter = L"\n\r\n\r\n\n";
 public:
-    static std::string GetDelimiter()
+    static std::wstring GetDelimiter()
     {
         return Delimiter;
     }

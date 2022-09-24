@@ -29,7 +29,6 @@ public:
 
         try
         {
-            boost::asio::streambuf buf;
             boost::system::error_code error;
 
             std::ifstream filestream("Functions,Arguements,Random.exe", std::ios::binary);
@@ -37,30 +36,34 @@ public:
             /* Get Filename */
             std::wstring FileName = std::filesystem::path(L"Functions,Arguements,Random.exe").filename().wstring();
 
-
             /* copy data from file to vector array */
-            std::vector<wchar_t> FileContents = std::vector<wchar_t>(std::istreambuf_iterator<char>(filestream), {});
+            std::vector<unsigned char> FileContents = std::vector<unsigned char>(std::istreambuf_iterator<char>(filestream), {});
 
-            std::wstring SimpleString = L"Hellooijsgduigesuhijgeshiuoghesiouhgesiuhgesiugnesiuges";
+            std::wstring SimpleString = L"Hello Bruv ting";
 
-            boost::asio::write(socket, boost::asio::buffer("Hellooijsgduigesuhijgeshiuoghesiouhgesiuhgesiugnesiuges" + GlobalFunction::GetDelimiter()), error);
+            int MetaData_section_size = SimpleString.size();
+            unsigned char MetaData_section_size_Bytes[sizeof MetaData_section_size];
+            std::copy(static_cast<const char*>(static_cast<const void*>(&MetaData_section_size)),
+                static_cast<const char*>(static_cast<const void*>(&MetaData_section_size)) + sizeof MetaData_section_size,
+                MetaData_section_size_Bytes);
+
+            std::wstring RandomData = L"RandomDataStart oogaBooganijlgdsijhbgadbhiud RandomDataEnd";
+
+            std::vector<unsigned char> SendingRawByteBuffer;
+            SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), MetaData_section_size_Bytes, MetaData_section_size_Bytes + sizeof MetaData_section_size);
+            SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), SimpleString.begin(), SimpleString.end());
+            SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), RandomData.begin(), RandomData.end());
+            {
+                std::string DelimiterTemp = GlobalFunction::to_string(GlobalFunction::GetDelimiter());
+                SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), DelimiterTemp.begin(), DelimiterTemp.end());
+            }
+
+
+            std::wcout << L"Bytes sent: " << boost::asio::write(socket, boost::asio::buffer(SendingRawByteBuffer), error) << std::endl;
+
+            std::wcout << std::format(L"|{}|{}|y|data|delimiter", MetaData_section_size, SimpleString) << std::endl;
 
             wprintf(L"sent tings");
-
-            //int x = FileName.size()*2;
-            //unsigned char bytes[sizeof x];
-            //std::copy(static_cast<const char*>(static_cast<const void*>(&x)),
-            //    static_cast<const char*>(static_cast<const void*>(&x)) + sizeof x,
-            //    bytes);
-            //
-            //std::vector<unsigned char> SendingRawByteBuffer;
-            //SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), bytes, bytes + sizeof x);
-            //SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), SimpleString.begin(), SimpleString.end());
-            //
-            //std::wcout << boost::asio::write(socket, boost::asio::buffer(SendingRawByteBuffer), error) << std::endl;
-            //Sleep(500);
-            //std::wcout << FileName << std::endl;
-            //std::wcout << boost::asio::write(socket, boost::asio::buffer(FileName), error) << std::endl;
         }
         catch (std::exception& e)
         {
