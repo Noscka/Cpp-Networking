@@ -7,8 +7,6 @@
 #include <fcntl.h>
 #include <filesystem>
 
-#include <boost/array.hpp>
-#include <boost/bind/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 
@@ -33,7 +31,7 @@ public:
 
             std::wstring InfoString;
 
-            std::wcout << L"Bytes sent: " << boost::asio::write(socket, boost::asio::buffer(GlobalFunction::SectionFile(L"Simple.txt", &InfoString, true)), error) << std::endl;
+            std::wcout << L"Bytes sent: " << GlobalFunction::SendFile(&socket, L"RandomData.txt", &InfoString, true) << std::endl;
             wprintf(InfoString.c_str());
         }
         catch (std::exception& e)

@@ -9,6 +9,8 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
+#include <boost/array.hpp>
+#include <boost/bind/bind.hpp>
 
 class GlobalFunction
 {
@@ -26,6 +28,10 @@ public:
     static std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint);
 
     static std::vector<unsigned char> intToBytes(int paramInt);
+
+    static size_t SendFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo);
+
+    static void ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, bool displayInfo);
 
     static std::vector<unsigned char> SectionFile(std::wstring FileAddress, std::wstring *InfoString, bool displayInfo);
 

@@ -5,19 +5,6 @@
 #include <fcntl.h>
 
 #include <boost/asio.hpp>
-#include <boost/array.hpp>
-
-/// <summary>
-/// convert stream buffer to wide string and removing delimiter
-/// </summary>
-/// <param name="streamBuffer"> - stream buffer pointer needed </param>
-/// <param name="bytes_received"> - amount of bytes received</param>
-/// <returns>wide string</returns>
-std::wstring streamBufferToWstring(boost::asio::streambuf* streamBuffer, size_t bytes_received)
-{
-    return std::wstring{boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_received - GlobalFunction::GetDelimiter().size()};
-}
-
 
 int main()
 {
@@ -38,21 +25,8 @@ int main()
 
         wprintf(L"Connected to server\n");
 
-        std::vector<unsigned char> ReceivedRawData;
-
-        {
-            boost::system::error_code error;
-            boost::asio::streambuf streamBuffer;
-
-            size_t bytes_transferred = boost::asio::read_until(socket, streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
-            {
-                std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
-                ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
-            }
-        }
-
         std::wstring InfoString;
-        GlobalFunction::DesectionFile(ReceivedRawData,&InfoString,true);
+        GlobalFunction::ReceiveFile(&socket, &InfoString, true);
         wprintf(InfoString.c_str());
     }
     catch (std::exception& e)
