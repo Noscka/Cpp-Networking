@@ -50,7 +50,7 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
 {
     boost::system::error_code error;
 
-    size_t BytesSent = boost::asio::write(socket, boost::asio::buffer(GlobalFunction::SectionFile(FileAddress, InfoString, true)), error);
+    size_t BytesSent = boost::asio::write((*socket), boost::asio::buffer(GlobalFunction::SectionFile(FileAddress, InfoString, true)), error);
 
     //boost::array<wchar_t, 20> OutputArray;
     //size_t BytesReceived = socket->read_some(boost::asio::buffer(OutputArray));
@@ -74,7 +74,6 @@ std::wstring streamBufferToWstring(boost::asio::streambuf* streamBuffer, size_t 
     return std::wstring{ boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_received - GlobalFunction::GetDelimiter().size() };
 }
 
-
 void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, bool displayInfo)
 {
     std::vector<unsigned char> ReceivedRawData;
@@ -83,7 +82,7 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
         boost::system::error_code error;
         boost::asio::streambuf streamBuffer;
 
-        size_t bytes_transferred = boost::asio::read_until(socket, streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
+        size_t bytes_transferred = boost::asio::read_until((*socket), streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
         {
             std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
             ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
