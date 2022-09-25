@@ -152,6 +152,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DataCreater.cpp" />
+    <ClCompile Include="LoadingScreen\LoadingScreen.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LoadingScreen\LoadingScreen.h" />
+    <ClInclude Include="LoadingScreen\Resource\resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="LoadingScreen\Resource\Console Loading Screen.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
