@@ -35,6 +35,6 @@ public:
 
     static std::vector<unsigned char> SectionFile(std::wstring FileAddress, std::wstring *InfoString, bool displayInfo);
 
-    static void DesectionFile(std::vector<unsigned char> ReceivedRawData, std::wstring* InfoString, bool displayInfo);
+    static int DesectionFile(std::vector<unsigned char> ReceivedRawData, std::wstring* filename, std::wstring* InfoString, bool displayInfo);
 };
 #endif 

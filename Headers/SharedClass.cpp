@@ -46,6 +46,17 @@ std::vector<unsigned char> GlobalFunction::intToBytes(int paramInt)
     return arrayOfByte;
 }
 
+/// <summary>
+/// convert stream buffer to wide string and removing delimiter
+/// </summary>
+/// <param name="streamBuffer"> - stream buffer pointer needed </param>
+/// <param name="bytes_received"> - amount of bytes received</param>
+/// <returns>wide string</returns>
+std::wstring streamBufferToWstring(boost::asio::streambuf* streamBuffer, size_t bytes_received)
+{
+    return std::wstring{ boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_received - GlobalFunction::GetDelimiter().size() };
+}
+
 size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
 {
     boost::system::error_code error;
@@ -64,18 +75,15 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
     }
     /* Wait for response from client to send content */
 
-    return BytesSent;
-}
+    /* Open file stream to allow for reading of file */
+    std::ifstream filestream(FileAddress, std::ios::binary);
 
-/// <summary>
-/// convert stream buffer to wide string and removing delimiter
-/// </summary>
-/// <param name="streamBuffer"> - stream buffer pointer needed </param>
-/// <param name="bytes_received"> - amount of bytes received</param>
-/// <returns>wide string</returns>
-std::wstring streamBufferToWstring(boost::asio::streambuf* streamBuffer, size_t bytes_received)
-{
-    return std::wstring{ boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_received - GlobalFunction::GetDelimiter().size() };
+    /* copy data from file to vector array */
+    std::vector<unsigned char> FileContents = std::vector<unsigned char>(std::istreambuf_iterator<char>(filestream), {});
+    
+    boost::asio::write((*socket), boost::asio::buffer(FileContents));
+
+    return BytesSent;
 }
 
 void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, bool displayInfo)
@@ -93,7 +101,8 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
         }
     }
 
-    GlobalFunction::DesectionFile(ReceivedRawData, InfoString, true);
+    std::wstring Filename;
+    int ExpectedContentsize = GlobalFunction::DesectionFile(ReceivedRawData, &Filename, InfoString, true);
 
     /* Confirm and ask for content */
     boost::system::error_code error;
@@ -103,6 +112,24 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
     if (error)
         return;
     /* Confirm and ask for content */
+
+    /* Read from stream with 500MB sized content chuncks */
+    std::ofstream OutFileStream(Filename, std::ios::binary);
+
+    while (ExpectedContentsize > 0)
+    {
+        boost::array<unsigned char, 524288000> *ContentArray = new boost::array<unsigned char, 524288000>;
+        size_t ReceivedByteCount = socket->read_some(boost::asio::buffer(*ContentArray));
+        std::string TempString((char*)ContentArray->data(), ReceivedByteCount);
+        ExpectedContentsize -= ReceivedByteCount;
+        OutFileStream.write(TempString.c_str(), TempString.size());
+        delete[] ContentArray;
+    }
+
+    OutFileStream.close();
+    /* Read from stream with 500MB sized content chuncks */
+
+    return;
 }
 
 std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
@@ -126,7 +153,6 @@ std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress,
               static_cast<const char*>(static_cast<const void*>(&MetaData_section_size)) + sizeof MetaData_section_size,
               MetaData_section_size_Bytes);
 
-
     /* Get size of file content */
     int Content_section_size = FileContents.size();
     /* Convert content size to raw bytes so it can be into the sending vector */
@@ -134,7 +160,8 @@ std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress,
     std::copy(static_cast<const char*>(static_cast<const void*>(&Content_section_size)),
               static_cast<const char*>(static_cast<const void*>(&Content_section_size)) + sizeof Content_section_size,
               Content_section_size_Bytes);
-
+    
+    FileContents.~vector();
 
     /*
     Put all the data gathered (metadata size, metadata, content size, content) and put it in the
@@ -148,7 +175,6 @@ std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress,
     SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), MetaData_section_size_Bytes, MetaData_section_size_Bytes + sizeof MetaData_section_size);
     SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), Filename.begin(), Filename.end());
     SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), Content_section_size_Bytes, Content_section_size_Bytes + sizeof Content_section_size_Bytes);
-    //SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), FileContents.begin(), FileContents.end());
     {
         std::string DelimiterTemp = GlobalFunction::to_string(GlobalFunction::GetDelimiter());
         SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), DelimiterTemp.begin(), DelimiterTemp.end());
@@ -168,7 +194,7 @@ std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress,
     return SendingRawByteBuffer;
 }
 
-void GlobalFunction::DesectionFile(std::vector<unsigned char> ReceivedRawData, std::wstring* InfoString, bool displayInfo)
+int GlobalFunction::DesectionFile(std::vector<unsigned char> ReceivedRawData, std::wstring *filename, std::wstring* InfoString, bool displayInfo)
 {
     /* Getting Metadata Lenght */
     int Metadata_length;
@@ -186,6 +212,7 @@ void GlobalFunction::DesectionFile(std::vector<unsigned char> ReceivedRawData, s
 
     /* Getting Metadata */
     std::wstring Filename(&ReceivedRawData[4], &ReceivedRawData[4] + Metadata_length);
+    *filename = Filename;
     /* Getting Metadata */
 
     /* Getting Content Lenght */
@@ -202,11 +229,6 @@ void GlobalFunction::DesectionFile(std::vector<unsigned char> ReceivedRawData, s
     }
     /* Getting Content Lenght */
 
-    /* Getting content */
-    //std::ofstream OutFileStream(Filename, std::ios::binary);
-    //std::string TempString(&ReceivedRawData[4 + offsetRead], &ReceivedRawData[4 + offsetRead] + content_length);
-    //OutFileStream.write(TempString.c_str(), TempString.size());
-    /* Getting content */
     if (displayInfo)
     {
         std::wstring contentDisplay;
@@ -218,4 +240,6 @@ void GlobalFunction::DesectionFile(std::vector<unsigned char> ReceivedRawData, s
         /* Output */
         *InfoString = std::format(L"Desectioned: |{}|{}|{}|{}|\n", Metadata_length, Filename, content_length, contentDisplay);
     }
+
+    return content_length;
 }
