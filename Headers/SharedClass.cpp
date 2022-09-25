@@ -52,13 +52,17 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
 
     size_t BytesSent = boost::asio::write((*socket), boost::asio::buffer(GlobalFunction::SectionFile(FileAddress, InfoString, true)), error);
 
-    //boost::array<wchar_t, 20> OutputArray;
-    //size_t BytesReceived = socket->read_some(boost::asio::buffer(OutputArray));
-    //
-    //if (std::wstring(OutputArray.data(), BytesReceived) != L"ConSndCnt")
-    //{
-    //    return 0;
-    //}
+    /* Wait for response from client to send content */
+    {
+        boost::array<char, 20> OutputArray;
+        size_t BytesReceived = socket->read_some(boost::asio::buffer(OutputArray));
+
+        if (std::string(OutputArray.data(), BytesReceived) != "ConSndCnt")
+        {
+            return 0;
+        }
+    }
+    /* Wait for response from client to send content */
 
     return BytesSent;
 }
@@ -91,14 +95,14 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
 
     GlobalFunction::DesectionFile(ReceivedRawData, InfoString, true);
 
-    ///* Confirm and ask for content */
-    //boost::system::error_code error;
-    //
-    //boost::asio::write(socket, boost::asio::buffer(L"ConSndCnt"), error);
-    //
-    //if (error)
-    //    return;
-    ///* Confirm and ask for content */
+    /* Confirm and ask for content */
+    boost::system::error_code error;
+
+    boost::asio::write((*socket), boost::asio::buffer(std::string("ConSndCnt")), error);
+    
+    if (error)
+        return;
+    /* Confirm and ask for content */
 }
 
 std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
@@ -144,7 +148,7 @@ std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress,
     SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), MetaData_section_size_Bytes, MetaData_section_size_Bytes + sizeof MetaData_section_size);
     SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), Filename.begin(), Filename.end());
     SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), Content_section_size_Bytes, Content_section_size_Bytes + sizeof Content_section_size_Bytes);
-    SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), FileContents.begin(), FileContents.end());
+    //SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), FileContents.begin(), FileContents.end());
     {
         std::string DelimiterTemp = GlobalFunction::to_string(GlobalFunction::GetDelimiter());
         SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), DelimiterTemp.begin(), DelimiterTemp.end());
@@ -199,17 +203,17 @@ void GlobalFunction::DesectionFile(std::vector<unsigned char> ReceivedRawData, s
     /* Getting Content Lenght */
 
     /* Getting content */
-    std::ofstream OutFileStream(Filename, std::ios::binary);
-    std::string TempString(&ReceivedRawData[4 + offsetRead], &ReceivedRawData[4 + offsetRead] + content_length);
-    OutFileStream.write(TempString.c_str(), TempString.size());
+    //std::ofstream OutFileStream(Filename, std::ios::binary);
+    //std::string TempString(&ReceivedRawData[4 + offsetRead], &ReceivedRawData[4 + offsetRead] + content_length);
+    //OutFileStream.write(TempString.c_str(), TempString.size());
     /* Getting content */
     if (displayInfo)
     {
         std::wstring contentDisplay;
-        if (TempString.size() > 30)
-            contentDisplay = std::to_wstring(TempString.size());
-        else
-            contentDisplay = GlobalFunction::to_wstring(TempString);
+        //if (TempString.size() > 30)
+        //    contentDisplay = std::to_wstring(TempString.size());
+        //else
+        //    contentDisplay = GlobalFunction::to_wstring(TempString);
 
         /* Output */
         *InfoString = std::format(L"Desectioned: |{}|{}|{}|{}|\n", Metadata_length, Filename, content_length, contentDisplay);
