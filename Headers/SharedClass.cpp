@@ -116,13 +116,24 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
     /* Read from stream with 500MB sized content chuncks */
     std::ofstream OutFileStream(Filename, std::ios::binary);
 
-    while (ExpectedContentsize > 0)
+    while (ExpectedContentsize != 0)
     {
+        /* 500MB sized array to limit the intake at once - Pointer so it doesn't go into stack */
         boost::array<unsigned char, 524288000> *ContentArray = new boost::array<unsigned char, 524288000>;
+        
+        /* Receive content chuncks */
         size_t ReceivedByteCount = socket->read_some(boost::asio::buffer(*ContentArray));
-        std::string TempString((char*)ContentArray->data(), ReceivedByteCount);
+        
+        /* Update Content size for new size needed */
         ExpectedContentsize -= ReceivedByteCount;
+
+        /* Convert to string temporarily to allow for writing into file */
+        std::string TempString((char*)ContentArray->data(), ReceivedByteCount);
+
+        /* write content into file */
         OutFileStream.write(TempString.c_str(), TempString.size());
+
+        /* Delete array to free space */
         delete[] ContentArray;
     }
 
