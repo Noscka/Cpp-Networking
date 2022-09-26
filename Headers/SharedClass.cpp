@@ -193,13 +193,8 @@ std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress,
 
     if (displayInfo)
     {
-        std::wstring contentDisplay;
-        if (FileContents.size() > 30)
-            contentDisplay = std::to_wstring(FileContents.size());
-        else
-            contentDisplay = std::wstring(FileContents.begin(), FileContents.end());
 
-        *InfoString = std::format(L"Sectioned: |{}|{}|{}|{}|{}|\n", MetaData_section_size, Filename, Content_section_size, contentDisplay, GlobalFunction::GetRawDelimiter());
+        *InfoString = std::format(L"Metadata size: {}\nMetadata Filename: {}\nContent Size: {}\nDelimiter: {}\n", MetaData_section_size, Filename, Content_section_size, GlobalFunction::GetRawDelimiter());
     }
 
     return SendingRawByteBuffer;
@@ -242,14 +237,7 @@ int GlobalFunction::DesectionFile(std::vector<unsigned char> ReceivedRawData, st
 
     if (displayInfo)
     {
-        std::wstring contentDisplay;
-        //if (TempString.size() > 30)
-        //    contentDisplay = std::to_wstring(TempString.size());
-        //else
-        //    contentDisplay = GlobalFunction::to_wstring(TempString);
-
-        /* Output */
-        *InfoString = std::format(L"Desectioned: |{}|{}|{}|{}|\n", Metadata_length, Filename, content_length, contentDisplay);
+        *InfoString = std::format(L"Metadata size: {}\nMetadata Filename: {}\nContent Size: {}\n", Metadata_length, Filename, content_length);
     }
 
     return content_length;
