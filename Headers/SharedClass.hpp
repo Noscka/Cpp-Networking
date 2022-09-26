@@ -20,7 +20,6 @@ private:
 
     inline static const std::wstring Delimiter = L"\n\r\n\r\n\013\x4\n";
 
-    static std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint);
 
     static std::vector<GlobalFunction::byte> intToBytes(int paramInt);
 
@@ -28,6 +27,8 @@ private:
 
     static int DesectionFile(std::vector<GlobalFunction::byte> ReceivedRawData, std::wstring* filename, std::wstring* InfoString, bool displayInfo);
 public:
+
+    static std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint);
 
     static std::wstring GetDelimiter();
 

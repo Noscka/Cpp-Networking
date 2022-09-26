@@ -31,7 +31,7 @@ public:
 
             std::wstring InfoString;
 
-            std::wcout << L"Bytes sent: " << GlobalFunction::SendFile(&socket, L"RandomData.txt", &InfoString, true) << std::endl;
+            wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)GlobalFunction::SendFile(&socket, L"RandomData.txt", &InfoString, true))).c_str());
             wprintf(InfoString.c_str());
         }
         catch (std::exception& e)
