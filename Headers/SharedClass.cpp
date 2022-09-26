@@ -38,9 +38,9 @@ std::wstring GlobalFunction::ReturnAddress(boost::asio::ip::tcp::endpoint Endpoi
     return std::format(L"{}:{}", GlobalFunction::to_wstring(Endpoint.address().to_v4().to_string()), GlobalFunction::to_wstring(std::to_string(Endpoint.port())));
 }
 
-std::vector<unsigned char> GlobalFunction::intToBytes(int paramInt)
+std::vector<GlobalFunction::byte> GlobalFunction::intToBytes(int paramInt)
 {
-    std::vector<unsigned char> arrayOfByte(4);
+    std::vector<GlobalFunction::byte> arrayOfByte(4);
     for (int i = 0; i < 4; i++)
         arrayOfByte[3 - i] = (paramInt >> (i * 8));
     return arrayOfByte;
@@ -79,7 +79,7 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
     std::ifstream filestream(FileAddress, std::ios::binary);
 
     /* copy data from file to vector array */
-    std::vector<unsigned char> FileContents = std::vector<unsigned char>(std::istreambuf_iterator<char>(filestream), {});
+    std::vector<GlobalFunction::byte> FileContents = std::vector<GlobalFunction::byte>(std::istreambuf_iterator<char>(filestream), {});
     
     boost::asio::write((*socket), boost::asio::buffer(FileContents));
 
@@ -88,7 +88,7 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
 
 void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, bool displayInfo)
 {
-    std::vector<unsigned char> ReceivedRawData;
+    std::vector<GlobalFunction::byte> ReceivedRawData;
 
     {
         boost::system::error_code error;
@@ -119,7 +119,7 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
     while (ExpectedContentsize != 0)
     {
         /* 500MB sized array to limit the intake at once - Pointer so it doesn't go into stack */
-        boost::array<unsigned char, 524288000> *ContentArray = new boost::array<unsigned char, 524288000>;
+        boost::array<GlobalFunction::byte, 524288000> *ContentArray = new boost::array<GlobalFunction::byte, 524288000>;
         
         /* Receive content chuncks */
         size_t ReceivedByteCount = socket->read_some(boost::asio::buffer(*ContentArray));
@@ -143,7 +143,7 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
     return;
 }
 
-std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
+std::vector<GlobalFunction::byte> GlobalFunction::SectionFile(std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
 {
     /* Open file stream to allow for reading of file */
     std::ifstream filestream(FileAddress, std::ios::binary);
@@ -152,14 +152,14 @@ std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress,
     std::wstring Filename = std::filesystem::path(FileAddress).filename().wstring();
 
     /* copy data from file to vector array */
-    std::vector<unsigned char> FileContents = std::vector<unsigned char>(std::istreambuf_iterator<char>(filestream), {});
+    std::vector<GlobalFunction::byte> FileContents = std::vector<GlobalFunction::byte>(std::istreambuf_iterator<char>(filestream), {});
 
     filestream.close();
 
     /* Get size of metadata (currently just string) */
     int MetaData_section_size = Filename.size();
     /* Convert metadata size to raw bytes so it can be into the sending vector */
-    unsigned char MetaData_section_size_Bytes[sizeof MetaData_section_size];
+    GlobalFunction::byte MetaData_section_size_Bytes[sizeof MetaData_section_size];
     std::copy(static_cast<const char*>(static_cast<const void*>(&MetaData_section_size)),
               static_cast<const char*>(static_cast<const void*>(&MetaData_section_size)) + sizeof MetaData_section_size,
               MetaData_section_size_Bytes);
@@ -167,7 +167,7 @@ std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress,
     /* Get size of file content */
     int Content_section_size = FileContents.size();
     /* Convert content size to raw bytes so it can be into the sending vector */
-    unsigned char Content_section_size_Bytes[sizeof Content_section_size];
+    GlobalFunction::byte Content_section_size_Bytes[sizeof Content_section_size];
     std::copy(static_cast<const char*>(static_cast<const void*>(&Content_section_size)),
               static_cast<const char*>(static_cast<const void*>(&Content_section_size)) + sizeof Content_section_size,
               Content_section_size_Bytes);
@@ -182,7 +182,7 @@ std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress,
     Underneath is a `diagram` showing the structer of the vector (without the | character)
     Structer of the vector |(int)metadata size|(metadata object)metadata|(int)content size|(vector<unsigned char>)content|(wstring)Delimiter|
     */
-    std::vector<unsigned char> SendingRawByteBuffer;
+    std::vector<GlobalFunction::byte> SendingRawByteBuffer;
     SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), MetaData_section_size_Bytes, MetaData_section_size_Bytes + sizeof MetaData_section_size);
     SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), Filename.begin(), Filename.end());
     SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), Content_section_size_Bytes, Content_section_size_Bytes + sizeof Content_section_size_Bytes);
@@ -200,12 +200,12 @@ std::vector<unsigned char> GlobalFunction::SectionFile(std::wstring FileAddress,
     return SendingRawByteBuffer;
 }
 
-int GlobalFunction::DesectionFile(std::vector<unsigned char> ReceivedRawData, std::wstring *filename, std::wstring* InfoString, bool displayInfo)
+int GlobalFunction::DesectionFile(std::vector<GlobalFunction::byte> ReceivedRawData, std::wstring *filename, std::wstring* InfoString, bool displayInfo)
 {
     /* Getting Metadata Lenght */
     int Metadata_length;
     {
-        unsigned char Metadata_lenght_bytes[4]{};
+        GlobalFunction::byte Metadata_lenght_bytes[4]{};
         for (int i = 0; i < 4; i++)
         {
             Metadata_lenght_bytes[i] = ReceivedRawData[i];
@@ -225,7 +225,7 @@ int GlobalFunction::DesectionFile(std::vector<unsigned char> ReceivedRawData, st
     int content_length;
     int offsetRead = 4 + (Metadata_length);
     {
-        unsigned char content_lenght_bytes[4]{};
+        GlobalFunction::byte content_lenght_bytes[4]{};
         for (int i = offsetRead; i < 4 + offsetRead; i++)
         {
             content_lenght_bytes[i - (offsetRead)] = ReceivedRawData[i];

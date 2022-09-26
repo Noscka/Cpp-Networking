@@ -12,11 +12,23 @@
 #include <boost/array.hpp>
 #include <boost/bind/bind.hpp>
 
+
 class GlobalFunction
 {
 private:
+    typedef unsigned char byte;
+
     inline static const std::wstring Delimiter = L"\n\r\n\r\n\013\x4\n";
+
+    static std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint);
+
+    static std::vector<GlobalFunction::byte> intToBytes(int paramInt);
+
+    static std::vector<GlobalFunction::byte> SectionFile(std::wstring FileAddress, std::wstring* InfoString, bool displayInfo);
+
+    static int DesectionFile(std::vector<GlobalFunction::byte> ReceivedRawData, std::wstring* filename, std::wstring* InfoString, bool displayInfo);
 public:
+
     static std::wstring GetDelimiter();
 
     static std::wstring GetRawDelimiter();
@@ -25,16 +37,8 @@ public:
 
     static std::string to_string(const std::wstring& wstr);
 
-    static std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint);
-
-    static std::vector<unsigned char> intToBytes(int paramInt);
-
     static size_t SendFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo);
 
     static void ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, bool displayInfo);
-
-    static std::vector<unsigned char> SectionFile(std::wstring FileAddress, std::wstring *InfoString, bool displayInfo);
-
-    static int DesectionFile(std::vector<unsigned char> ReceivedRawData, std::wstring* filename, std::wstring* InfoString, bool displayInfo);
 };
 #endif 
