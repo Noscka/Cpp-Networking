@@ -15,8 +15,9 @@
 
 class GlobalFunction
 {
-private:
+public:
     typedef unsigned char byte;
+private:
 
     inline static const std::wstring Delimiter = L"\n\r\n\r\n\013\x4\n";
 
