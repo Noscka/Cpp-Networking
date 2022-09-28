@@ -36,7 +36,7 @@ public:
             wprintf(L"Enter a filename: ");
             std::getline(std::wcin, SendingFileName);
 
-            wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)GlobalFunction::SendFile(&socket, SendingFileName, &InfoString, true))).c_str());
+            wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)GlobalFunction::SendFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
             wprintf(InfoString.c_str());
         }
         catch (std::exception& e)
