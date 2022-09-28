@@ -11,6 +11,7 @@
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 #include <boost/bind/bind.hpp>
+#include <boost/filesystem.hpp>
 
 static class Definition
 {
@@ -51,7 +52,8 @@ class FileInMemoryEntry
 {
 public:
     std::string Filename;
-    std::string CustomIdentifier;
+    std::string FileSHA256Checksum;
     std::vector<Definition::byte> FileContents;
+    std::vector<FileInMemoryEntry> FIMEArray;
 };
 #endif 

@@ -151,9 +151,6 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
     /* Get Filename */
     std::wstring Filename = std::filesystem::path(FileAddress).filename().wstring();
 
-    /* copy data from file to vector array */
-    std::vector<Definition::byte> FileContents = std::vector<Definition::byte>(std::istreambuf_iterator<char>(filestream), {});
-
     filestream.close();
 
     /* Get size of metadata (currently just string) */
@@ -165,14 +162,12 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
               MetaData_section_size_Bytes);
 
     /* Get size of file content */
-    int Content_section_size = FileContents.size();
+    int Content_section_size = boost::filesystem::file_size(boost::filesystem::path(FileAddress));
     /* Convert content size to raw bytes so it can be into the sending vector */
     Definition::byte Content_section_size_Bytes[sizeof Content_section_size];
     std::copy(static_cast<const char*>(static_cast<const void*>(&Content_section_size)),
               static_cast<const char*>(static_cast<const void*>(&Content_section_size)) + sizeof Content_section_size,
               Content_section_size_Bytes);
-    
-    FileContents.~vector();
 
     /*
     Put all the data gathered (metadata size, metadata, content size, content) and put it in the
