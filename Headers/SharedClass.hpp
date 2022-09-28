@@ -16,6 +16,8 @@
 static class Definition
 {
 public:
+    inline static const std::wstring Delimiter = L"\n\r\n\r\n\013\x4\n";
+    inline static const int ChunkSize = 524288000;
     typedef unsigned char byte;
 
 };
@@ -23,9 +25,6 @@ public:
 static class GlobalFunction
 {
 private:
-
-    inline static const std::wstring Delimiter = L"\n\r\n\r\n\013\x4\n";
-
     static std::vector<Definition::byte> intToBytes(int paramInt);
 
     static std::vector<Definition::byte> SectionFile(std::wstring FileAddress, std::wstring* InfoString, bool displayInfo);

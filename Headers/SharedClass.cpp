@@ -2,12 +2,12 @@
 
 std::wstring GlobalFunction::GetDelimiter()
 {
-    return Delimiter;
+    return Definition::Delimiter;
 }
 
 std::wstring GlobalFunction::GetRawDelimiter()
 {
-    std::wstring returnString = Delimiter;
+    std::wstring returnString = Definition::Delimiter;
     boost::replace_all(returnString, L"\n", L"\\n");
     boost::replace_all(returnString, L"\r", L"\\r");
     boost::replace_all(returnString, L"\013", L"\\013");
@@ -81,16 +81,27 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
     /* copy data from file to vector array */
     std::vector<Definition::byte> FileContents = std::vector<Definition::byte>(std::istreambuf_iterator<char>(filestream), {});
     int SendContentSize = FileContents.size();
+    int FullOperationAmount = SendContentSize%Definition::ChunkSize;
     int CurrentBytePosition = 0;
 
     while(SendContentSize != 0)
     {
-        /* 500MB sized vector to limit the memory usage at once - Pointer so it doesn't go into stack */
-        std::vector<Definition::byte> SubFileContents(&FileContents[0], &FileContents[2]);
+        std::vector<Definition::byte> *SubFileContents = new std::vector<Definition::byte>;
+        for(int i = 0; i < FullOperationAmount; i++)
+        {
+            /* 500MB sized vector to limit the memory usage at once - Pointer so it doesn't go into stack */
+            SubFileContents = new std::vector<Definition::byte>(&FileContents[i], &FileContents[(i + 1) * Definition::ChunkSize]);
+            SendContentSize -= Definition::ChunkSize;
+        }
+        if(FullOperationAmount == 0)
+        {
 
-        size_t SentAmount = boost::asio::write((*socket), boost::asio::buffer(FileContents));
-        SendContentSize -= SentAmount;
+        }
+        
 
+        size_t SentAmount = boost::asio::write((*socket), boost::asio::buffer(*SubFileContents));
+        //SendContentSize -= SentAmount;
+        delete[] SubFileContents;
     }
 
 
@@ -130,7 +141,7 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
     while (ExpectedContentsize != 0)
     {
         /* 500MB sized array to limit the intake at once - Pointer so it doesn't go into stack */
-        boost::array<Definition::byte, 524288000> *ContentArray = new boost::array<Definition::byte, 524288000>;
+        boost::array<Definition::byte, Definition::ChunkSize> *ContentArray = new boost::array<Definition::byte, Definition::ChunkSize>;
         
         /* Receive content chuncks */
         size_t ReceivedByteCount = socket->read_some(boost::asio::buffer(*ContentArray));
@@ -179,8 +190,6 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
     std::copy(static_cast<const char*>(static_cast<const void*>(&Content_section_size)),
               static_cast<const char*>(static_cast<const void*>(&Content_section_size)) + sizeof Content_section_size,
               Content_section_size_Bytes);
-
-    system("pause");
 
     /*
     Put all the data gathered (metadata size, metadata, content size, content) and put it in the

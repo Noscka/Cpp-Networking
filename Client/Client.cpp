@@ -1,4 +1,4 @@
-#include "../Headers/SharedClass.hpp"
+#include "SharedClass.hpp"
 #include <iostream>
 #include <fstream>
 #include <io.h>
