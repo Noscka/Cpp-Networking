@@ -80,8 +80,33 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
 
     /* copy data from file to vector array */
     std::vector<Definition::byte> FileContents = std::vector<Definition::byte>(std::istreambuf_iterator<char>(filestream), {});
+    int SendingSize = FileContents.size();
+    int FullOperationAmount = SendingSize / Definition::ChunkSize;
+    int BytesLeft = SendingSize % Definition::ChunkSize;
 
-    boost::asio::write((*socket), boost::asio::buffer(FileContents));
+    int CurrentOperationCount = 0;
+
+    while (SendingSize != 0)
+    {
+        std::vector<Definition::byte>* DividedFileContents;
+
+        if (CurrentOperationCount >= FullOperationAmount - 1)
+            DividedFileContents = new std::vector<Definition::byte>(&FileContents[CurrentOperationCount * Definition::ChunkSize], &FileContents[((CurrentOperationCount + 1) * Definition::ChunkSize)-1]);
+        else
+        {
+            int ByteOffset;
+            if ((FullOperationAmount * Definition::ChunkSize) != 0)
+                ByteOffset = 1;
+            else
+                ByteOffset = 0;
+
+            DividedFileContents = new std::vector<Definition::byte>(&FileContents[(FullOperationAmount * Definition::ChunkSize) - ByteOffset], &FileContents[(FullOperationAmount * Definition::ChunkSize) + BytesLeft]);
+        }
+
+        CurrentOperationCount++;
+
+        SendingSize-=boost::asio::write((*socket), boost::asio::buffer(FileContents));
+    }
 
     return BytesSent;
 }
