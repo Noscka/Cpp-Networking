@@ -80,30 +80,8 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
 
     /* copy data from file to vector array */
     std::vector<Definition::byte> FileContents = std::vector<Definition::byte>(std::istreambuf_iterator<char>(filestream), {});
-    int SendContentSize = FileContents.size();
-    int FullOperationAmount = SendContentSize%Definition::ChunkSize;
-    int CurrentBytePosition = 0;
 
-    while(SendContentSize != 0)
-    {
-        std::vector<Definition::byte> *SubFileContents = new std::vector<Definition::byte>;
-        for(int i = 0; i < FullOperationAmount; i++)
-        {
-            /* 500MB sized vector to limit the memory usage at once - Pointer so it doesn't go into stack */
-            SubFileContents = new std::vector<Definition::byte>(&FileContents[i], &FileContents[(i + 1) * Definition::ChunkSize]);
-            SendContentSize -= Definition::ChunkSize;
-        }
-        if(FullOperationAmount == 0)
-        {
-
-        }
-        
-
-        size_t SentAmount = boost::asio::write((*socket), boost::asio::buffer(*SubFileContents));
-        //SendContentSize -= SentAmount;
-        delete[] SubFileContents;
-    }
-
+    boost::asio::write((*socket), boost::asio::buffer(FileContents));
 
     return BytesSent;
 }
