@@ -109,7 +109,7 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
         {
             int ByteOffset;
             if (FullOperationAmount != 0)
-                ByteOffset = 1;
+                ByteOffset = 2;
             else
                 ByteOffset = 0;
 
