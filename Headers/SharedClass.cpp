@@ -90,22 +90,44 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
     {
         std::vector<Definition::byte>* DividedFileContents;
 
-        if (CurrentOperationCount >= FullOperationAmount - 1)
+        wprintf(L"========================================================\n");
+
+        std::wcout << L"Operation Count: " << FullOperationAmount << std::endl;
+        std::wcout << L"Current Operation: " << CurrentOperationCount << std::endl;
+
+        std::wcout << L"Current Operation: " << (CurrentOperationCount < FullOperationAmount ? "True" : "False") << std::endl;
+
+
+        if(CurrentOperationCount < FullOperationAmount)
+        {
             DividedFileContents = new std::vector<Definition::byte>(&FileContents[CurrentOperationCount * Definition::ChunkSize], &FileContents[((CurrentOperationCount + 1) * Definition::ChunkSize)-1]);
+            CurrentOperationCount++;
+
+            std::wcout << (CurrentOperationCount * Definition::ChunkSize) << L" -> " << (((CurrentOperationCount + 1) * Definition::ChunkSize) - 1) << std::endl;
+        }
         else
         {
             int ByteOffset;
-            if ((FullOperationAmount * Definition::ChunkSize) != 0)
+            if (FullOperationAmount != 0)
                 ByteOffset = 1;
             else
                 ByteOffset = 0;
 
             DividedFileContents = new std::vector<Definition::byte>(&FileContents[(FullOperationAmount * Definition::ChunkSize) - ByteOffset], &FileContents[(FullOperationAmount * Definition::ChunkSize) + BytesLeft]);
+            
+            std::wcout << ((FullOperationAmount * Definition::ChunkSize) - ByteOffset) << L" -> " << ((FullOperationAmount * Definition::ChunkSize) + BytesLeft) << std::endl;
+            std::wcout << L"Byte offset: " << ByteOffset << std::endl;
+
+            
         }
+        std::wcout << L"Sending size: " << SendingSize << std::endl;
+        std::wcout << L"Bytes left after: " << BytesLeft << std::endl;
+        std::wcout << L"Full Content size: " << FileContents.size() << std::endl;
+        std::wcout << L"Sub Vector size: " << DividedFileContents->size() << std::endl;
 
-        CurrentOperationCount++;
+        wprintf(L"========================================================\n");
 
-        SendingSize-=boost::asio::write((*socket), boost::asio::buffer(FileContents));
+        SendingSize-=boost::asio::write((*socket), boost::asio::buffer(*DividedFileContents));
     }
 
     return BytesSent;

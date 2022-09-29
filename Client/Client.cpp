@@ -19,6 +19,8 @@ int main()
         wprintf(L"Type in hostname: ");
         std::string HostName;
         std::getline(std::cin, HostName);
+        if(HostName.empty())
+            HostName = "localhost";
 
         /* 
         Connects to the function using `resolver` which resolves the address e.g. (Noscka.com -> 123.123.123.123) 
