@@ -83,7 +83,9 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
     FileContents.reserve(boost::filesystem::file_size(boost::filesystem::path(FileAddress)));
     FileContents.insert(FileContents.begin(), std::istreambuf_iterator<char>(filestream), std::istreambuf_iterator<char>());
 
-    INT64 SendingSize = FileContents.size();
+    std::istreambuf_iterator<char> filestreamIterator(filestream);
+
+    INT64 SendingSize = boost::filesystem::file_size(boost::filesystem::path(FileAddress));
     INT64 FullOperationAmount = SendingSize / Definition::ChunkSize;
     INT64 BytesLeft = SendingSize % Definition::ChunkSize;
 
@@ -118,21 +120,6 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
         wprintf(L"========================================================\n");
 
         SendingSize-=boost::asio::write((*socket), boost::asio::buffer(*DividedFileContents));
-
-        delete[] DividedFileContents;
-        {
-            boost::array<char, 20> OutputArray;
-            size_t BytesReceived = socket->read_some(boost::asio::buffer(OutputArray));
-
-            std::wcout << L"Received: " << GlobalFunction::to_wstring(std::string(OutputArray.data(), BytesReceived)) << L" | Size: " << std::string(OutputArray.data(), BytesReceived).size() << std::endl;
-            std::wcout << L"Here: " << "ConSndMr" << L" | Size: " << strlen("ConSndMr") << std::endl;
-
-            if (std::string(OutputArray.data(), BytesReceived) != "ConSndMr")
-            {
-                wprintf(L"Press any button to continue"); getchar();
-                return 0;
-            }
-        }
     }
 
     return BytesSent;
@@ -187,9 +174,6 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
 
         /* Delete array to free space */
         delete[] ContentArray;
-
-        /* Write ConSndMr to ask for more data. this is to prevent the server from mass sending data */
-        boost::asio::write((*socket), boost::asio::buffer(std::string("ConSndMr")), error);
     }
 
     OutFileStream.close();
