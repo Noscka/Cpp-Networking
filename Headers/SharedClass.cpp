@@ -78,11 +78,11 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
     /* Open file stream to allow for reading of file */
     std::ifstream filestream(FileAddress, std::ios::binary);
 
-    INT64 SendingSize = boost::filesystem::file_size(boost::filesystem::path(FileAddress));
-    INT64 FullOperationAmount = (int)(SendingSize / Definition::ChunkSize);
-    INT64 BytesLeft = SendingSize % Definition::ChunkSize;
+    uint64_t SendingSize = boost::filesystem::file_size(boost::filesystem::path(FileAddress));
+    uint64_t FullOperationAmount = (int)(SendingSize / Definition::ChunkSize);
+    uint64_t BytesLeft = SendingSize % Definition::ChunkSize;
 
-    INT64 CurrentOperationCount = 0;
+    uint64_t CurrentOperationCount = 0;
 
     wprintf(L"========================================================\n");
     wprintf(std::wstring(L"Sending Size: " + std::to_wstring(SendingSize) + L"\n").c_str());
@@ -147,7 +147,7 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
     }
 
     std::wstring Filename;
-    INT64 ExpectedContentsize = GlobalFunction::DesectionFile(ReceivedRawData, &Filename, InfoString, true);
+    uint64_t ExpectedContentsize = GlobalFunction::DesectionFile(ReceivedRawData, &Filename, InfoString, true);
 
     /* Confirm and ask for content */
     boost::system::error_code error;
@@ -174,6 +174,11 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
 
         /* Convert to string temporarily to allow for writing into file */
         std::string TempString((char*)ContentArray->data(), ReceivedByteCount);
+
+        wprintf(L"========================================================\n");
+        wprintf(std::wstring(L"Received Data: " + std::to_wstring(ReceivedByteCount) + L"\n").c_str());
+        wprintf(std::wstring(L"Data Left: " + std::to_wstring(ExpectedContentsize) + L"\n").c_str());
+        wprintf(L"========================================================\n");
 
         /* write content into file */
         OutFileStream.write(TempString.c_str(), TempString.size());
@@ -207,7 +212,7 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
               MetaData_section_size_Bytes);
 
     /* Get size of file content */
-    INT64 Content_section_size = boost::filesystem::file_size(boost::filesystem::path(FileAddress));
+    uint64_t Content_section_size = boost::filesystem::file_size(boost::filesystem::path(FileAddress));
     /* Convert content size to raw bytes so it can be into the sending vector */
     Definition::byte Content_section_size_Bytes[sizeof Content_section_size];
     std::copy(static_cast<const char*>(static_cast<const void*>(&Content_section_size)),
@@ -240,7 +245,7 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
     return SendingRawByteBuffer;
 }
 
-INT64 GlobalFunction::DesectionFile(std::vector<Definition::byte> ReceivedRawData, std::wstring *filename, std::wstring* InfoString, bool displayInfo)
+uint64_t GlobalFunction::DesectionFile(std::vector<Definition::byte> ReceivedRawData, std::wstring *filename, std::wstring* InfoString, bool displayInfo)
 {
     /* Getting Metadata Lenght */
     int Metadata_length;
@@ -262,7 +267,7 @@ INT64 GlobalFunction::DesectionFile(std::vector<Definition::byte> ReceivedRawDat
     /* Getting Metadata */
 
     /* Getting Content Lenght */
-    INT64 content_length;
+    uint64_t content_length;
     int offsetRead = 4 + (Metadata_length);
     {
         Definition::byte content_lenght_bytes[8]{};

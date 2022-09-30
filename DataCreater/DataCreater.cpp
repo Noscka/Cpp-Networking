@@ -6,17 +6,17 @@
 
 #include "LoadingScreen/LoadingScreen.h"
 
-#define Kilobyte (INT64)1024
-#define Megabyte (INT64)1024*Kilobyte
-#define Gigabyte (INT64)1024*Megabyte
+#define Kilobyte (uint64_t)1024
+#define Megabyte (uint64_t)1024*Kilobyte
+#define Gigabyte (uint64_t)1024*Megabyte
 
 void CreateRandomData(LoadingScreen* Object)
 {
-    INT64 OutputFileSize = (1 * Gigabyte);
-    INT64 SectionSize = ((INT64)500 * Megabyte);
+    uint64_t OutputFileSize = (1 * Gigabyte);
+    uint64_t SectionSize = ((INT64)500 * Megabyte);
 
-    INT64 Progress = 0;
-    INT64 OutOf = OutputFileSize;
+    uint64_t Progress = 0;
+    uint64_t OutOf = OutputFileSize;
 
     /* Create random data in txt file to send over network */
     std::ofstream OutFileStream("RandomData.txt", std::ios::binary);
@@ -27,7 +27,7 @@ void CreateRandomData(LoadingScreen* Object)
 
 
     /* Calculate amount of data left which will be written exact (if 1.2GB sized file, then 2 500MB sections and then 200MB section for the remainder) */
-    INT64 LeftOverAmount = 0;
+    uint64_t LeftOverAmount = 0;
     LeftOverAmount = OutputFileSize % SectionSize;
 
     /* foreach loop for all the sections */

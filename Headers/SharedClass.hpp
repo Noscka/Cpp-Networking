@@ -29,7 +29,7 @@ private:
 
     static std::vector<Definition::byte> SectionFile(std::wstring FileAddress, std::wstring* InfoString, bool displayInfo);
 
-    static INT64 DesectionFile(std::vector<Definition::byte> ReceivedRawData, std::wstring* filename, std::wstring* InfoString, bool displayInfo);
+    static uint64_t DesectionFile(std::vector<Definition::byte> ReceivedRawData, std::wstring* filename, std::wstring* InfoString, bool displayInfo);
 public:
 
     static std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint);
