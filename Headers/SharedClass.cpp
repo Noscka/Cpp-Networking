@@ -152,7 +152,7 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
     }
 
     std::wstring Filename;
-    int ExpectedContentsize = GlobalFunction::DesectionFile(ReceivedRawData, &Filename, InfoString, true);
+    INT64 ExpectedContentsize = GlobalFunction::DesectionFile(ReceivedRawData, &Filename, InfoString, true);
 
     /* Confirm and ask for content */
     boost::system::error_code error;
@@ -212,7 +212,7 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
               MetaData_section_size_Bytes);
 
     /* Get size of file content */
-    int Content_section_size = boost::filesystem::file_size(boost::filesystem::path(FileAddress));
+    INT64 Content_section_size = boost::filesystem::file_size(boost::filesystem::path(FileAddress));
     /* Convert content size to raw bytes so it can be into the sending vector */
     Definition::byte Content_section_size_Bytes[sizeof Content_section_size];
     std::copy(static_cast<const char*>(static_cast<const void*>(&Content_section_size)),
@@ -245,7 +245,7 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
     return SendingRawByteBuffer;
 }
 
-int GlobalFunction::DesectionFile(std::vector<Definition::byte> ReceivedRawData, std::wstring *filename, std::wstring* InfoString, bool displayInfo)
+INT64 GlobalFunction::DesectionFile(std::vector<Definition::byte> ReceivedRawData, std::wstring *filename, std::wstring* InfoString, bool displayInfo)
 {
     /* Getting Metadata Lenght */
     int Metadata_length;
@@ -267,11 +267,11 @@ int GlobalFunction::DesectionFile(std::vector<Definition::byte> ReceivedRawData,
     /* Getting Metadata */
 
     /* Getting Content Lenght */
-    int content_length;
+    INT64 content_length;
     int offsetRead = 4 + (Metadata_length);
     {
-        Definition::byte content_lenght_bytes[4]{};
-        for (int i = offsetRead; i < 4 + offsetRead; i++)
+        Definition::byte content_lenght_bytes[8]{};
+        for (int i = offsetRead; i < 8 + offsetRead; i++)
         {
             content_lenght_bytes[i - (offsetRead)] = ReceivedRawData[i];
         }

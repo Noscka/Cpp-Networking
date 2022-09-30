@@ -61,6 +61,9 @@ void CreateRandomData(LoadingScreen* Object)
 int main()
 {
     _setmode(_fileno(stdout), _O_U16TEXT);
+
+    return 0;
+
     try
     {
         LoadingScreen::InitilizeFont();
@@ -73,5 +76,6 @@ int main()
         std::cerr << e.what() << std::endl;
     }
     
+    wprintf(L"Press any button to continue"); getchar();
     return 0;
 }
