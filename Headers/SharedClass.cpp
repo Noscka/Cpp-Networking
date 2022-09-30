@@ -95,10 +95,10 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
 
         wprintf(L"========================================================\n");
 
-        std::wcout << L"Operation Count: " << FullOperationAmount << std::endl;
-        std::wcout << L"Current Operation: " << CurrentOperationCount << std::endl;
+        wprintf(std::wstring(L"Operation Count: " + std::to_wstring(FullOperationAmount) + L"\n").c_str());
+        wprintf(std::wstring(L"Current Operation: " + std::to_wstring(CurrentOperationCount) + L"\n").c_str());
 
-        std::wcout << L"Current Operation: " << (CurrentOperationCount < FullOperationAmount ? "True" : "False") << std::endl;
+        wprintf(std::wstring(L"Mode: " + std::wstring((CurrentOperationCount < FullOperationAmount) ? L"500MB" : L"Left over") + L" Mode\n").c_str());
 
 
         if(CurrentOperationCount < FullOperationAmount)
@@ -106,31 +106,33 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
             DividedFileContents = new std::vector<Definition::byte>(&FileContents[CurrentOperationCount * Definition::ChunkSize], &FileContents[((CurrentOperationCount + 1) * Definition::ChunkSize)-1]);
             CurrentOperationCount++;
 
-            std::wcout << (CurrentOperationCount * Definition::ChunkSize) << L" -> " << (((CurrentOperationCount + 1) * Definition::ChunkSize) - 1) << std::endl;
+            wprintf(std::wstring(std::to_wstring(CurrentOperationCount * Definition::ChunkSize) + L" -> " + std::to_wstring(((CurrentOperationCount + 1) * Definition::ChunkSize) - 1) + L"\n").c_str());
         }
         else
         {
-            int ByteOffset;
-            if (FullOperationAmount != 0)
-                ByteOffset = FullOperationAmount;
-            else
-                ByteOffset = 0;
-
-            DividedFileContents = new std::vector<Definition::byte>(&FileContents[(FullOperationAmount * Definition::ChunkSize) - ByteOffset], &FileContents[(FullOperationAmount * Definition::ChunkSize) + BytesLeft]);
-            
-            std::wcout << ((FullOperationAmount * Definition::ChunkSize) - ByteOffset) << L" -> " << ((FullOperationAmount * Definition::ChunkSize) + BytesLeft) << std::endl;
-            std::wcout << L"Byte offset: " << ByteOffset << std::endl;
-
-            
+            DividedFileContents = new std::vector<Definition::byte>(&FileContents[(FullOperationAmount * Definition::ChunkSize) - FullOperationAmount], &FileContents[(FullOperationAmount * Definition::ChunkSize) + BytesLeft]);
+           
+            wprintf(std::wstring(std::to_wstring((FullOperationAmount * Definition::ChunkSize) - FullOperationAmount) + L" -> " + std::to_wstring((FullOperationAmount * Definition::ChunkSize) + BytesLeft) + L"\n").c_str());
         }
-        std::wcout << L"Sending size: " << SendingSize << std::endl;
-        std::wcout << L"Bytes left after: " << BytesLeft << std::endl;
-        std::wcout << L"Full Content size: " << FileContents.size() << std::endl;
-        std::wcout << L"Sub Vector size: " << DividedFileContents->size() << std::endl;
 
         wprintf(L"========================================================\n");
 
         SendingSize-=boost::asio::write((*socket), boost::asio::buffer(*DividedFileContents));
+
+        delete[] DividedFileContents;
+        {
+            boost::array<char, 20> OutputArray;
+            size_t BytesReceived = socket->read_some(boost::asio::buffer(OutputArray));
+
+            std::wcout << L"Received: " << GlobalFunction::to_wstring(std::string(OutputArray.data(), BytesReceived)) << L" | Size: " << std::string(OutputArray.data(), BytesReceived).size() << std::endl;
+            std::wcout << L"Here: " << "ConSndMr" << L" | Size: " << strlen("ConSndMr") << std::endl;
+
+            if (std::string(OutputArray.data(), BytesReceived) != "ConSndMr")
+            {
+                wprintf(L"Press any button to continue"); getchar();
+                return 0;
+            }
+        }
     }
 
     return BytesSent;
@@ -185,6 +187,9 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
 
         /* Delete array to free space */
         delete[] ContentArray;
+
+        /* Write ConSndMr to ask for more data. this is to prevent the server from mass sending data */
+        boost::asio::write((*socket), boost::asio::buffer(std::string("ConSndMr")), error);
     }
 
     OutFileStream.close();

@@ -6,14 +6,14 @@
 
 #include "LoadingScreen/LoadingScreen.h"
 
-#define Kilobyte (long)1024
-#define Megabyte (long)1024*Kilobyte
-#define Gigabyte (long)1024*Megabyte
+#define Kilobyte (INT64)1024
+#define Megabyte (INT64)1024*Kilobyte
+#define Gigabyte (INT64)1024*Megabyte
 
 void CreateRandomData(LoadingScreen* Object)
 {
-    INT64 OutputFileSize = (2.6 * Gigabyte);
-    INT64 SectionSize = (500 * Megabyte);
+    INT64 OutputFileSize = (1 * Gigabyte);
+    INT64 SectionSize = ((INT64)500 * Megabyte);
 
     INT64 Progress = 0;
     INT64 OutOf = OutputFileSize;
@@ -61,8 +61,6 @@ void CreateRandomData(LoadingScreen* Object)
 int main()
 {
     _setmode(_fileno(stdout), _O_U16TEXT);
-
-    return 0;
 
     try
     {
