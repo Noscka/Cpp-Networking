@@ -106,18 +106,18 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
             DividedFileContents = new std::vector<Definition::byte>(Definition::ChunkSize);
 
             filestream.seekg(CurrentOperationCount * Definition::ChunkSize);
-            filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), Definition::ChunkSize - 1);
+            filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), Definition::ChunkSize);
 
-            wprintf(std::wstring(std::to_wstring(CurrentOperationCount * Definition::ChunkSize) + L" -> " + std::to_wstring(((CurrentOperationCount + 1) * Definition::ChunkSize) - 1) + L"\n").c_str());
+            wprintf(std::wstring(std::to_wstring(CurrentOperationCount * Definition::ChunkSize) + L" -> " + std::to_wstring(((CurrentOperationCount + 1) * Definition::ChunkSize)) + L"\n").c_str());
             CurrentOperationCount++;
         }
         else
         {
             DividedFileContents = new std::vector<Definition::byte>(BytesLeft);
-            filestream.seekg((FullOperationAmount * Definition::ChunkSize) - 1);
+            filestream.seekg((FullOperationAmount * Definition::ChunkSize));
             filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), BytesLeft);
            
-            wprintf(std::wstring(std::to_wstring((FullOperationAmount * Definition::ChunkSize) - 1) + L" -> " + std::to_wstring((FullOperationAmount * Definition::ChunkSize) + BytesLeft) + L"\n").c_str());
+            wprintf(std::wstring(std::to_wstring((FullOperationAmount * Definition::ChunkSize)) + L" -> " + std::to_wstring((FullOperationAmount * Definition::ChunkSize) + BytesLeft) + L"\n").c_str());
         }
 
 

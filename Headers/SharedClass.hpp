@@ -17,8 +17,7 @@ static class Definition
 {
 public:
     inline static const std::wstring Delimiter = L"\n\r\n\r\n\013\x4\n";
-    //inline static const int ChunkSize = 524288000;
-    inline static const int ChunkSize = 10;
+    inline static const int ChunkSize = 524288000;
     typedef unsigned char byte;
 
 };
