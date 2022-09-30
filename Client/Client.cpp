@@ -6,6 +6,24 @@
 
 #include <boost/asio.hpp>
 
+/*
+Notes to remember
+
+Renaming:
+Sectioning -> for all sectioning functions and refrences, instead of saying it sections the file, it should say it sections the metadata
+chunks -> chunks now renamed to segements as they sound better
+
+functions:
+Rename fuctions to fit the new word defenitions (for example, SectionFile -> SectionMetadata)
+
+Class:
+create 3 classes
+ - server functions -> class which contains server functions, such as SectionFile (soon sectionMetadata) and SendFile
+ - client functions -> class which contains client functions, such as DesectionFile (soon DesectionMetadata) and ReceiveFile
+ - global functions -> class which contains global functions, such as GetDelimiter, int to byte and etc. might put those functions into the definitions class and/or rename it
+
+*/
+
 int main()
 {
     _setmode(_fileno(stdout), _O_U16TEXT);

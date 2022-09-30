@@ -17,7 +17,7 @@ static class Definition
 {
 public:
     inline static const std::wstring Delimiter = L"\n\r\n\r\n\013\x4\n";
-    inline static const int ChunkSize = 524288000;
+    inline static const int SegementSize = 524288000;
     typedef unsigned char byte;
 
 };
@@ -42,7 +42,7 @@ public:
 
     static std::string to_string(const std::wstring& wstr);
 
-    static size_t SendFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo);
+    static uint64_t SendFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo);
 
     static void ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, bool displayInfo);
 };

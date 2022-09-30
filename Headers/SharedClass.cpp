@@ -57,12 +57,13 @@ std::wstring streamBufferToWstring(boost::asio::streambuf* streamBuffer, size_t 
     return std::wstring{ boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_received - GlobalFunction::GetDelimiter().size() };
 }
 
-size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
+uint64_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
 {
     boost::system::error_code error;
 
     size_t BytesSent = boost::asio::write((*socket), boost::asio::buffer(GlobalFunction::SectionFile(FileAddress, InfoString, true)), error);
 
+#pragma region ResponseWaiting
     /* Wait for response from client to send content */
     {
         boost::array<char, 20> OutputArray;
@@ -74,74 +75,92 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
         }
     }
     /* Wait for response from client to send content */
+#pragma endregion
 
     /* Open file stream to allow for reading of file */
     std::ifstream filestream(FileAddress, std::ios::binary);
 
-    uint64_t SendingSize = boost::filesystem::file_size(boost::filesystem::path(FileAddress));
-    uint64_t FullOperationAmount = (int)(SendingSize / Definition::ChunkSize);
-    uint64_t BytesLeft = SendingSize % Definition::ChunkSize;
+    uint64_t TotalSendingSize = boost::filesystem::file_size(boost::filesystem::path(FileAddress)); /* get total sending size */
+    uint64_t FullOperationAmount = (int)(TotalSendingSize / Definition::SegementSize); /* amount of times server has to send 500MB segements */
+    uint64_t BytesLeft = TotalSendingSize % Definition::SegementSize; /* Amount of bytes left which will get sent seperataly */
+    uint64_t CurrentOperationCount = 0; /* Storing current operation count */
 
-    uint64_t CurrentOperationCount = 0;
-
-    wprintf(L"========================================================\n");
-    wprintf(std::wstring(L"Sending Size: " + std::to_wstring(SendingSize) + L"\n").c_str());
+    /* Debug and info output to show the use what is happening */
+    wprintf(L"========================-Starting info-========================\n");
+    wprintf(std::wstring(L"Sending Size: " + std::to_wstring(TotalSendingSize) + L"\n").c_str());
     wprintf(std::wstring(L"Byte Left: " + std::to_wstring(BytesLeft) + L"\n").c_str());
-    wprintf(L"========================================================\n");
+    wprintf(L"===============================================================\n");
 
-    while (SendingSize != 0)
+    /* while loop until all bytes sent */
+    while (TotalSendingSize != 0)
     {
+        /* Vector for sending the data gotten from file, is a pointer to not put the object on stack */
         std::vector<Definition::byte>* DividedFileContents;
 
-        wprintf(L"========================================================\n");
-
+        /* Debug and info output to show the use what is happening */
+        wprintf(L"========================-Sending Info-========================\n");
         wprintf(std::wstring(L"Operation Count: " + std::to_wstring(FullOperationAmount) + L"\n").c_str());
         wprintf(std::wstring(L"Current Operation: " + std::to_wstring(CurrentOperationCount) + L"\n").c_str());
-
         wprintf(std::wstring(L"Mode: " + std::wstring((CurrentOperationCount < FullOperationAmount) ? L"500MB" : L"Left over") + L" Mode\n").c_str());
 
-
-        if(CurrentOperationCount < FullOperationAmount)
+        if(CurrentOperationCount < FullOperationAmount) /* if statement to check if the program should sent 500MB segements */
         {
-            DividedFileContents = new std::vector<Definition::byte>(Definition::ChunkSize);
+            /* create a new vector with the segement size (default 500MB unless I changed it) */
+            DividedFileContents = new std::vector<Definition::byte>(Definition::SegementSize);
 
-            filestream.seekg(CurrentOperationCount * Definition::ChunkSize);
-            filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), Definition::ChunkSize);
+            /* seek the position to read from (in a way, move the file reader pointer to the start of needed bytes) */
+            filestream.seekg(CurrentOperationCount * Definition::SegementSize);
+            /* Read the 500MBs into the vector array */
+            filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), Definition::SegementSize);
 
-            wprintf(std::wstring(std::to_wstring(CurrentOperationCount * Definition::ChunkSize) + L" -> " + std::to_wstring(((CurrentOperationCount + 1) * Definition::ChunkSize)) + L"\n").c_str());
+            /* output the range of bytes gotten to show progress, plus it looks nice */
+            wprintf(std::wstring(std::to_wstring(CurrentOperationCount * Definition::SegementSize) + L" -> " + std::to_wstring(((CurrentOperationCount + 1) * Definition::SegementSize)) + L"\n").c_str());
             CurrentOperationCount++;
         }
-        else
+        else /* if false, send the rest of the data which is less then 500MB */
         {
+            /* create a new vector with the segement size (default 500MB unless I changed it) */
             DividedFileContents = new std::vector<Definition::byte>(BytesLeft);
-            filestream.seekg((FullOperationAmount * Definition::ChunkSize));
+
+            /* seek the position to read from (in a way, move the file reader pointer to the start of needed bytes) */
+            filestream.seekg((FullOperationAmount * Definition::SegementSize));
+            /* Read the bytes left into the vector array */
             filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), BytesLeft);
            
-            wprintf(std::wstring(std::to_wstring((FullOperationAmount * Definition::ChunkSize)) + L" -> " + std::to_wstring((FullOperationAmount * Definition::ChunkSize) + BytesLeft) + L"\n").c_str());
+            /* output the range of bytes gotten to show progress, plus it looks nice */
+            wprintf(std::wstring(std::to_wstring((FullOperationAmount * Definition::SegementSize)) + L" -> " + std::to_wstring((FullOperationAmount * Definition::SegementSize) + BytesLeft) + L"\n").c_str());
         }
 
-
-        SendingSize-=boost::asio::write((*socket), boost::asio::buffer(*DividedFileContents));
+        /* write the vector into the socket stream for the client. also minus the amount of bytes sent from total */
+        TotalSendingSize -= boost::asio::write((*socket), boost::asio::buffer(*DividedFileContents));
+        /* May not be necessery but just incase, destoy the vector to 100% prevent a memory leak */
         DividedFileContents->~vector();
 
-        wprintf(std::wstring(L"Amount Left: " + std::to_wstring(SendingSize) + L"\n").c_str());
-        wprintf(L"========================================================\n");
+        wprintf(std::wstring(L"Amount Left: " + std::to_wstring(TotalSendingSize) + L"\n").c_str());
+        wprintf(L"==============================================================\n");
     }
 
-    return BytesSent;
+    return BytesSent + TotalSendingSize;
 }
 
 void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, bool displayInfo)
 {
+#pragma region GettingMetadata
+    /* Get file metadata */
+
+    /* vector for getting sectioned metadata and processing it */
     std::vector<Definition::byte> ReceivedRawData;
 
     {
         boost::system::error_code error;
         boost::asio::streambuf streamBuffer;
 
+        /* Read until the delimiter is found. get just the metadata containing filename byte size, filename and content byte size  */
         size_t bytes_transferred = boost::asio::read_until((*socket), streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
         {
+            /* convert stream buffer to wstring while removing the delimiter */
             std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
+            /* insert wstring (containing raw data, no way to directly put streambuf into vector) into the raw data vector */
             ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
         }
     }
@@ -149,36 +168,43 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
     std::wstring Filename;
     uint64_t ExpectedContentsize = GlobalFunction::DesectionFile(ReceivedRawData, &Filename, InfoString, true);
 
+    ReceivedRawData.~vector();
+    /* Get file metadata */
+#pragma endregion
+
+#pragma region ConSndCnt
     /* Confirm and ask for content */
     boost::system::error_code error;
 
     boost::asio::write((*socket), boost::asio::buffer(std::string("ConSndCnt")), error);
-    
+
     if (error)
         return;
     /* Confirm and ask for content */
+#pragma endregion
 
-    /* Read from stream with 500MB sized content chuncks */
+#pragma region SegementedReceive
+    /* Read from stream with 500MB sized content segements */
     std::ofstream OutFileStream(Filename, std::ios::binary);
 
     while (ExpectedContentsize != 0)
     {
         /* 500MB sized array to limit the intake at once - Pointer so it doesn't go into stack */
-        boost::array<Definition::byte, Definition::ChunkSize> *ContentArray = new boost::array<Definition::byte, Definition::ChunkSize>;
-        
+        boost::array<Definition::byte, Definition::SegementSize>* ContentArray = new boost::array<Definition::byte, Definition::SegementSize>;
+
         /* Receive content chuncks */
         size_t ReceivedByteCount = socket->read_some(boost::asio::buffer(*ContentArray));
-        
+
         /* Update Content size for new size needed */
         ExpectedContentsize -= ReceivedByteCount;
 
         /* Convert to string temporarily to allow for writing into file */
         std::string TempString((char*)ContentArray->data(), ReceivedByteCount);
 
-        wprintf(L"========================================================\n");
+        wprintf(L"========================-Receiving Info-========================\n");
         wprintf(std::wstring(L"Received Data: " + std::to_wstring(ReceivedByteCount) + L"\n").c_str());
         wprintf(std::wstring(L"Data Left: " + std::to_wstring(ExpectedContentsize) + L"\n").c_str());
-        wprintf(L"========================================================\n");
+        wprintf(L"================================================================\n");
 
         /* write content into file */
         OutFileStream.write(TempString.c_str(), TempString.size());
@@ -188,7 +214,8 @@ void GlobalFunction::ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstr
     }
 
     OutFileStream.close();
-    /* Read from stream with 500MB sized content chuncks */
+    /* Read from stream with 500MB sized content segements */
+#pragma endregion
 
     return;
 }
