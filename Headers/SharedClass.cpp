@@ -79,12 +79,15 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
     std::ifstream filestream(FileAddress, std::ios::binary);
 
     /* copy data from file to vector array */
-    std::vector<Definition::byte> FileContents = std::vector<Definition::byte>(std::istreambuf_iterator<char>(filestream), {});
-    int SendingSize = FileContents.size();
-    int FullOperationAmount = SendingSize / Definition::ChunkSize;
-    int BytesLeft = SendingSize % Definition::ChunkSize;
+    std::vector<Definition::byte> FileContents;
+    FileContents.reserve(boost::filesystem::file_size(boost::filesystem::path(FileAddress)));
+    FileContents.insert(FileContents.begin(), std::istreambuf_iterator<char>(filestream), std::istreambuf_iterator<char>());
 
-    int CurrentOperationCount = 0;
+    INT64 SendingSize = FileContents.size();
+    INT64 FullOperationAmount = SendingSize / Definition::ChunkSize;
+    INT64 BytesLeft = SendingSize % Definition::ChunkSize;
+
+    INT64 CurrentOperationCount = 0;
 
     while (SendingSize != 0)
     {
@@ -109,7 +112,7 @@ size_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wstri
         {
             int ByteOffset;
             if (FullOperationAmount != 0)
-                ByteOffset = 2;
+                ByteOffset = FullOperationAmount;
             else
                 ByteOffset = 0;
 

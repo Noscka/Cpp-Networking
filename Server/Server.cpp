@@ -36,7 +36,7 @@ public:
             wprintf(L"Enter a filename: ");
             std::getline(std::wcin, SendingFileName);
             if (SendingFileName.empty())
-                SendingFileName = LR"(D:\Programing\C++\C++ Networking\Build\Server\x64\Release\RandomData.txt)";
+                SendingFileName = LR"(RandomData.txt)";
 
 
             wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)GlobalFunction::SendFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
