@@ -75,8 +75,9 @@ uint64_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wst
         }
     }
     /* Wait for response from client to send content */
-#pragma endregion
+#pragma endregion 
 
+#pragma region SendingContents
     /* Open file stream to allow for reading of file */
     std::ifstream filestream(FileAddress, std::ios::binary);
 
@@ -103,7 +104,7 @@ uint64_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wst
         wprintf(std::wstring(L"Current Operation: " + std::to_wstring(CurrentOperationCount) + L"\n").c_str());
         wprintf(std::wstring(L"Mode: " + std::wstring((CurrentOperationCount < FullOperationAmount) ? L"500MB" : L"Left over") + L" Mode\n").c_str());
 
-        if(CurrentOperationCount < FullOperationAmount) /* if statement to check if the program should sent 500MB segements */
+        if (CurrentOperationCount < FullOperationAmount) /* if statement to check if the program should sent 500MB segements */
         {
             /* create a new vector with the segement size (default 500MB unless I changed it) */
             DividedFileContents = new std::vector<Definition::byte>(Definition::SegementSize);
@@ -126,7 +127,7 @@ uint64_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wst
             filestream.seekg((FullOperationAmount * Definition::SegementSize));
             /* Read the bytes left into the vector array */
             filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), BytesLeft);
-           
+
             /* output the range of bytes gotten to show progress, plus it looks nice */
             wprintf(std::wstring(std::to_wstring((FullOperationAmount * Definition::SegementSize)) + L" -> " + std::to_wstring((FullOperationAmount * Definition::SegementSize) + BytesLeft) + L"\n").c_str());
         }
@@ -139,6 +140,7 @@ uint64_t GlobalFunction::SendFile(boost::asio::ip::tcp::socket* socket, std::wst
         wprintf(std::wstring(L"Amount Left: " + std::to_wstring(TotalSendingSize) + L"\n").c_str());
         wprintf(L"==============================================================\n");
     }
+#pragma endregion
 
     return BytesSent + TotalSendingSize;
 }
@@ -230,6 +232,8 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
 
     filestream.close();
 
+#pragma region ConvertFileToBytes
+#pragma region MetadataSizeToByte
     /* Get size of metadata (currently just string) */
     int MetaData_section_size = Filename.size();
     /* Convert metadata size to raw bytes so it can be into the sending vector */
@@ -237,7 +241,9 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
     std::copy(static_cast<const char*>(static_cast<const void*>(&MetaData_section_size)),
               static_cast<const char*>(static_cast<const void*>(&MetaData_section_size)) + sizeof MetaData_section_size,
               MetaData_section_size_Bytes);
-
+#pragma endregion
+    
+#pragma region ContentSizeToByte
     /* Get size of file content */
     uint64_t Content_section_size = boost::filesystem::file_size(boost::filesystem::path(FileAddress));
     /* Convert content size to raw bytes so it can be into the sending vector */
@@ -245,6 +251,7 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
     std::copy(static_cast<const char*>(static_cast<const void*>(&Content_section_size)),
               static_cast<const char*>(static_cast<const void*>(&Content_section_size)) + sizeof Content_section_size,
               Content_section_size_Bytes);
+#pragma endregion
 
     /*
     Put all the data gathered (metadata size, metadata, content size, content) and put it in the
@@ -252,7 +259,10 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
     so it can sectioned in the client.
 
     Underneath is a `diagram` showing the structer of the vector (without the | character)
-    Structer of the vector |(int)metadata size|(metadata object)metadata|(int)content size|(vector<unsigned char>)content|(wstring)Delimiter|
+    Structer of the vector |(int)metadata size|(metadata object)metadata|(int)content size|(wstring)Delimiter|
+
+    Later and seperate:
+    (vector<unsigned char>)content
     */
     std::vector<Definition::byte> SendingRawByteBuffer;
     SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), MetaData_section_size_Bytes, MetaData_section_size_Bytes + sizeof MetaData_section_size);
@@ -262,10 +272,10 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
         std::string DelimiterTemp = GlobalFunction::to_string(GlobalFunction::GetDelimiter());
         SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), DelimiterTemp.begin(), DelimiterTemp.end());
     }
+#pragma endregion
 
     if (displayInfo)
     {
-
         *InfoString = std::format(L"Metadata size: {}\nMetadata Filename: {}\nContent Size: {}\nDelimiter: {}\n", MetaData_section_size, Filename, Content_section_size, GlobalFunction::GetRawDelimiter());
     }
 
@@ -274,6 +284,7 @@ std::vector<Definition::byte> GlobalFunction::SectionFile(std::wstring FileAddre
 
 uint64_t GlobalFunction::DesectionFile(std::vector<Definition::byte> ReceivedRawData, std::wstring *filename, std::wstring* InfoString, bool displayInfo)
 {
+#pragma region GetMetadataLenght
     /* Getting Metadata Lenght */
     int Metadata_length;
     {
@@ -287,12 +298,16 @@ uint64_t GlobalFunction::DesectionFile(std::vector<Definition::byte> ReceivedRaw
         std::memcpy(&Metadata_length, Metadata_lenght_bytes, sizeof Metadata_lenght_bytes);
     }
     /* Getting Metadata Lenght */
+#pragma endregion
 
+#pragma region GetMetadata
     /* Getting Metadata */
     std::wstring Filename(&ReceivedRawData[4], &ReceivedRawData[4] + Metadata_length);
     *filename = Filename;
     /* Getting Metadata */
+#pragma endregion
 
+#pragma region GetContentSize
     /* Getting Content Lenght */
     uint64_t content_length;
     int offsetRead = 4 + (Metadata_length);
@@ -307,6 +322,8 @@ uint64_t GlobalFunction::DesectionFile(std::vector<Definition::byte> ReceivedRaw
     }
     /* Getting Content Lenght */
 
+#pragma endregion
+    
     if (displayInfo)
     {
         *InfoString = std::format(L"Metadata size: {}\nMetadata Filename: {}\nContent Size: {}\n", Metadata_length, Filename, content_length);
