@@ -11,6 +11,8 @@
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 
+#include <chrono>
+
 class ServerFunctions
 {
 private:
@@ -94,6 +96,8 @@ public:
         /* Wait for response from client to send content */
 #pragma endregion 
 
+        std::chrono::time_point<std::chrono::steady_clock> start = std::chrono::steady_clock::now();
+
 #pragma region SendingContents
     /* Open file stream to allow for reading of file */
         std::ifstream filestream(FileAddress, std::ios::binary);
@@ -158,6 +162,13 @@ public:
             wprintf(L"==============================================================\n");
         }
 #pragma endregion
+
+        std::chrono::time_point<std::chrono::steady_clock> end = std::chrono::steady_clock::now();
+
+        std::chrono::duration<double, std::milli> fp_ms = end - start;
+        std::chrono::duration<unsigned long long, std::milli> int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+        std::wcout << L"Time Taken: " << int_ms << std::endl;
 
         return BytesSent + TotalSendingSize;
     }
