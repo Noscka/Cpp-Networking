@@ -1,5 +1,4 @@
-#ifndef __BOOST_SERIALIZE_H
-#define __BOOST_SERIALIZE_H
+#pragma once
 #include <iostream>
 #include <format>
 #include <string>
@@ -26,12 +25,7 @@ static class GlobalFunction
 {
 private:
     static std::vector<Definition::byte> intToBytes(int paramInt);
-
-    static std::vector<Definition::byte> SectionFile(std::wstring FileAddress, std::wstring* InfoString, bool displayInfo);
-
-    static uint64_t DesectionFile(std::vector<Definition::byte> ReceivedRawData, std::wstring* filename, std::wstring* InfoString, bool displayInfo);
 public:
-
     static std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint);
 
     static std::wstring GetDelimiter();
@@ -41,10 +35,6 @@ public:
     static std::wstring to_wstring(const std::string& str);
 
     static std::string to_string(const std::wstring& wstr);
-
-    static uint64_t SendFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo);
-
-    static void ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, bool displayInfo);
 };
 
 class FileInMemoryEntry
@@ -55,4 +45,3 @@ public:
     std::vector<Definition::byte> FileContents;
     std::vector<FileInMemoryEntry> FIMEArray;
 };
-#endif 

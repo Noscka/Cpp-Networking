@@ -1,4 +1,6 @@
+#include "../Headers/Server/ServerFunctions.hpp"
 #include "SharedClass.hpp"
+
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -39,7 +41,7 @@ public:
                 SendingFileName = LR"(C:\Users\Adam\Documents\Programing Projects\C++\C++ Networking\Build\Server\x64\Release\RandomData.txt)";
 
 
-            wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)GlobalFunction::SendFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
+            wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::SendFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
             wprintf(InfoString.c_str());
         }
         catch (std::exception& e)

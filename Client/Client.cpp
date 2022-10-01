@@ -1,4 +1,6 @@
+#include "../Headers/Client/ClientFunctions.hpp"
 #include "SharedClass.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <io.h>
@@ -15,13 +17,6 @@ chunks -> chunks now renamed to segements as they sound better
 
 functions:
 Rename fuctions to fit the new word defenitions (for example, SectionFile -> SectionMetadata)
-
-Class:
-create 3 classes
- - server functions -> class which contains server functions, such as SectionFile (soon sectionMetadata) and SendFile
- - client functions -> class which contains client functions, such as DesectionFile (soon DesectionMetadata) and ReceiveFile
- - global functions -> class which contains global functions, such as GetDelimiter, int to byte and etc. might put those functions into the definitions class and/or rename it
-
 */
 
 int main()
@@ -50,7 +45,7 @@ int main()
         wprintf(L"Connected to server\n");
 
         std::wstring InfoString;
-        GlobalFunction::ReceiveFile(&socket, &InfoString, true);
+        ClientFunctions::ReceiveFile(&socket, &InfoString, true);
         wprintf(InfoString.c_str());
     }
     catch (std::exception& e)
