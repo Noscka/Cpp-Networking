@@ -1,0 +1,28 @@
+4 Gigabyte file
+============================================
+Reading full file to memory and sending:
+File -> Memory -> send: 81345
+File -> Memory -> send: 81719
+File -> Memory -> send: 75401
+File -> Memory -> send: 71681
+
+Reading file 500MBs at a times
+File -> send: 70698
+File -> send: 35486
+File -> send: 35514
+File -> send: 33863
+============================================
+300MB file
+============================================
+Reading full file to memory and sending:
+File -> Memory -> send: 3117
+File -> Memory -> send: 2929
+File -> Memory -> send: 3684
+File -> Memory -> send: 2560
+
+Reading file 500MBs at a times
+File -> send: 840
+File -> send: 684
+File -> send: 932
+File -> send: 962
+============================================
