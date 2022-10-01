@@ -8,8 +8,6 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
-#include <boost/array.hpp>
-#include <boost/bind/bind.hpp>
 #include <boost/filesystem.hpp>
 
 /*
@@ -36,7 +34,6 @@ public:
     inline static const std::wstring Delimiter = L"\n\r\n\r\n\013\x4\n";
     inline static const int SegementSize = 524288000;
     typedef unsigned char byte;
-
 };
 
 static class GlobalFunction
@@ -59,5 +56,5 @@ public:
     std::string Filename;
     std::string FileSHA256Checksum;
     std::vector<Definition::byte> FileContents;
-    std::vector<FileInMemoryEntry> FIMEArray;
+    static std::vector<FileInMemoryEntry> FIMEArray;
 };

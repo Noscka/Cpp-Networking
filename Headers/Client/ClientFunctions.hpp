@@ -9,6 +9,7 @@
 #include "../SharedClass.hpp"
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/array.hpp>
 
 class ClientFunctions
 {
