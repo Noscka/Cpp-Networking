@@ -13,7 +13,7 @@
 class ClientFunctions
 {
 private:
-    static uint64_t DesectionFile(std::vector<Definition::byte> ReceivedRawData, std::wstring* filename, std::wstring* InfoString, bool displayInfo)
+    static uint64_t DesectionMetadata(std::vector<Definition::byte> ReceivedRawData, std::wstring* filename, std::wstring* InfoString, bool displayInfo)
     {
 #pragma region GetMetadataLenght
     /* Getting Metadata Lenght */
@@ -62,7 +62,7 @@ private:
 
         return content_length;
     }
-public:
+
     /// <summary>
     /// convert stream buffer to wide string and removing delimiter
     /// </summary>
@@ -73,7 +73,7 @@ public:
     {
         return std::wstring{ boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_received - GlobalFunction::GetDelimiter().size() };
     }
-
+public:
     static void ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, bool displayInfo)
     {
 #pragma region GettingMetadata
@@ -97,7 +97,7 @@ public:
         }
 
         std::wstring Filename;
-        uint64_t ExpectedContentsize = ClientFunctions::DesectionFile(ReceivedRawData, &Filename, InfoString, true);
+        uint64_t ExpectedContentsize = ClientFunctions::DesectionMetadata(ReceivedRawData, &Filename, InfoString, true);
 
         ReceivedRawData.~vector();
         /* Get file metadata */

@@ -13,7 +13,7 @@
 class ServerFunctions
 {
 private:
-    static std::vector<Definition::byte> SectionFile(std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
+    static std::vector<Definition::byte> SectionMetadata(std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
     {
 /* Open file stream to allow for reading of file */
         std::ifstream filestream(FileAddress, std::ios::binary);
@@ -77,7 +77,7 @@ public:
     {
         boost::system::error_code error;
 
-        size_t BytesSent = boost::asio::write((*socket), boost::asio::buffer(ServerFunctions::SectionFile(FileAddress, InfoString, true)), error);
+        size_t BytesSent = boost::asio::write((*socket), boost::asio::buffer(ServerFunctions::SectionMetadata(FileAddress, InfoString, true)), error);
 
 #pragma region ResponseWaiting
     /* Wait for response from client to send content */

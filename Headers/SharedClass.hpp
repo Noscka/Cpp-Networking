@@ -23,8 +23,6 @@ public:
 
 static class GlobalFunction
 {
-private:
-    static std::vector<Definition::byte> intToBytes(int paramInt);
 public:
     static std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint);
 

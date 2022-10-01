@@ -37,11 +37,3 @@ std::wstring GlobalFunction::ReturnAddress(boost::asio::ip::tcp::endpoint Endpoi
 {
     return std::format(L"{}:{}", GlobalFunction::to_wstring(Endpoint.address().to_v4().to_string()), GlobalFunction::to_wstring(std::to_string(Endpoint.port())));
 }
-
-std::vector<Definition::byte> GlobalFunction::intToBytes(int paramInt)
-{
-    std::vector<Definition::byte> arrayOfByte(4);
-    for (int i = 0; i < 4; i++)
-        arrayOfByte[3 - i] = (paramInt >> (i * 8));
-    return arrayOfByte;
-}
