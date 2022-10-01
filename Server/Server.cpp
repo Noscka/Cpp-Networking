@@ -1,106 +1,80 @@
+#include "Server/ServerFunctions.hpp"
+#include "SharedClass.hpp"
+
 #include <iostream>
-#include <sstream>
 #include <string>
-#include <boost/array.hpp>
-#include <boost/bind/bind.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
+#include <fstream>
+#include <format>
+#include <io.h>
+#include <fcntl.h>
+#include <filesystem>
+
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-#include "../Headers/SharedClass.h"
 
 class tcp_connection
-    : public boost::enable_shared_from_this<tcp_connection>
 {
+private:
+    boost::asio::ip::tcp::socket socket;
+
+    tcp_connection(boost::asio::io_context& io_context) : socket(io_context) {}
 public:
-    typedef boost::shared_ptr<tcp_connection> pointer;
+    static tcp_connection* create(boost::asio::io_context& io_context) { return new tcp_connection(io_context); }
 
-    static pointer create(boost::asio::io_context& io_context)
-    {
-        return pointer(new tcp_connection(io_context));
-    }
-
-    boost::asio::ip::tcp::socket& socket()
-    {
-        return socket_;
-    }
+    boost::asio::ip::tcp::socket& ConSocket() { return socket; }
 
     void start()
     {
+        wprintf(std::format(L"Client Connected from {}\n", GlobalFunction::ReturnAddress(socket.local_endpoint())).c_str());
+
         try
         {
-            for (;;)
-            {
-                boost::system::error_code error;
-                boost::asio::streambuf buf;
+            boost::system::error_code error;
 
-                boost::asio::read(socket_, buf, boost::asio::transfer_all(), error);
+            std::wstring InfoString;
 
-                EmployeeData newEmp(&buf);
-                std::cout << "Loaded: " << newEmp.toString() << std::endl;
+            std::wstring SendingFileName;
 
-                if (error == boost::asio::error::eof)
-                    break; // Connection closed cleanly by client.
-                else if (error)
-                    throw boost::system::system_error(error); // Some other error.
-            }
+            wprintf(L"Enter a filename: ");
+            std::getline(std::wcin, SendingFileName);
+            if (SendingFileName.empty())
+                SendingFileName = LR"(C:\Users\Adam\Documents\Programing Projects\C++\C++ Networking\Build\Server\x64\Release\RandomData.txt)";
+
+
+            wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::SendFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
+            wprintf(InfoString.c_str());
         }
         catch (std::exception& e)
         {
             std::cerr << e.what() << std::endl;
         }
     }
-
-private:
-    tcp_connection(boost::asio::io_context& io_context)
-        : socket_(io_context)
-    {
-    }
-
-    boost::asio::ip::tcp::socket socket_;
-};
-
-class tcp_server
-{
-public:
-    tcp_server(boost::asio::io_context& io_context) : io_context_(io_context), acceptor_(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 13))
-    {
-        start_accept();
-    }
-
-private:
-    void start_accept()
-    {
-        tcp_connection::pointer new_connection =
-            tcp_connection::create(io_context_);
-
-        acceptor_.async_accept(new_connection->socket(),
-                               boost::bind(&tcp_server::handle_accept, this, new_connection,
-                               boost::asio::placeholders::error));
-    }
-
-    void handle_accept(tcp_connection::pointer new_connection,
-                       const boost::system::error_code& error)
-    {
-        if (!error)
-        {
-            boost::thread* ClientThread = new boost::thread(boost::bind(&tcp_connection::start, new_connection));
-        }
-
-        start_accept();
-    }
-
-    boost::asio::io_context& io_context_;
-    boost::asio::ip::tcp::acceptor acceptor_;
 };
 
 int main()
 {
+    _setmode(_fileno(stdout), _O_U16TEXT);
+
     try
     {
         boost::asio::io_context io_context;
-        tcp_server server(io_context);
-        io_context.run();
+        boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 58233));
+
+        SetConsoleTitle(std::wstring(L"File Server at " + GlobalFunction::ReturnAddress(acceptor.local_endpoint())).c_str());
+
+        while (true)
+        {
+            /* tcp_connection object which allows for managed of multiple users */
+            tcp_connection* newConSim = tcp_connection::create(io_context);
+
+            boost::system::error_code error;
+
+            /* accept incoming connection and assigned it to the tcp_connection object socket */
+            acceptor.accept(newConSim->ConSocket(), error);
+
+            /* if no errors, create thread for the new connection */
+            if (!error) { boost::thread* ClientThread = new boost::thread(boost::bind(&tcp_connection::start, newConSim)); }
+        }
     }
     catch (std::exception& e)
     {

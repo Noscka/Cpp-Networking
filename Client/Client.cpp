@@ -1,51 +1,47 @@
+#include "Client/ClientFunctions.hpp"
+#include "SharedClass.hpp"
+
 #include <iostream>
-#include <boost/array.hpp>
-#include <boost/asio.hpp>
-#include "../Headers/SharedClass.h"
-
 #include <fstream>
+#include <io.h>
+#include <fcntl.h>
 
+#include <boost/asio.hpp>
 
 int main()
 {
-    std::fstream filestream("text.txt", std::ios::binary);
-    std::cout << filestream.;
+    _setmode(_fileno(stdout), _O_U16TEXT);
 
-    getchar();
-    return 0;
+    boost::asio::io_context io_context;
+
+    boost::asio::ip::tcp::socket socket(io_context);
 
     try
     {
+        wprintf(L"Type in hostname: ");
+        std::string HostName;
+        std::getline(std::cin, HostName);
+        if (HostName.empty())
+            HostName = "localhost";
 
-        boost::asio::io_context io_context; /* Main point of the client networking */
-        
-        /* socket which is connected to the server */
-        boost::asio::ip::tcp::socket socket(io_context);
+        /*
+        Connects to the function using `resolver` which resolves the address e.g. (Noscka.com -> 123.123.123.123)
+        Host - Hostname/Ip address
+        Service - Service(Hostname for ports)/Port number
+        */
+        boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve(HostName, "58233"));
 
-        /* Connects to the function using `resolver` which resolves the address (Noscka.com -> 123.123.123.123) */
-        boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve("localhost", "daytime"));
+        wprintf(L"Connected to server\n");
 
-        printf("Connected to server\n"); /* message to confirm to the user the program connected */
-
-        boost::asio::streambuf buf;
-        EmployeeData emp("chandan", 34, "microsoft");
-
-        std::ostream oss(&buf);
-
-        //saving data in oss
-        emp.save(oss);
-
-        printf(emp.toString().c_str());
-
-        boost::system::error_code ignored_error;
-
-        boost::asio::write(socket, buf, ignored_error);
-        
+        std::wstring InfoString;
+        ClientFunctions::ReceiveFile(&socket, &InfoString, true);
+        wprintf(InfoString.c_str());
     }
     catch (std::exception& e)
     {
         std::cerr << e.what() << std::endl;
     }
 
+    wprintf(L"Press any button to continue"); getchar();
     return 0;
 }
