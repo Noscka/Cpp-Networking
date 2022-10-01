@@ -1,4 +1,4 @@
-#include "../Headers/Client/ClientFunctions.hpp"
+#include "Client/ClientFunctions.hpp"
 #include "SharedClass.hpp"
 
 #include <iostream>
@@ -7,17 +7,6 @@
 #include <fcntl.h>
 
 #include <boost/asio.hpp>
-
-/*
-Notes to remember
-
-Renaming:
-Sectioning -> for all sectioning functions and refrences, instead of saying it sections the file, it should say it sections the metadata
-chunks -> chunks now renamed to segements as they sound better
-
-functions:
-Rename fuctions to fit the new word defenitions (for example, SectionFile -> SectionMetadata)
-*/
 
 int main()
 {

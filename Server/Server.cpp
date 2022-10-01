@@ -1,4 +1,4 @@
-#include "../Headers/Server/ServerFunctions.hpp"
+#include "Server/ServerFunctions.hpp"
 #include "SharedClass.hpp"
 
 #include <iostream>
