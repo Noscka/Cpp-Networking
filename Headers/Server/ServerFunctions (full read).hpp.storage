@@ -100,67 +100,12 @@ public:
 
 #pragma region SendingContents
     /* Open file stream to allow for reading of file */
-        std::ifstream filestream(FileAddress, std::ios::binary);
+    std::ifstream filestream(FileAddress, std::ios::binary);
 
-        uint64_t TotalSendingSize = boost::filesystem::file_size(boost::filesystem::path(FileAddress)); /* get total sending size */
-        uint64_t FullOperationAmount = (int)(TotalSendingSize / Definition::SegementSize); /* amount of times server has to send 500MB segements */
-        uint64_t BytesLeft = TotalSendingSize % Definition::SegementSize; /* Amount of bytes left which will get sent seperataly */
-        uint64_t CurrentOperationCount = 0; /* Storing current operation count */
+    /* copy data from file to vector array */
+    std::vector<Definition::byte> FileContents = std::vector<Definition::byte>(std::istreambuf_iterator<char>(filestream), {});
 
-        /* Debug and info output to show the use what is happening */
-        wprintf(L"========================-Starting info-========================\n");
-        wprintf(std::wstring(L"Sending Size: " + std::to_wstring(TotalSendingSize) + L"\n").c_str());
-        wprintf(std::wstring(L"Byte Left: " + std::to_wstring(BytesLeft) + L"\n").c_str());
-        wprintf(L"===============================================================\n");
-
-        /* while loop until all bytes sent */
-        while (TotalSendingSize != 0)
-        {
-            /* Vector for sending the data gotten from file, is a pointer to not put the object on stack */
-            std::vector<Definition::byte>* DividedFileContents;
-
-            /* Debug and info output to show the use what is happening */
-            wprintf(L"========================-Sending Info-========================\n");
-            wprintf(std::wstring(L"Operation Count: " + std::to_wstring(FullOperationAmount) + L"\n").c_str());
-            wprintf(std::wstring(L"Current Operation: " + std::to_wstring(CurrentOperationCount) + L"\n").c_str());
-            wprintf(std::wstring(L"Mode: " + std::wstring((CurrentOperationCount < FullOperationAmount) ? L"500MB" : L"Left over") + L" Mode\n").c_str());
-
-            if (CurrentOperationCount < FullOperationAmount) /* if statement to check if the program should sent 500MB segements */
-            {
-                /* create a new vector with the segement size (default 500MB unless I changed it) */
-                DividedFileContents = new std::vector<Definition::byte>(Definition::SegementSize);
-
-                /* seek the position to read from (in a way, move the file reader pointer to the start of needed bytes) */
-                filestream.seekg(CurrentOperationCount * Definition::SegementSize);
-                /* Read the 500MBs into the vector array */
-                filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), Definition::SegementSize);
-
-                /* output the range of bytes gotten to show progress, plus it looks nice */
-                wprintf(std::wstring(std::to_wstring(CurrentOperationCount * Definition::SegementSize) + L" -> " + std::to_wstring(((CurrentOperationCount + 1) * Definition::SegementSize)) + L"\n").c_str());
-                CurrentOperationCount++;
-            }
-            else /* if false, send the rest of the data which is less then 500MB */
-            {
-                /* create a new vector with the segement size (default 500MB unless I changed it) */
-                DividedFileContents = new std::vector<Definition::byte>(BytesLeft);
-
-                /* seek the position to read from (in a way, move the file reader pointer to the start of needed bytes) */
-                filestream.seekg((FullOperationAmount * Definition::SegementSize));
-                /* Read the bytes left into the vector array */
-                filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), BytesLeft);
-
-                /* output the range of bytes gotten to show progress, plus it looks nice */
-                wprintf(std::wstring(std::to_wstring((FullOperationAmount * Definition::SegementSize)) + L" -> " + std::to_wstring((FullOperationAmount * Definition::SegementSize) + BytesLeft) + L"\n").c_str());
-            }
-
-            /* write the vector into the socket stream for the client. also minus the amount of bytes sent from total */
-            TotalSendingSize -= boost::asio::write((*socket), boost::asio::buffer(*DividedFileContents));
-            /* May not be necessery but just incase, destoy the vector to 100% prevent a memory leak */
-            DividedFileContents->~vector();
-
-            wprintf(std::wstring(L"Amount Left: " + std::to_wstring(TotalSendingSize) + L"\n").c_str());
-            wprintf(L"==============================================================\n");
-        }
+    size_t TotalSendingSize = boost::asio::write((*socket), boost::asio::buffer(FileContents));
 #pragma endregion
 
         std::chrono::time_point<std::chrono::steady_clock> end = std::chrono::steady_clock::now();
@@ -169,7 +114,7 @@ public:
         std::chrono::duration<unsigned long long, std::milli> int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
         std::ofstream TestingFileStream("Times.txt", std::ios_base::app | std::ios::binary);
-        TestingFileStream << std::string("File -> send: " + std::to_string(int_ms.count()) + "\n").c_str();
+        TestingFileStream << std::string("File -> Memory -> send: " + std::to_string(int_ms.count()) + "\n").c_str();
         TestingFileStream.close();
 
 

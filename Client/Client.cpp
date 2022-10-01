@@ -32,10 +32,14 @@ int main()
         boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve(HostName, "58233"));
 
         wprintf(L"Connected to server\n");
-
-        std::wstring InfoString;
-        ClientFunctions::ReceiveFile(&socket, &InfoString, true);
-        wprintf(InfoString.c_str());
+        for (int i = 0; i < 4; i++)
+        {
+            std::wstring InfoString;
+            ClientFunctions::ReceiveFile(&socket, &InfoString, true);
+            wprintf(InfoString.c_str());
+            remove("RandomData.txt");
+        }
+        
     }
     catch (std::exception& e)
     {
