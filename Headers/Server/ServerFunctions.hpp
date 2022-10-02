@@ -116,7 +116,7 @@ public:
             std::vector<Definition::byte>* DividedFileContents;
 
             /* Debug and info output to show the use what is happening */
-            wprintf(L"========================-Sending Info-========================\n");
+            wprintf(L"========================>Sending Info<========================\n");
             wprintf(std::wstring(L"Operation Count: " + std::to_wstring(FullOperationAmount) + L"\n").c_str());
             wprintf(std::wstring(L"Current Operation: " + std::to_wstring(CurrentOperationCount) + L"\n").c_str());
             wprintf(std::wstring(L"Mode: " + std::wstring((CurrentOperationCount < FullOperationAmount) ? L"500MB" : L"Left over") + L" Mode\n").c_str());

@@ -81,75 +81,88 @@ public:
     /* Get file metadata */
 
     /* vector for getting sectioned metadata and processing it */
-        std::vector<Definition::byte> ReceivedRawData;
+    std::vector<Definition::byte> ReceivedRawData;
 
+    {
+        boost::system::error_code error;
+        boost::asio::streambuf streamBuffer;
+
+        /* Read until the delimiter is found. get just the metadata containing filename byte size, filename and content byte size  */
+        size_t bytes_transferred = boost::asio::read_until((*socket), streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
         {
-            boost::system::error_code error;
-            boost::asio::streambuf streamBuffer;
-
-            /* Read until the delimiter is found. get just the metadata containing filename byte size, filename and content byte size  */
-            size_t bytes_transferred = boost::asio::read_until((*socket), streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
-            {
-                /* convert stream buffer to wstring while removing the delimiter */
-                std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
-                /* insert wstring (containing raw data, no way to directly put streambuf into vector) into the raw data vector */
-                ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
-            }
+            /* convert stream buffer to wstring while removing the delimiter */
+            std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
+            /* insert wstring (containing raw data, no way to directly put streambuf into vector) into the raw data vector */
+            ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
         }
+    }
 
-        std::wstring Filename;
-        uint64_t ExpectedContentsize = ClientFunctions::DesectionMetadata(ReceivedRawData, &Filename, InfoString, true);
+    std::wstring Filename;
+    uint64_t ExpectedContentsize = ClientFunctions::DesectionMetadata(ReceivedRawData, &Filename, InfoString, true);
 
-        ReceivedRawData.~vector();
-        /* Get file metadata */
+    ReceivedRawData.~vector();
+    /* Get file metadata */
 #pragma endregion
 
 #pragma region ConSndCnt
     /* Confirm and ask for content */
-        boost::system::error_code error;
+    boost::system::error_code error;
 
-        boost::asio::write((*socket), boost::asio::buffer(std::string("ConSndCnt")), error);
+    boost::asio::write((*socket), boost::asio::buffer(std::string("ConSndCnt")), error);
 
-        if (error)
-            return;
-        /* Confirm and ask for content */
+    if (error)
+        return;
+    /* Confirm and ask for content */
 #pragma endregion
 
 #pragma region SegementedReceive
     /* Read from stream with 500MB sized content segements */
-        std::ofstream OutFileStream(Filename, std::ios::binary);
+    std::ofstream OutFileStream(Filename, std::ios::binary);
 
-        while (ExpectedContentsize != 0)
-        {
-            /* 500MB sized array to limit the intake at once - Pointer so it doesn't go into stack */
-            boost::array<Definition::byte, Definition::SegementSize>* ContentArray = new boost::array<Definition::byte, Definition::SegementSize>;
+    
 
-            /* Receive content chuncks */
-            size_t ReceivedByteCount = socket->read_some(boost::asio::buffer(*ContentArray));
+    uint64_t TotalDataReceived = 0;
+    \
+    while (ExpectedContentsize != 0)
+    {
+        /* 500MB sized array to limit the intake at once - Pointer so it doesn't go into stack */
+        boost::array<Definition::byte, Definition::SegementSize>* ContentArray = new boost::array<Definition::byte, Definition::SegementSize>;
 
-            /* Update Content size for new size needed */
-            ExpectedContentsize -= ReceivedByteCount;
+        /* Receive content chuncks */
+        size_t ReceivedByteCount = socket->read_some(boost::asio::buffer(*ContentArray));
 
-            /* Convert to string temporarily to allow for writing into file */
-            std::string TempString((char*)ContentArray->data(), ReceivedByteCount);
+        /* Total Data received for if the connection gets dropped, to continue the download */
+        TotalDataReceived += ReceivedByteCount;
 
-            wprintf(L"========================-Receiving Info-========================\n");
-            wprintf(std::wstring(L"Received Data: " + std::to_wstring(ReceivedByteCount) + L"\n").c_str());
-            wprintf(std::wstring(L"Data Left: " + std::to_wstring(ExpectedContentsize) + L"\n").c_str());
-            wprintf(L"================================================================\n");
+        /* Update Download info, no way to clear the contents so have to reopen the file each time */
+        std::ofstream DownloadInfoFileStream("DownloadInfo", std::ios::binary | std::ios::trunc);
+        DownloadInfoFileStream << TotalDataReceived;
+        DownloadInfoFileStream.close();
 
-            /* write content into file */
-            OutFileStream.write(TempString.c_str(), TempString.size());
+        /* Update Content size for new size needed */
+        ExpectedContentsize -= ReceivedByteCount;
 
-            /* Delete array to free space */
-            delete[] ContentArray;
-        }
+        /* Convert to string temporarily to allow for writing into file */
+        std::string TempString((char*)ContentArray->data(), ReceivedByteCount);
 
-        OutFileStream.close();
-        /* Read from stream with 500MB sized content segements */
+        wprintf(L"========================-Receiving Info-========================\n");
+        wprintf(std::wstring(L"Received Data:       " + std::to_wstring(ReceivedByteCount) + L"\n").c_str());
+        wprintf(std::wstring(L"Data Left:           " + std::to_wstring(ExpectedContentsize) + L"\n").c_str());
+        wprintf(std::wstring(L"Total Data Received: " + std::to_wstring(TotalDataReceived) + L"\n").c_str());
+        wprintf(L"================================================================\n");
+
+        /* write content into file */
+        OutFileStream.write(TempString.c_str(), TempString.size());
+
+        /* Delete array to free space */
+        delete[] ContentArray;
+    }
+
+    OutFileStream.close();
+    /* Read from stream with 500MB sized content segements */
 #pragma endregion
 
-        return;
+    return;
     }
 };
 

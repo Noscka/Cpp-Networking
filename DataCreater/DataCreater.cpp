@@ -12,7 +12,7 @@
 
 void CreateRandomData(LoadingScreen* Object)
 {
-    uint64_t OutputFileSize = (1 * Gigabyte);
+    uint64_t OutputFileSize = (4 * Gigabyte);
     uint64_t SectionSize = ((INT64)500 * Megabyte);
 
     uint64_t Progress = 0;
