@@ -164,10 +164,10 @@ public:
         return BytesSent + TotalSendingSize;
     }
 
-    //static uint64_t ContinueSendFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
-    //{
-    //
-    //}
+    static uint64_t ContinueUploadFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
+    {
+    
+    }
 };
 
 #endif
