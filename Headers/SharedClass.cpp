@@ -1,5 +1,6 @@
 #include "SharedClass.hpp"
 
+#pragma region GlobalFunctions
 std::wstring GlobalFunction::GetDelimiter()
 {
     return Definition::Delimiter;
@@ -37,3 +38,41 @@ std::wstring GlobalFunction::ReturnAddress(boost::asio::ip::tcp::endpoint Endpoi
 {
     return std::format(L"{}:{}", GlobalFunction::to_wstring(Endpoint.address().to_v4().to_string()), GlobalFunction::to_wstring(std::to_string(Endpoint.port())));
 }
+#pragma endregion
+
+#pragma region ServerRequests
+ServerRequest::ServerRequest(boost::asio::streambuf* Streambuf)
+{
+    DeserializeObject(Streambuf);
+}
+
+ServerRequest::ServerRequest(RequestTypes requestType)
+{
+    RequestType = requestType;
+}
+
+ServerRequest::ServerRequest(RequestTypes requestType, uint64_t ByteLeft)
+{
+    RequestType = requestType;
+    AmountByteLeft = ByteLeft;
+}
+
+void ServerRequest::serializeObject(std::streambuf* Streambuf)
+{
+    boost::archive::binary_oarchive oa(*Streambuf);
+    oa&* (this);
+}
+
+void ServerRequest::DeserializeObject(boost::asio::streambuf* Streambuf)
+{
+    boost::archive::binary_iarchive ia(*Streambuf);
+    ia&* (this);
+}
+
+template<class Archive>
+void ServerRequest::serialize(Archive& archive, const unsigned int version)
+{
+    archive& RequestType;
+    archive& AmountByteLeft;
+}
+#pragma endregion

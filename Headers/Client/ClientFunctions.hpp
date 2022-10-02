@@ -119,10 +119,8 @@ public:
     /* Read from stream with 500MB sized content segements */
     std::ofstream OutFileStream(Filename, std::ios::binary);
 
-    
-
     uint64_t TotalDataReceived = 0;
-    \
+    
     while (ExpectedContentsize != 0)
     {
         /* 500MB sized array to limit the intake at once - Pointer so it doesn't go into stack */

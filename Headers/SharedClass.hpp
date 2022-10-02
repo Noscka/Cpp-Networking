@@ -9,6 +9,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 
 /*
 Terminology
@@ -50,11 +52,32 @@ public:
     static std::string to_string(const std::wstring& wstr);
 };
 
-class FileInMemoryEntry
+class ServerRequest
 {
 public:
-    std::string Filename;
-    std::string FileSHA256Checksum;
-    std::vector<Definition::byte> FileContents;
-    static std::vector<FileInMemoryEntry> FIMEArray;
+    enum RequestTypes {Download,Continue,};
+private:
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive&, const unsigned int);
+
+    RequestTypes RequestType;
+    uint64_t AmountByteLeft;
+
+public:
+    ServerRequest(boost::asio::streambuf* Streambuf);
+    ServerRequest(RequestTypes requestType);
+    ServerRequest(RequestTypes requestType, uint64_t ByteLeft);
+
+    void serializeObject(std::streambuf* Streambuf)
+    {
+        boost::archive::binary_oarchive oa(*Streambuf);
+        oa&* (this);
+    }
+
+    void DeserializeObject(boost::asio::streambuf* Streambuf)
+    {
+        boost::archive::binary_iarchive ia(*Streambuf);
+        ia&* (this);
+    }
 };
