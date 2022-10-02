@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _CLIENTFUNCTIONS_HPP_
+#define _CLIENTFUNCTIONS_HPP_
+
 #include <iostream>
 #include <format>
 #include <string>
@@ -164,3 +166,4 @@ public:
     }
 };
 
+#endif

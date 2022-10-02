@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _SHAREDCLASS_HPP_
+#define _SHAREDCLASS_HPP_
+
 #include <iostream>
 #include <format>
 #include <string>
@@ -65,19 +67,15 @@ private:
     uint64_t AmountByteLeft;
 
 public:
+    ServerRequest();
     ServerRequest(boost::asio::streambuf* Streambuf);
     ServerRequest(RequestTypes requestType);
     ServerRequest(RequestTypes requestType, uint64_t ByteLeft);
 
-    void serializeObject(std::streambuf* Streambuf)
-    {
-        boost::archive::binary_oarchive oa(*Streambuf);
-        oa&* (this);
-    }
+    RequestTypes ReturnRequestType();
 
-    void DeserializeObject(boost::asio::streambuf* Streambuf)
-    {
-        boost::archive::binary_iarchive ia(*Streambuf);
-        ia&* (this);
-    }
+    void serializeObject(std::streambuf* Streambuf);
+
+    void DeserializeObject(boost::asio::streambuf* Streambuf);
 };
+#endif

@@ -41,6 +41,8 @@ std::wstring GlobalFunction::ReturnAddress(boost::asio::ip::tcp::endpoint Endpoi
 #pragma endregion
 
 #pragma region ServerRequests
+ServerRequest::ServerRequest(){}
+
 ServerRequest::ServerRequest(boost::asio::streambuf* Streambuf)
 {
     DeserializeObject(Streambuf);
@@ -48,13 +50,18 @@ ServerRequest::ServerRequest(boost::asio::streambuf* Streambuf)
 
 ServerRequest::ServerRequest(RequestTypes requestType)
 {
-    RequestType = requestType;
+    this->RequestType = requestType;
 }
 
 ServerRequest::ServerRequest(RequestTypes requestType, uint64_t ByteLeft)
 {
-    RequestType = requestType;
-    AmountByteLeft = ByteLeft;
+    this->RequestType = requestType;
+    this->AmountByteLeft = ByteLeft;
+}
+
+ServerRequest::RequestTypes ServerRequest::ReturnRequestType()
+{
+    return this->RequestType;
 }
 
 void ServerRequest::serializeObject(std::streambuf* Streambuf)
@@ -72,7 +79,7 @@ void ServerRequest::DeserializeObject(boost::asio::streambuf* Streambuf)
 template<class Archive>
 void ServerRequest::serialize(Archive& archive, const unsigned int version)
 {
-    archive& RequestType;
-    archive& AmountByteLeft;
+    archive& this->RequestType;
+    archive& this->AmountByteLeft;
 }
 #pragma endregion

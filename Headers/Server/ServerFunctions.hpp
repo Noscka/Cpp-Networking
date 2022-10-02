@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _SERVERFUNCTIONS_HPP_
+#define _SERVERFUNCTIONS_HPP_
+
 #include <iostream>
 #include <format>
 #include <string>
@@ -163,3 +165,4 @@ public:
     }
 };
 
+#endif

@@ -29,11 +29,27 @@ public:
 
         try
         {
-            boost::system::error_code error;
+            ServerRequest MainServerRequest;
+
+
+            {
+                boost::asio::streambuf RequestBuf;
+
+                boost::asio::read(socket, RequestBuf, boost::asio::transfer_all());
+                MainServerRequest.DeserializeObject(&RequestBuf);
+            }
 
             std::wstring InfoString;
 
-            wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::SendFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
+            switch (MainServerRequest.ReturnRequestType())
+            {
+            case ServerRequest::Download:
+                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::SendFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
+                break;
+            case ServerRequest::Continue:
+                break;
+            }
+
             wprintf(InfoString.c_str());
         }
         catch (std::exception& e)

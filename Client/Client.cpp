@@ -33,6 +33,15 @@ int main()
 
         wprintf(L"Connected to server\n");
 
+        {
+            boost::asio::streambuf RequestBuf;
+
+            ServerRequest MainServerRequest(ServerRequest::Download);
+            MainServerRequest.serializeObject(&RequestBuf);
+
+            boost::asio::write(socket, RequestBuf);
+        }
+
         std::wstring InfoString;
         ClientFunctions::ReceiveFile(&socket, &InfoString, true);
         wprintf(InfoString.c_str());
