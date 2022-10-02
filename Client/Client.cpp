@@ -37,7 +37,7 @@ int main()
             std::wstring InfoString;
             ClientFunctions::ReceiveFile(&socket, &InfoString, true);
             wprintf(InfoString.c_str());
-            remove("RandomData.txt");
+            remove("RandomData(4GB).txt");
         }
         
     }

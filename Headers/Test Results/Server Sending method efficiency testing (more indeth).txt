@@ -1,0 +1,73 @@
+=====================================
+4GB
+=====================================
+Sending 500MB segemennts
+(4GB)File -> send: 35790
+(4GB)File -> send: 35965
+(4GB)File -> send: 30641
+(4GB)File -> send: 33388
+Average: 33946
+
+-218% speed increase-
+
+Loading all to memory and sending
+(4GB)File -> Memory -> send: 81147
+(4GB)File -> Memory -> send: 80473
+(4GB)File -> Memory -> send: 75201
+(4GB)File -> Memory -> send: 59209
+Average: 74007.5
+=====================================
+1GB
+=====================================
+Sending 500MB segemennts
+(1GB)File -> send: 11252
+(1GB)File -> send: 7737
+(1GB)File -> send: 9056
+(1GB)File -> send: 8300
+Average: 9086.25
+
+-175% speed increase-
+
+Loading all to memory and sending
+(1GB)File -> Memory -> send: 16577
+(1GB)File -> Memory -> send: 19013
+(1GB)File -> Memory -> send: 14060
+(1GB)File -> Memory -> send: 14297
+Average: 15986.75
+=====================================
+700MB
+=====================================
+Sending 500MB segemennts
+(700MB)File -> send: 4705
+(700MB)File -> send: 4141
+(700MB)File -> send: 4649
+(700MB)File -> send: 4318
+Average: 4453.25
+
+-236% speed increase-
+
+Loading all to memory and sending
+(700MB)File -> Memory -> send: 12365
+(700MB)File -> Memory -> send: 9510
+(700MB)File -> Memory -> send: 10260
+(700MB)File -> Memory -> send: 9950
+Average: 10521.25
+=====================================
+300MB
+=====================================
+Sending 500MB segemennts
+(300MB)File -> send: 809
+(300MB)File -> send: 994
+(300MB)File -> send: 1111
+(300MB)File -> send: 1778
+Average: 1173
+
+-331% speed increase-
+
+Loading all to memory and sending
+(300MB)File -> Memory -> send: 5980
+(300MB)File -> Memory -> send: 2992
+(300MB)File -> Memory -> send: 4053
+(300MB)File -> Memory -> send: 2549
+Average: 3893.5
+=====================================
