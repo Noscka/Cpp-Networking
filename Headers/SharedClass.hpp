@@ -73,6 +73,7 @@ public:
     ServerRequest(RequestTypes requestType, uint64_t ByteLeft);
 
     RequestTypes ReturnRequestType();
+    uint64_t ReturnDataLeft();
 
     void serializeObject(std::streambuf* Streambuf);
 

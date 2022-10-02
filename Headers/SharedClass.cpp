@@ -64,6 +64,11 @@ ServerRequest::RequestTypes ServerRequest::ReturnRequestType()
     return this->RequestType;
 }
 
+uint64_t ServerRequest::ReturnDataLeft()
+{
+    return this->AmountByteLeft;
+}
+
 void ServerRequest::serializeObject(std::streambuf* Streambuf)
 {
     boost::archive::binary_oarchive oa(*Streambuf);

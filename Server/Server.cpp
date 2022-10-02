@@ -35,7 +35,7 @@ public:
             {
                 boost::asio::streambuf RequestBuf;
 
-                boost::asio::read(socket, RequestBuf, boost::asio::transfer_all());
+                boost::asio::read_until(socket, RequestBuf, GlobalFunction::to_string(GlobalFunction::GetDelimiter()));
                 MainServerRequest.DeserializeObject(&RequestBuf);
             }
 
@@ -47,6 +47,7 @@ public:
                 wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::SendFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
                 break;
             case ServerRequest::Continue:
+                wprintf(std::format(L"Continue Mode size: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
                 break;
             }
 

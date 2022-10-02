@@ -5,8 +5,14 @@
 #include <fstream>
 #include <io.h>
 #include <fcntl.h>
+#include <string>
 
 #include <boost/asio.hpp>
+
+bool FileExistance(const std::string& name)
+{
+    return (_access(name.c_str(), 0) != -1);
+}
 
 int main()
 {
@@ -33,13 +39,30 @@ int main()
 
         wprintf(L"Connected to server\n");
 
+        ServerRequest MainServerRequest(ServerRequest::Download);
+        if (FileExistance("DownloadInfo"))
+        {
+            uint64_t DownloadPos;
+            std::ifstream DownloadInfoCheck("DownloadInfo");
+            std::stringstream DICBuffer;
+            DICBuffer << DownloadInfoCheck.rdbuf();
+            DICBuffer >> DownloadPos;
+
+            if (DownloadPos > 0)
+            {
+                MainServerRequest = ServerRequest(ServerRequest::Continue, DownloadPos);
+            }
+        }
+
+        std::wcout << MainServerRequest.ReturnRequestType() << std::endl;
+
         {
             boost::asio::streambuf RequestBuf;
 
-            ServerRequest MainServerRequest(ServerRequest::Download);
             MainServerRequest.serializeObject(&RequestBuf);
 
             boost::asio::write(socket, RequestBuf);
+            boost::asio::write(socket, boost::asio::buffer(GlobalFunction::to_string(GlobalFunction::GetDelimiter())));
         }
 
         std::wstring InfoString;
