@@ -76,7 +76,7 @@ private:
         return SendingRawByteBuffer;
     }
 public:
-    static uint64_t SendFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
+    static uint64_t UploadFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
     {
         boost::system::error_code error;
 
@@ -163,6 +163,11 @@ public:
 
         return BytesSent + TotalSendingSize;
     }
+
+    //static uint64_t ContinueSendFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
+    //{
+    //
+    //}
 };
 
 #endif

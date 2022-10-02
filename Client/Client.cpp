@@ -66,7 +66,7 @@ int main()
         }
 
         std::wstring InfoString;
-        ClientFunctions::ReceiveFile(&socket, &InfoString, true);
+        ClientFunctions::DownloadFile(&socket, &InfoString, true);
         wprintf(InfoString.c_str());
     }
     catch (std::exception& e)

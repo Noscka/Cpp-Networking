@@ -44,10 +44,12 @@ public:
             switch (MainServerRequest.ReturnRequestType())
             {
             case ServerRequest::Download:
-                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::SendFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
+                wprintf(L"uploading file\n");
+                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::UploadFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
                 break;
             case ServerRequest::Continue:
-                wprintf(std::format(L"Continue Mode size: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
+                wprintf(std::format(L"Continuing uploading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
+                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::UploadFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
                 break;
             }
 

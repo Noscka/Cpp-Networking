@@ -77,7 +77,7 @@ private:
         return std::wstring{ boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_received - GlobalFunction::GetDelimiter().size() };
     }
 public:
-    static void ReceiveFile(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, bool displayInfo)
+    static void DownloadFile(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, bool displayInfo)
     {
 #pragma region GettingMetadata
     /* Get file metadata */
