@@ -23,7 +23,7 @@ public:
 
     boost::asio::ip::tcp::socket& ConSocket() {return socket;}
 
-    void start()
+    void start(std::wstring SendingFileName)
     {
         wprintf(std::format(L"Client Connected from {}\n", GlobalFunction::ReturnAddress(socket.local_endpoint())).c_str());
 
@@ -32,14 +32,6 @@ public:
             boost::system::error_code error;
 
             std::wstring InfoString;
-
-            std::wstring SendingFileName;
-            
-            wprintf(L"Enter a filename: ");
-            std::getline(std::wcin, SendingFileName);
-            if (SendingFileName.empty())
-                SendingFileName = LR"(C:\Users\Adam\Documents\Programing Projects\C++\C++ Networking\Build\Server\x64\Release\RandomData.txt)";
-
 
             wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::SendFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
             wprintf(InfoString.c_str());
@@ -62,6 +54,15 @@ int main()
 
         SetConsoleTitle(std::wstring(L"File Server at " + GlobalFunction::ReturnAddress(acceptor.local_endpoint())).c_str());
 
+        std::wstring SendingFileName;
+
+        wprintf(L"Server started\n");
+
+        wprintf(L"File to host: ");
+        std::getline(std::wcin, SendingFileName);
+        if (SendingFileName.empty())
+            SendingFileName = LR"(C:\Users\Adam\Documents\Programing Projects\C++\C++ Networking\Build\Server\x64\Release\RandomData.txt)";
+
         while (true)
         {
             /* tcp_connection object which allows for managed of multiple users */
@@ -73,7 +74,7 @@ int main()
             acceptor.accept(newConSim->ConSocket(), error);
 
             /* if no errors, create thread for the new connection */
-            if (!error) {boost::thread* ClientThread = new boost::thread(boost::bind(&tcp_connection::start, newConSim));}
+            if (!error) {boost::thread* ClientThread = new boost::thread(boost::bind(&tcp_connection::start, newConSim, SendingFileName));}
         }
     }
     catch (std::exception& e)
