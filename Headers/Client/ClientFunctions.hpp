@@ -137,7 +137,7 @@ private:
         return;
     }
 public:
-    static void DownloadFile(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, bool displayInfo)
+    static void DownloadFile(boost::asio::ip::tcp::socket* socket, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
     {
 #pragma region GettingMetadata
     /* Get file metadata */
@@ -170,61 +170,16 @@ public:
     /* Confirm and ask for content */
     boost::system::error_code error;
 
-    boost::asio::write((*socket), boost::asio::buffer(std::string("ConSndCnt")), error);
+    boost::asio::write((*socket), boost::asio::buffer((ResumePos == 0 ? std::string("ConSndCnt") : std::format("ConSndCnt {}", ResumePos))), error);
 
     if (error)
         return;
     /* Confirm and ask for content */
 #pragma endregion
 
-    ReceiveContentSegements(socket, Filename, ExpectedContentsize, 0);
+    ReceiveContentSegements(socket, Filename, ExpectedContentsize, ResumePos);
 
     return;
-    }
-
-    static void ContinueDownloadFile(boost::asio::ip::tcp::socket* socket, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
-    {
-#pragma region GettingMetadata
-        /* Get file metadata */
-        
-        /* vector for getting sectioned metadata and processing it */
-        std::vector<Definition::byte> ReceivedRawData;
-
-        {
-            boost::system::error_code error;
-            boost::asio::streambuf streamBuffer;
-
-            /* Read until the delimiter is found. get just the metadata containing filename byte size, filename and content byte size  */
-            size_t bytes_transferred = boost::asio::read_until((*socket), streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
-            {
-                /* convert stream buffer to wstring while removing the delimiter */
-                std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
-                /* insert wstring (containing raw data, no way to directly put streambuf into vector) into the raw data vector */
-                ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
-            }
-        }
-
-        std::wstring Filename;
-        uint64_t ExpectedContentsize = ClientFunctions::DesectionMetadata(ReceivedRawData, &Filename, InfoString, true);
-
-        ReceivedRawData.~vector();
-        /* Get file metadata */
-#pragma endregion
-
-#pragma region ConSndCnt
-        /* Confirm and ask for content */
-        boost::system::error_code error;
-
-        boost::asio::write((*socket), boost::asio::buffer(std::format("ConSndCnt {}", ResumePos)), error);
-
-        if (error)
-            return;
-        /* Confirm and ask for content */
-#pragma endregion
-
-        ReceiveContentSegements(socket, Filename, ExpectedContentsize, ResumePos);
-
-        return;
     }
 };
 
