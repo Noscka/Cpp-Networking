@@ -39,7 +39,7 @@ public:
                 MainServerRequest.DeserializeObject(&RequestBuf);
             }
 
-            std::wstring InfoString;
+            std::wstring InfoString = L"Nothing was done?";
 
             switch (MainServerRequest.ReturnRequestType())
             {

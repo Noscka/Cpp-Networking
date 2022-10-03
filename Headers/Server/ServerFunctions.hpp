@@ -82,7 +82,7 @@ private:
         /* Open file stream to allow for reading of file */
         std::ifstream filestream(FileAddress, std::ios::binary);
 
-        uint64_t TotalSendingSize = boost::filesystem::file_size(boost::filesystem::path(FileAddress)); /* get total sending size */
+        uint64_t TotalSendingSize = boost::filesystem::file_size(boost::filesystem::path(FileAddress)) - startPos; /* get total sending size */
         uint64_t FullOperationAmount = (int)(TotalSendingSize / Definition::SegementSize); /* amount of times server has to send 500MB segements */
         uint64_t BytesLeft = TotalSendingSize % Definition::SegementSize; /* Amount of bytes left which will get sent seperataly */
         uint64_t CurrentOperationCount = 0; /* Storing current operation count */
@@ -111,7 +111,7 @@ private:
                 DividedFileContents = new std::vector<Definition::byte>(Definition::SegementSize);
 
                 /* seek the position to read from (in a way, move the file reader pointer to the start of needed bytes) */
-                filestream.seekg(CurrentOperationCount * Definition::SegementSize);
+                filestream.seekg(CurrentOperationCount * Definition::SegementSize + startPos);
                 /* Read the 500MBs into the vector array */
                 filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), Definition::SegementSize);
 
@@ -125,7 +125,7 @@ private:
                 DividedFileContents = new std::vector<Definition::byte>(BytesLeft);
 
                 /* seek the position to read from (in a way, move the file reader pointer to the start of needed bytes) */
-                filestream.seekg((FullOperationAmount * Definition::SegementSize));
+                filestream.seekg((FullOperationAmount * Definition::SegementSize) + startPos);
                 /* Read the bytes left into the vector array */
                 filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), BytesLeft);
 
@@ -149,11 +149,14 @@ public:
     static uint64_t UploadFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
     {
         boost::system::error_code error;
+        wprintf(L"Sending Metadata\n");
 
         size_t BytesSent = boost::asio::write((*socket), boost::asio::buffer(ServerFunctions::SectionMetadata(FileAddress, InfoString, true)), error);
 
+        wprintf(L"Sent Metadata\n");
 #pragma region ResponseWaiting
-    /* Wait for response from client to send content */
+        /* Wait for response from client to send content */
+        wprintf(L"Waiting for Con\n");
         {
             boost::array<char, 20> OutputArray;
             size_t BytesReceived = socket->read_some(boost::asio::buffer(OutputArray));
@@ -164,9 +167,10 @@ public:
             }
         }
         /* Wait for response from client to send content */
+        wprintf(L"Got Con\n");
 #pragma endregion 
 
-        return BytesSent + SendContentSegements(socket, FileAddress, 0);
+    return BytesSent + SendContentSegements(socket, FileAddress, 0);
     }
 
     static uint64_t ContinueUploadFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
@@ -176,6 +180,7 @@ public:
         size_t BytesSent = boost::asio::write((*socket), boost::asio::buffer(ServerFunctions::SectionMetadata(FileAddress, InfoString, true)), error);
 
 #pragma region ResponseWaiting
+
         /* Wait for response from client to send content */
         {
             boost::array<char, 20> OutputArray;

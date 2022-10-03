@@ -66,7 +66,20 @@ int main()
         }
 
         std::wstring InfoString;
-        ClientFunctions::DownloadFile(&socket, &InfoString, true);
+
+        switch (MainServerRequest.ReturnRequestType())
+        {
+        case ServerRequest::Download:
+            wprintf(L"Downloading file\n");
+            ClientFunctions::DownloadFile(&socket, &InfoString, true);
+            break;
+        case ServerRequest::Continue:
+            wprintf(std::format(L"Continuing Downloading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
+            ClientFunctions::ContinueDownloadFile(&socket, MainServerRequest.ReturnDataLeft(), &InfoString, true);
+            break;
+        }
+
+        
         wprintf(InfoString.c_str());
     }
     catch (std::exception& e)
