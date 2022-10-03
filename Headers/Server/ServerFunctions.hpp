@@ -116,7 +116,7 @@ private:
                 filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), Definition::SegementSize);
 
                 /* output the range of bytes gotten to show progress, plus it looks nice */
-                wprintf(std::wstring(std::to_wstring(CurrentOperationCount * Definition::SegementSize) + L" -> " + std::to_wstring(((CurrentOperationCount + 1) * Definition::SegementSize)) + L"\n").c_str());
+                wprintf(std::wstring(std::to_wstring(CurrentOperationCount * Definition::SegementSize + startPos) + L" -> " + std::to_wstring((((CurrentOperationCount + 1) * Definition::SegementSize) + startPos)) + L"\n").c_str());
                 CurrentOperationCount++;
             }
             else /* if false, send the rest of the data which is less then 500MB */
@@ -130,7 +130,7 @@ private:
                 filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), BytesLeft);
 
                 /* output the range of bytes gotten to show progress, plus it looks nice */
-                wprintf(std::wstring(std::to_wstring((FullOperationAmount * Definition::SegementSize)) + L" -> " + std::to_wstring((FullOperationAmount * Definition::SegementSize) + BytesLeft) + L"\n").c_str());
+                wprintf(std::wstring(std::to_wstring((FullOperationAmount * Definition::SegementSize) + startPos) + L" -> " + std::to_wstring((FullOperationAmount * Definition::SegementSize) + BytesLeft) + L"\n").c_str());
             }
 
             /* write the vector into the socket stream for the client. also minus the amount of bytes sent from total */
