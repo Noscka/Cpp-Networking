@@ -80,7 +80,7 @@ private:
     static void ReceiveContentSegements(boost::asio::ip::tcp::socket* socket, std::wstring Filename, uint64_t ExpectedContentsize, uint64_t ResumePos)
     {
 #pragma region SegementedReceive
-/* Read from stream with 500MB sized content segements */
+        /* Read from stream with 500MB sized content segements */
         std::ofstream OutFileStream;
 
         /* If program is resuming download, append instead of overwriting */
@@ -116,7 +116,7 @@ private:
             /* Convert to string temporarily to allow for writing into file */
             std::string TempString((char*)ContentArray->data(), ReceivedByteCount);
 
-            wprintf(L"========================-Receiving Info-========================\n");
+            wprintf(L"========================>Receiving Info<========================\n");
             wprintf(std::wstring(L"Received Data:       " + std::to_wstring(ReceivedByteCount) + L"\n").c_str());
             wprintf(std::wstring(L"Data Left:           " + std::to_wstring(ExpectedContentsize) + L"\n").c_str());
             wprintf(std::wstring(L"Total Data Received: " + std::to_wstring(TotalDataReceived) + L"\n").c_str());
