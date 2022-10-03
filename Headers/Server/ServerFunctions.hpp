@@ -146,7 +146,7 @@ private:
         return TotalSendingSize;
     }
 public:
-    static uint64_t UploadFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
+    static uint64_t UploadFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
     {
         boost::system::error_code error;
 
@@ -155,36 +155,13 @@ public:
 #pragma region ResponseWaiting
         /* Wait for response from client to send content */
         {
-            boost::array<char, 20> OutputArray;
+            boost::array<char, 100> OutputArray;
             size_t BytesReceived = socket->read_some(boost::asio::buffer(OutputArray));
 
-            if (std::string(OutputArray.data(), BytesReceived) != "ConSndCnt")
+            if (std::string(OutputArray.data(), BytesReceived) != (ResumePos == 0 ? "ConSndCnt" : std::format("ConSndCnt {}", ResumePos)))
             {
-                return 0;
-            }
-        }
-        /* Wait for response from client to send content */
-#pragma endregion 
-
-    return BytesSent + SendContentSegements(socket, FileAddress, 0);
-    }
-
-    static uint64_t ContinueUploadFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
-    {
-        boost::system::error_code error;
-
-        size_t BytesSent = boost::asio::write((*socket), boost::asio::buffer(ServerFunctions::SectionMetadata(FileAddress, InfoString, true)), error);
-
-#pragma region ResponseWaiting
-
-        /* Wait for response from client to send content */
-        {
-            boost::array<char, 20> OutputArray;
-            size_t BytesReceived = socket->read_some(boost::asio::buffer(OutputArray));
-
-            if (std::string(OutputArray.data(), BytesReceived) != std::format("ConSndCnt {}", ResumePos))
-            {
-                return 0;
+                std::cerr << "Received an unexpected response from client\nExpected: " << (ResumePos == 0 ? "ConSndCnt" : std::format("ConSndCnt {}", ResumePos)) << "Received: " << std::string(OutputArray.data(), BytesReceived) << std::endl;
+                return -1;
             }
         }
         /* Wait for response from client to send content */

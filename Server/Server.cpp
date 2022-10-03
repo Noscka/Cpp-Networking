@@ -45,11 +45,11 @@ public:
             {
             case ServerRequest::Download:
                 wprintf(L"uploading file\n");
-                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::UploadFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
+                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::UploadFile(&socket, SendingFileName, 0, &InfoString, true)) + L"\n").c_str());
                 break;
             case ServerRequest::Continue:
                 wprintf(std::format(L"Continuing uploading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
-                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::ContinueUploadFile(&socket, SendingFileName, MainServerRequest.ReturnDataLeft(), & InfoString, true)) + L"\n").c_str());
+                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::UploadFile(&socket, SendingFileName, MainServerRequest.ReturnDataLeft(), & InfoString, true)) + L"\n").c_str());
                 break;
             }
 
