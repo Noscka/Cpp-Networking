@@ -215,7 +215,7 @@ public:
         /* Confirm and ask for content */
         boost::system::error_code error;
 
-        boost::asio::write((*socket), boost::asio::buffer(std::string("ConSndCnt")), error);
+        boost::asio::write((*socket), boost::asio::buffer(std::format("ConSndCnt {}", ResumePos)), error);
 
         if (error)
             return;

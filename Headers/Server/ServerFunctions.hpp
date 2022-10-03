@@ -149,14 +149,11 @@ public:
     static uint64_t UploadFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
     {
         boost::system::error_code error;
-        wprintf(L"Sending Metadata\n");
 
         size_t BytesSent = boost::asio::write((*socket), boost::asio::buffer(ServerFunctions::SectionMetadata(FileAddress, InfoString, true)), error);
 
-        wprintf(L"Sent Metadata\n");
 #pragma region ResponseWaiting
         /* Wait for response from client to send content */
-        wprintf(L"Waiting for Con\n");
         {
             boost::array<char, 20> OutputArray;
             size_t BytesReceived = socket->read_some(boost::asio::buffer(OutputArray));
@@ -167,7 +164,6 @@ public:
             }
         }
         /* Wait for response from client to send content */
-        wprintf(L"Got Con\n");
 #pragma endregion 
 
     return BytesSent + SendContentSegements(socket, FileAddress, 0);
@@ -186,7 +182,7 @@ public:
             boost::array<char, 20> OutputArray;
             size_t BytesReceived = socket->read_some(boost::asio::buffer(OutputArray));
 
-            if (std::string(OutputArray.data(), BytesReceived) != "ConSndCnt") // TODO: verify it has the same start position with wait function
+            if (std::string(OutputArray.data(), BytesReceived) != std::format("ConSndCnt {}", ResumePos))
             {
                 return 0;
             }
