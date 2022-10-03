@@ -1,5 +1,4 @@
-#include "Client/ClientFunctions.hpp"
-#include "SharedClass.hpp"
+#include <SharedClass.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -32,14 +31,15 @@ int main()
         boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve(HostName, "58233"));
 
         wprintf(L"Connected to server\n");
-        for (int i = 0; i < 4; i++)
-        {
-            std::wstring InfoString;
-            ClientFunctions::ReceiveFile(&socket, &InfoString, true);
-            wprintf(InfoString.c_str());
-            remove("RandomData(4GB).txt");
-        }
         
+        boost::system::error_code error;
+        std::string message;
+
+        wprintf(L"type a message: ");
+        std::getline(std::cin, message);
+        message += "\n";
+
+        boost::asio::write(socket, boost::asio::buffer(message), error);
     }
     catch (std::exception& e)
     {

@@ -1,5 +1,4 @@
-#include "Server/ServerFunctions.hpp"
-#include "SharedClass.hpp"
+#include <SharedClass.hpp>
 
 #include <iostream>
 #include <string>
@@ -8,9 +7,11 @@
 #include <io.h>
 #include <fcntl.h>
 #include <filesystem>
+#include <format>
 
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include <boost/array.hpp>
 
 class tcp_connection
 {
@@ -31,19 +32,12 @@ public:
         {
             boost::system::error_code error;
 
-            std::wstring SendingFileName;
+            boost::array<char, 128> buf;
+            size_t len = socket.read_some(boost::asio::buffer(buf), error);
+            std::string StreamOutput(buf.data(), len);
 
-            wprintf(L"Enter a filename: ");
-            std::getline(std::wcin, SendingFileName);
-            if (SendingFileName.empty())
-                SendingFileName = LR"(C:\Users\Adam\Documents\Programing Projects\C++\C++ Networking Testing\Build\Server\x64\Release\RandomData.txt)";
-
-            for (int i = 0; i < 4; i++)
-            {
-                std::wstring InfoString;
-                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::SendFile(&socket, SendingFileName, &InfoString, true)) + L"\n").c_str());
-                wprintf(InfoString.c_str());
-            }
+            wprintf(GlobalFunction::to_wstring(StreamOutput).c_str());
+            
         }
         catch (std::exception& e)
         {
@@ -62,6 +56,8 @@ int main()
         boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 58233));
 
         SetConsoleTitle(std::wstring(L"File Server at " + GlobalFunction::ReturnAddress(acceptor.local_endpoint())).c_str());
+
+        wprintf(L"Server started\n");
 
         while (true)
         {
