@@ -32,27 +32,25 @@ and now works:                              file(500MB) -> send, repeat untill a
 */
 
 
-static class Definition
+namespace Definition
 {
-public:
-    inline static const std::wstring Delimiter = L"\n\r\n\r\n\013\x4\n";
-    inline static const int SegementSize = 524288000;
+    const std::wstring Delimiter = L"\n\r\n\r\n\013\x4\n";
+    const int SegementSize = 524288000;
     typedef unsigned char byte;
 };
 
-static class GlobalFunction
+namespace GlobalFunction
 {
-public:
-    static std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint);
+    std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint);
 
-    static std::wstring GetDelimiter();
+    std::wstring GetDelimiter();
 
-    static std::wstring GetRawDelimiter();
+    std::wstring GetRawDelimiter();
 
-    static std::wstring to_wstring(const std::string& str);
+    std::wstring to_wstring(const std::string& str);
 
-    static std::string to_string(const std::wstring& wstr);
-};
+    std::string to_string(const std::wstring& wstr);
+}
 
 class ServerRequest
 {
