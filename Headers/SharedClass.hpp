@@ -55,7 +55,7 @@ namespace GlobalFunction
 class ServerRequest
 {
 public:
-    enum RequestTypes {Download,Continue,};
+    enum RequestTypes {Download,Continue,Update,};
 private:
     friend class boost::serialization::access;
     template<class Archive>

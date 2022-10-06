@@ -51,6 +51,10 @@ public:
                 wprintf(std::format(L"Continuing uploading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
                 wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerFunctions::UploadFile(&socket, SendingFileName, MainServerRequest.ReturnDataLeft(), & InfoString, true)) + L"\n").c_str());
                 break;
+            case ServerRequest::Update:
+                wprintf(L"Client is asking for update\n");
+                wprintf(L"Client wants to update, program has no function\n");
+                break;
             }
 
             wprintf(InfoString.c_str());
