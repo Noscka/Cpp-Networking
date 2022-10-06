@@ -71,14 +71,13 @@ int main()
         {
         case ServerRequest::Download:
             wprintf(L"Downloading file\n");
-            ClientFunctions::DownloadFile(&socket, 0, &InfoString, true);
+            ClientNamespace::ClientFunctions::DownloadFile(&socket, 0, &InfoString, true);
             break;
         case ServerRequest::Continue:
             wprintf(std::format(L"Continuing Downloading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
-            ClientFunctions::DownloadFile(&socket, MainServerRequest.ReturnDataLeft(), &InfoString, true);
+            ClientNamespace::ClientFunctions::DownloadFile(&socket, MainServerRequest.ReturnDataLeft(), &InfoString, true);
             break;
         }
-
         
         wprintf(InfoString.c_str());
     }
