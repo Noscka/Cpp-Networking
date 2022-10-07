@@ -1,5 +1,5 @@
-#include "Client/ClientFunctions.hpp"
-#include "SharedClass.hpp"
+#include <Client/ClientFunctions.hpp>
+#include <SharedClass.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -28,14 +28,14 @@ int main()
         std::string HostName;
         std::getline(std::cin, HostName);
         if(HostName.empty())
-            HostName = "localhost";
+            HostName = ClientNamespace::ClientConstants::DefaultHostname;
 
         /* 
         Connects to the function using `resolver` which resolves the address e.g. (Noscka.com -> 123.123.123.123) 
         Host - Hostname/Ip address
         Service - Service(Hostname for ports)/Port number
         */
-        boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve(HostName, "58233"));
+        boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve(HostName, ClientNamespace::ClientConstants::DefaultPort));
 
         wprintf(L"Connected to server\n");
 
@@ -83,7 +83,7 @@ int main()
     }
     catch (std::exception& e)
     {
-        std::cerr << e.what() << std::endl;
+        std::wcerr << e.what() << std::endl;
     }
 
     wprintf(L"Press any button to continue"); getchar();

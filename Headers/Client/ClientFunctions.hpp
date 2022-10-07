@@ -21,7 +21,11 @@ namespace ClientNamespace
 {
     namespace ClientConstants
     {
+        std::string DefaultPort = "58233";
+        std::string DefaultHostname = "localhost";
 
+        std::string UpdateServiceHostName = DefaultHostname;
+        std::string UpdateServicePort = DefaultPort;
     }
 
     namespace ClientFunctions
@@ -212,7 +216,23 @@ namespace ClientNamespace
 
             return;
         }
+    }
 
+    namespace ClientLauncherFunctions
+    {
+        enum UpdateErrorCodes
+        {
+            ClientUpToDate = 0,
+            SuccesfulUpdate = 1,
+            ErrorUpdating = 2,
+        };
+
+        /*
+        Outputs
+        0 - Client up to date
+        1 - Succesfully updated Client
+        2 - There was an error updating the client
+        */
         int UpdateClient(boost::asio::ip::tcp::socket* socket)
         {
             /* Request for update */
@@ -228,8 +248,6 @@ namespace ClientNamespace
 
             /* Download file (expecting the new client exe) */
             DownloadFile(socket, 0, nullptr, false);
-
-
         }
     }
 }

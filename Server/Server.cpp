@@ -1,5 +1,5 @@
-#include "Server/ServerFunctions.hpp"
-#include "SharedClass.hpp"
+#include <Server/ServerFunctions.hpp>
+#include <SharedClass.hpp>
 
 #include <iostream>
 #include <string>
