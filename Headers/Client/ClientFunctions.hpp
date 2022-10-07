@@ -21,7 +21,7 @@ namespace ClientNamespace
     namespace ClientConstants
     {
         const std::string DefaultPort = "58233";
-        const std::string DefaultHostname = "localhost";
+        const std::string DefaultHostname = "192.168.1.30";
 
         const std::string UpdateServiceHostName = DefaultHostname;
         const std::string UpdateServicePort = DefaultPort;
@@ -230,7 +230,7 @@ namespace ClientNamespace
         {
             /* Check current version with the server's version */
 
-            return 0;
+            //return 0;
 
             try
             {
