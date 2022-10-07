@@ -5,6 +5,7 @@
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/array.hpp>
+#include <boost/filesystem.hpp>
 
 #include <iostream>
 #include <format>
@@ -25,9 +26,10 @@ namespace ClientNamespace
         const std::string UpdateServiceHostName = DefaultHostname;
         const std::string UpdateServicePort = DefaultPort;
 
-        const std::wstring ClientPath = LR"(./Main/Client.exe)";
-        const std::wstring DownloadPath = LR"(./Downloads/)";
-        const std::wstring TemporaryPath = LR"(./Temporary/)";
+        const std::wstring ClientFileName = LR"(Client.exe)";
+        const std::wstring MainPath = LR"(\Main\)";
+        const std::wstring DownloadPath = LR"(\Downloads\)";
+        const std::wstring TemporaryPath = LR"(\Temporary\)";
     }
 
     namespace ClientFunctions
@@ -157,7 +159,7 @@ namespace ClientNamespace
             }
         }
 
-        void DownloadFile(boost::asio::ip::tcp::socket* socket, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
+        void DownloadFile(boost::asio::ip::tcp::socket* socket, std::wstring OutputDirectory, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
         {
 #pragma region GettingMetadata
     /* Get file metadata */
@@ -187,7 +189,7 @@ namespace ClientNamespace
 #pragma endregion
 
 #pragma region ConSndCnt
-    /* Confirm and ask for content */
+            /* Confirm and ask for content */
             boost::system::error_code error;
 
             boost::asio::write((*socket), boost::asio::buffer((ResumePos == 0 ? std::string("ConSndCnt") : std::format("ConSndCnt {}", ResumePos))), error);
@@ -197,7 +199,13 @@ namespace ClientNamespace
             /* Confirm and ask for content */
 #pragma endregion
 
-            ReceiveContentSegements(socket, Filename, ExpectedContentsize, ResumePos);
+#pragma region Getting Directory and creating
+            std::wstring DirFilename = std::wstring(std::filesystem::current_path()) + OutputDirectory + Filename;
+
+            boost::filesystem::create_directories(std::wstring(std::filesystem::current_path()) + OutputDirectory);
+#pragma endregion
+
+            ReceiveContentSegements(socket, DirFilename, ExpectedContentsize, ResumePos);
 
             return;
         }
@@ -218,23 +226,47 @@ namespace ClientNamespace
         1 - Succesfully updated Client
         2 - There was an error updating the client
         */
-        int UpdateClient(boost::asio::ip::tcp::socket* socket)
+        int UpdateClient(boost::asio::ip::tcp::socket* socket, std::wstring *InfoString)
         {
             /* Check current version with the server's version */
 
-            /* Request for update */
+            return 0;
+
+            try
             {
-                ServerRequest MainServerRequest = ServerRequest(ServerRequest::Update);
+                /* Request for update */
+                {
+                    ServerRequest MainServerRequest = ServerRequest(ServerRequest::Update);
 
-                boost::asio::streambuf RequestBuf;
-                MainServerRequest.serializeObject(&RequestBuf);
+                    boost::asio::streambuf RequestBuf;
+                    MainServerRequest.serializeObject(&RequestBuf);
 
-                boost::asio::write((*socket), RequestBuf);
-                boost::asio::write((*socket), boost::asio::buffer(GlobalFunction::to_string(GlobalFunction::GetDelimiter())));
+                    boost::asio::write((*socket), RequestBuf);
+                    boost::asio::write((*socket), boost::asio::buffer(GlobalFunction::to_string(GlobalFunction::GetDelimiter())));
+                }
+
+                /* Download file (expecting the new client exe) */
+                ClientNamespace::ClientFunctions::DownloadFile(socket, ClientNamespace::ClientConstants::TemporaryPath, 0, InfoString, false);
+
+                std::wstring currentPath(std::filesystem::current_path());
+
+                std::wstring ClientPath = currentPath + ClientNamespace::ClientConstants::MainPath + ClientNamespace::ClientConstants::ClientFileName;
+                std::wstring TempClientPath = currentPath + ClientNamespace::ClientConstants::TemporaryPath + ClientNamespace::ClientConstants::ClientFileName;
+
+                remove(GlobalFunction::to_string(ClientPath).c_str());
+
+                boost::filesystem::create_directories(currentPath + ClientNamespace::ClientConstants::MainPath);
+                std::filesystem::rename(TempClientPath, ClientPath);
+
+                std::filesystem::remove(currentPath + ClientNamespace::ClientConstants::TemporaryPath);
+            }
+            catch (std::exception& e)
+            {
+                std::wcerr << e.what() << std::endl;
+                return 2;
             }
 
-            /* Download file (expecting the new client exe) */
-            //DownloadFile(socket, 0, nullptr, false);
+            return 1;
         }
     }
 }

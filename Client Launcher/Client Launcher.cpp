@@ -51,7 +51,9 @@ int main()
         Service - Service(Hostname for ports)/Port number
         */
         boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve(ClientNamespace::ClientConstants::UpdateServiceHostName, ClientNamespace::ClientConstants::DefaultPort));
-        result = ClientNamespace::ClientLauncherFunctions::UpdateClient(&socket);
+        std::wstring InfoString;
+        result = ClientNamespace::ClientLauncherFunctions::UpdateClient(&socket, &InfoString);
+        wprintf(InfoString.c_str());
     }
     catch (std::exception& e)
     {
@@ -77,7 +79,10 @@ int main()
         break;
     }
 
+    socket.close();
+    io_context.~io_context();
+
     getchar();
-    startup(ClientNamespace::ClientConstants::ClientPath.c_str());
+    startup(std::wstring(std::wstring(std::filesystem::current_path()) + ClientNamespace::ClientConstants::MainPath + ClientNamespace::ClientConstants::ClientFileName).c_str());
     return 0;
 }
