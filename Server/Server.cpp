@@ -1,3 +1,6 @@
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
+
 #include <Server/ServerFunctions.hpp>
 #include <SharedClass.hpp>
 
@@ -8,9 +11,6 @@
 #include <io.h>
 #include <fcntl.h>
 #include <filesystem>
-
-#include <boost/asio.hpp>
-#include <boost/thread.hpp>
 
 class tcp_connection
 {

@@ -1,21 +1,19 @@
 #ifndef _CLIENTFUNCTIONS_HPP_
 #define _CLIENTFUNCTIONS_HPP_
 
+#include "../SharedClass.hpp"
+#include <boost/asio.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/array.hpp>
+
 #include <iostream>
 #include <format>
 #include <string>
 #include <fstream>
 #include <filesystem>
 #include <vector>
-#include <Windows.h>
 #include <strsafe.h>
-
-#include "../SharedClass.hpp"
-#include <boost/asio.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/array.hpp>
-
-#define SELF_REMOVE_STRING  TEXT("cmd.exe /C ping 1.1.1.1 -n 1 -w 3000 > Nul & Del /f /q \"%s\"")
+#include <Windows.h>
 
 namespace ClientNamespace
 {
@@ -26,6 +24,10 @@ namespace ClientNamespace
 
         const std::string UpdateServiceHostName = DefaultHostname;
         const std::string UpdateServicePort = DefaultPort;
+
+        const std::wstring ClientPath = LR"(./Main/Client.exe)";
+        const std::wstring DownloadPath = LR"(./Downloads/)";
+        const std::wstring TemporaryPath = LR"(./Temporary/)";
     }
 
     namespace ClientFunctions
@@ -33,23 +35,6 @@ namespace ClientNamespace
         /* Private namespace section */
         namespace
         {
-            void DeleteSelf()
-            {
-                TCHAR szModuleName[MAX_PATH];
-                TCHAR szCmd[2 * MAX_PATH];
-                STARTUPINFO si = { 0 };
-                PROCESS_INFORMATION pi = { 0 };
-
-                GetModuleFileName(NULL, szModuleName, MAX_PATH);
-
-                StringCbPrintf(szCmd, 2 * MAX_PATH, SELF_REMOVE_STRING, szModuleName);
-
-                CreateProcess(NULL, szCmd, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
-
-                CloseHandle(pi.hThread);
-                CloseHandle(pi.hProcess);
-            }
-
             uint64_t DesectionMetadata(std::vector<Definition::byte> ReceivedRawData, std::wstring* filename, std::wstring* InfoString, bool displayInfo)
             {
 #pragma region GetMetadataLenght
@@ -235,6 +220,8 @@ namespace ClientNamespace
         */
         int UpdateClient(boost::asio::ip::tcp::socket* socket)
         {
+            /* Check current version with the server's version */
+
             /* Request for update */
             {
                 ServerRequest MainServerRequest = ServerRequest(ServerRequest::Update);
@@ -242,12 +229,12 @@ namespace ClientNamespace
                 boost::asio::streambuf RequestBuf;
                 MainServerRequest.serializeObject(&RequestBuf);
 
-                boost::asio::write(socket, RequestBuf);
-                boost::asio::write(socket, boost::asio::buffer(GlobalFunction::to_string(GlobalFunction::GetDelimiter())));
+                boost::asio::write((*socket), RequestBuf);
+                boost::asio::write((*socket), boost::asio::buffer(GlobalFunction::to_string(GlobalFunction::GetDelimiter())));
             }
 
             /* Download file (expecting the new client exe) */
-            DownloadFile(socket, 0, nullptr, false);
+            //DownloadFile(socket, 0, nullptr, false);
         }
     }
 }

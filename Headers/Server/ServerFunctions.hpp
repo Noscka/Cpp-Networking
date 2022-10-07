@@ -1,17 +1,17 @@
 #ifndef _SERVERFUNCTIONS_HPP_
 #define _SERVERFUNCTIONS_HPP_
 
+#include <boost/filesystem.hpp>
+#include <boost/asio.hpp>
+#include <boost/array.hpp>
+#include "../SharedClass.hpp"
+
 #include <iostream>
 #include <format>
 #include <string>
 #include <fstream>
 #include <filesystem>
 #include <vector>
-
-#include "../SharedClass.hpp"
-#include <boost/filesystem.hpp>
-#include <boost/asio.hpp>
-#include <boost/array.hpp>
 
 namespace ServerNamespace
 {
