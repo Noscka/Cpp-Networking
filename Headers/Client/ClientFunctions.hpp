@@ -15,6 +15,10 @@
 #include <vector>
 #include <strsafe.h>
 #include <Windows.h>
+#include <fcntl.h>
+#include <string>
+#include <corecrt_io.h>
+#include <regex>
 
 namespace ClientNamespace
 {
@@ -42,6 +46,7 @@ namespace ClientNamespace
         const std::wstring MainPath = LR"(\Main\)"; /* Main sub directory with all the main program files*/
         const std::wstring DownloadPath = LR"(\Downloads\)"; /* Sub directory that stores all the downloaded files */
         const std::wstring TemporaryPath = LR"(\Temporary\)"; /* Temporary sub directory to keep the update files */
+        std::wstring AbsolutePath = std::filesystem::current_path().wstring();
 
         /*
         !Paths to file!
@@ -50,6 +55,14 @@ namespace ClientNamespace
         const std::wstring ClientPath = MainPath + ClientFileName;
         const std::wstring TempClientPath = TemporaryPath + ClientFileName;
         const std::wstring VersionFilePath = MainPath + VersionFileName;
+
+        /*
+        !Absolute paths!
+        Allows for easier changing of changing where files gets stored.
+        */
+        const std::wstring AbsolClientPath = AbsolutePath + ClientPath;
+        const std::wstring AbsolTempClientPath = AbsolutePath + TempClientPath;
+        const std::wstring AbsolVersionFilePath = AbsolutePath + VersionFilePath;
     }
 
     namespace ClientFunctions
@@ -233,6 +246,14 @@ namespace ClientNamespace
 
     namespace ClientLauncherFunctions
     {
+        namespace
+        {
+            bool FileExistance(const std::string& name)
+            {
+                return (_access(name.c_str(), 0) != -1);
+            }
+        }
+
         enum UpdateErrorCodes
         {
             ClientUpToDate = 0,
@@ -249,8 +270,34 @@ namespace ClientNamespace
         int UpdateClient(boost::asio::ip::tcp::socket* socket, std::wstring *InfoString)
         {
             /* Check current version with the server's version */
+            if (FileExistance(GlobalFunction::to_string(ClientNamespace::ClientConstants::AbsolVersionFilePath)))
+            {
+                /* Request for update */
+                {
+                    ServerRequest MainServerRequest = ServerRequest(ServerRequest::VersionRequest);
 
-            //return 0;
+                    boost::asio::streambuf RequestBuf;
+                    MainServerRequest.serializeObject(&RequestBuf);
+
+                    boost::asio::write((*socket), RequestBuf);
+                    boost::asio::write((*socket), boost::asio::buffer(GlobalFunction::to_string(GlobalFunction::GetDelimiter())));
+                }
+
+                boost::asio::streambuf VersionResult;
+
+                size_t bytes_transferred = boost::asio::read_until((*socket), VersionResult, GlobalFunction::to_string(GlobalFunction::GetDelimiter()));
+                std::wstring output = ClientNamespace::ClientFunctions::streamBufferToWstring(&VersionResult, bytes_transferred);
+
+                std::regex VersionFormatCheck("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}");
+                std::smatch m;
+                if (std::regex_search(GlobalFunction::to_string(output), m, VersionFormatCheck))
+                {
+
+                }
+            }
+            
+
+            //return UpdateErrorCodes::ClientUpToDate;
 
             try
             {
@@ -268,25 +315,23 @@ namespace ClientNamespace
                 /* Download file (expecting the new client exe) */
                 ClientNamespace::ClientFunctions::DownloadFile(socket, ClientNamespace::ClientConstants::TemporaryPath, 0, InfoString, false);
 
-                std::wstring currentPath(std::filesystem::current_path());
-
-                std::wstring ClientPath = currentPath + ClientNamespace::ClientConstants::ClientPath;
-                std::wstring TempClientPath = currentPath + ClientNamespace::ClientConstants::TempClientPath;
+                std::wstring ClientPath = ClientNamespace::ClientConstants::AbsolClientPath;
+                std::wstring TempClientPath = ClientNamespace::ClientConstants::AbsolTempClientPath;
 
                 remove(GlobalFunction::to_string(ClientPath).c_str());
 
-                boost::filesystem::create_directories(currentPath + ClientNamespace::ClientConstants::MainPath);
+                boost::filesystem::create_directories(ClientNamespace::ClientConstants::AbsolutePath + ClientNamespace::ClientConstants::MainPath);
                 std::filesystem::rename(TempClientPath, ClientPath);
 
-                std::filesystem::remove(currentPath + ClientNamespace::ClientConstants::TemporaryPath);
+                std::filesystem::remove(ClientNamespace::ClientConstants::AbsolutePath + ClientNamespace::ClientConstants::TemporaryPath);
             }
             catch (std::exception& e)
             {
                 std::wcerr << e.what() << std::endl;
-                return 2;
+                return UpdateErrorCodes::ErrorUpdating;
             }
 
-            return 1;
+            return UpdateErrorCodes::SuccesfulUpdate;
         }
     }
 }

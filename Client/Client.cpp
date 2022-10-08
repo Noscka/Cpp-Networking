@@ -9,7 +9,7 @@
 
 #include <boost/asio.hpp>
 
-#define CLIENT_VERSION 0.0.1
+#define CLIENT_VERSION "0.0.1"
 
 bool FileExistance(const std::string& name)
 {
@@ -19,6 +19,14 @@ bool FileExistance(const std::string& name)
 int main()
 {
     _setmode(_fileno(stdout), _O_U16TEXT);
+
+    boost::filesystem::create_directories(ClientNamespace::ClientConstants::AbsolutePath + ClientNamespace::ClientConstants::MainPath);
+
+    /* Output Client Version */
+    std::ofstream VersionStream(ClientNamespace::ClientConstants::AbsolVersionFilePath, std::ios::binary | std::ios::trunc);
+    VersionStream << CLIENT_VERSION;
+    VersionStream.close();
+
 
     boost::asio::io_context io_context;
 
