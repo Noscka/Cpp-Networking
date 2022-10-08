@@ -56,6 +56,11 @@ public:
                 wprintf(L"Update Requested\n");
                 wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&socket, ServerNamespace::ServerConstants::ClientUpdateDir, 0, &InfoString, true)) + L"\n").c_str());
                 break;
+
+            case ServerRequest::VersionRequest:
+                wprintf(L"Newest version requested\n");
+                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&socket, ServerNamespace::ServerConstants::ClientUpdateDir, 0, &InfoString, true)) + L"\n").c_str());
+                break;
             }
 
             wprintf(InfoString.c_str());

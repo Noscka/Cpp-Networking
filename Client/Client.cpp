@@ -16,17 +16,21 @@ bool FileExistance(const std::string& name)
     return (_access(name.c_str(), 0) != -1);
 }
 
-int main()
+int main(int argc, char** argv)
 {
-    _setmode(_fileno(stdout), _O_U16TEXT);
-
-    boost::filesystem::create_directories(ClientNamespace::ClientConstants::AbsolutePath + ClientNamespace::ClientConstants::MainPath);
-
     /* Output Client Version */
     std::ofstream VersionStream(ClientNamespace::ClientConstants::AbsolVersionFilePath, std::ios::binary | std::ios::trunc);
     VersionStream << CLIENT_VERSION;
     VersionStream.close();
 
+    if (argc == 2 && argv[1] == std::string("-version"))
+    {
+        return 0;
+    }
+
+    _setmode(_fileno(stdout), _O_U16TEXT);
+
+    boost::filesystem::create_directories(ClientNamespace::ClientConstants::AbsolutePath + ClientNamespace::ClientConstants::MainPath);
 
     boost::asio::io_context io_context;
 

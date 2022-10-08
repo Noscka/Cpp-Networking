@@ -7,6 +7,7 @@
 #include <boost/array.hpp>
 #include <boost/filesystem.hpp>
 
+#include <regex>
 #include <iostream>
 #include <format>
 #include <string>
@@ -18,7 +19,6 @@
 #include <fcntl.h>
 #include <string>
 #include <corecrt_io.h>
-#include <regex>
 
 namespace ClientNamespace
 {
@@ -269,9 +269,13 @@ namespace ClientNamespace
         */
         int UpdateClient(boost::asio::ip::tcp::socket* socket, std::wstring *InfoString)
         {
+            wprintf(ClientNamespace::ClientConstants::AbsolVersionFilePath.c_str());
+            wprintf(FileExistance(GlobalFunction::to_string(ClientNamespace::ClientConstants::AbsolVersionFilePath)) ? L"True\n" : L"False\n");
             /* Check current version with the server's version */
             if (FileExistance(GlobalFunction::to_string(ClientNamespace::ClientConstants::AbsolVersionFilePath)))
             {
+                wprintf(L"true\n");
+
                 /* Request for update */
                 {
                     ServerRequest MainServerRequest = ServerRequest(ServerRequest::VersionRequest);
@@ -287,12 +291,16 @@ namespace ClientNamespace
 
                 size_t bytes_transferred = boost::asio::read_until((*socket), VersionResult, GlobalFunction::to_string(GlobalFunction::GetDelimiter()));
                 std::wstring output = ClientNamespace::ClientFunctions::streamBufferToWstring(&VersionResult, bytes_transferred);
+                std::string NarrowOutput = GlobalFunction::to_string(output);
+
+                wprintf(output.c_str());
 
                 std::regex VersionFormatCheck("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}");
                 std::smatch m;
-                if (std::regex_search(GlobalFunction::to_string(output), m, VersionFormatCheck))
-                {
 
+                if (std::regex_search(NarrowOutput, m, VersionFormatCheck))
+                {
+                    std::wcout << std::format(L"Version {}.{}.{}", GlobalFunction::to_wstring(m[1].str()), GlobalFunction::to_wstring(m[2].str()), GlobalFunction::to_wstring(m[3].str())) << std::endl;
                 }
             }
             
