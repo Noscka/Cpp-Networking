@@ -9,6 +9,8 @@
 
 #include <boost/asio.hpp>
 
+#define CLIENT_VERSION 0.0.1
+
 bool FileExistance(const std::string& name)
 {
     return (_access(name.c_str(), 0) != -1);

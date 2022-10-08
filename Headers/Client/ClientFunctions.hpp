@@ -20,16 +20,36 @@ namespace ClientNamespace
 {
     namespace ClientConstants
     {
+        /* Default Connection info */
         const std::string DefaultPort = "58233";
         const std::string DefaultHostname = "192.168.1.30";
 
+        /* Connection info for update service */
         const std::string UpdateServiceHostName = DefaultHostname;
         const std::string UpdateServicePort = DefaultPort;
 
-        const std::wstring ClientFileName = LR"(Client.exe)";
-        const std::wstring MainPath = LR"(\Main\)";
-        const std::wstring DownloadPath = LR"(\Downloads\)";
-        const std::wstring TemporaryPath = LR"(\Temporary\)";
+        /*
+        !Files!
+        Allows for easier changing of filenames
+        */
+        const std::wstring ClientFileName = LR"(Client.exe)"; /* Main Client filename */
+        const std::wstring VersionFileName = LR"(Client.VerInfo)"; /* Client Version info file (for version checking) */
+
+        /*
+        !sub directory!
+        Allows for easier subpath renamings with only needing to change on string instead of 100K.
+        */
+        const std::wstring MainPath = LR"(\Main\)"; /* Main sub directory with all the main program files*/
+        const std::wstring DownloadPath = LR"(\Downloads\)"; /* Sub directory that stores all the downloaded files */
+        const std::wstring TemporaryPath = LR"(\Temporary\)"; /* Temporary sub directory to keep the update files */
+
+        /*
+        !Paths to file!
+        Allows for easier changing of changing where files gets stored.
+        */
+        const std::wstring ClientPath = MainPath + ClientFileName;
+        const std::wstring TempClientPath = TemporaryPath + ClientFileName;
+        const std::wstring VersionFilePath = MainPath + VersionFileName;
     }
 
     namespace ClientFunctions
@@ -250,8 +270,8 @@ namespace ClientNamespace
 
                 std::wstring currentPath(std::filesystem::current_path());
 
-                std::wstring ClientPath = currentPath + ClientNamespace::ClientConstants::MainPath + ClientNamespace::ClientConstants::ClientFileName;
-                std::wstring TempClientPath = currentPath + ClientNamespace::ClientConstants::TemporaryPath + ClientNamespace::ClientConstants::ClientFileName;
+                std::wstring ClientPath = currentPath + ClientNamespace::ClientConstants::ClientPath;
+                std::wstring TempClientPath = currentPath + ClientNamespace::ClientConstants::TempClientPath;
 
                 remove(GlobalFunction::to_string(ClientPath).c_str());
 
