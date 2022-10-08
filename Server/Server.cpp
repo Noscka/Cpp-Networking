@@ -29,41 +29,45 @@ public:
 
         try
         {
-            ServerRequest MainServerRequest;
-
+            boost::system::error_code error;
+            while (!error)
             {
-                boost::asio::streambuf RequestBuf;
+                ServerRequest MainServerRequest;
 
-                boost::asio::read_until(socket, RequestBuf, GlobalFunction::to_string(GlobalFunction::GetDelimiter()));
-                MainServerRequest.DeserializeObject(&RequestBuf);
+                {
+                    boost::asio::streambuf RequestBuf;
+
+                    boost::asio::read_until(socket, RequestBuf, GlobalFunction::to_string(GlobalFunction::GetDelimiter()));
+                    MainServerRequest.DeserializeObject(&RequestBuf);
+                }
+
+                std::wstring InfoString = L"Nothing was done?";
+
+                switch (MainServerRequest.ReturnRequestType())
+                {
+                case ServerRequest::Download:
+                    wprintf(L"uploading file\n");
+                    wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&socket, SendingFileName, 0, &InfoString, true)) + L"\n").c_str());
+                    break;
+
+                case ServerRequest::Continue:
+                    wprintf(std::format(L"Continuing uploading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
+                    wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&socket, SendingFileName, MainServerRequest.ReturnDataLeft(), &InfoString, true)) + L"\n").c_str());
+                    break;
+
+                case ServerRequest::Update:
+                    wprintf(L"Update Requested\n");
+                    wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&socket, ServerNamespace::ServerConstants::AbsolClientUpdateDir, 0, &InfoString, true)) + L"\n").c_str());
+                    break;
+
+                case ServerRequest::VersionRequest:
+                    wprintf(L"Newest version requested\n");
+                    ServerNamespace::UpdateService::SendNewestVersion(&socket, &InfoString);
+                    break;
+                }
+
+                wprintf(InfoString.c_str());
             }
-
-            std::wstring InfoString = L"Nothing was done?";
-
-            switch (MainServerRequest.ReturnRequestType())
-            {
-            case ServerRequest::Download:
-                wprintf(L"uploading file\n");
-                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&socket, SendingFileName, 0, &InfoString, true)) + L"\n").c_str());
-                break;
-
-            case ServerRequest::Continue:
-                wprintf(std::format(L"Continuing uploading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
-                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&socket, SendingFileName, MainServerRequest.ReturnDataLeft(), &InfoString, true)) + L"\n").c_str());
-                break;
-
-            case ServerRequest::Update:
-                wprintf(L"Update Requested\n");
-                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&socket, ServerNamespace::ServerConstants::ClientUpdateDir, 0, &InfoString, true)) + L"\n").c_str());
-                break;
-
-            case ServerRequest::VersionRequest:
-                wprintf(L"Newest version requested\n");
-                wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&socket, ServerNamespace::ServerConstants::ClientUpdateDir, 0, &InfoString, true)) + L"\n").c_str());
-                break;
-            }
-
-            wprintf(InfoString.c_str());
         }
         catch (std::exception& e)
         {

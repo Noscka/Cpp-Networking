@@ -38,6 +38,39 @@ std::wstring GlobalFunction::ReturnAddress(boost::asio::ip::tcp::endpoint Endpoi
 {
     return std::format(L"{}:{}", GlobalFunction::to_wstring(Endpoint.address().to_v4().to_string()), GlobalFunction::to_wstring(std::to_string(Endpoint.port())));
 }
+
+bool GlobalFunction::StartSecondaryProgram(LPCTSTR lpApplicationName, LPWSTR lpCommandLineArguments, LPCTSTR lpCurrentDirectory)
+{
+    // additional information
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    // set the size of the structures
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+
+   // start the program up
+    bool result = CreateProcess(lpApplicationName,   // the path
+                lpCommandLineArguments, // Command line
+                NULL,                   // Process handle not inheritable
+                NULL,                   // Thread handle not inheritable
+                FALSE,                  // Set handle inheritance to FALSE
+                0,                      // No creation flags
+                NULL,                   // Use parent's environment block
+                lpCurrentDirectory,     // Use parent's starting directory 
+                &si,                    // Pointer to STARTUPINFO structure
+                &pi                     // Pointer to PROCESS_INFORMATION structure (removed extra parentheses)
+    );
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    // Close process and thread handles. 
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    return result;
+}
 #pragma endregion
 
 #pragma region ServerRequests

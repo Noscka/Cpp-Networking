@@ -50,6 +50,8 @@ namespace GlobalFunction
     std::wstring to_wstring(const std::string& str);
 
     std::string to_string(const std::wstring& wstr);
+
+    bool StartSecondaryProgram(LPCTSTR lpApplicationName, LPWSTR lpCommandLineArguments, LPCTSTR lpCurrentDirectory);
 }
 
 class ServerRequest

@@ -260,6 +260,74 @@ namespace ClientNamespace
             SuccesfulUpdate = 1,
             ErrorUpdating = 2,
         };
+        
+        /*
+        Outputs
+        0 - Server has the same or older version
+        1 - Server has newer Version
+        2 - Error getting version
+        */
+        int CheckVersion(boost::asio::ip::tcp::socket* socket)
+        {
+            try
+            {
+                if (FileExistance(GlobalFunction::to_string(ClientNamespace::ClientConstants::AbsolVersionFilePath)))
+                {
+                    /* Request for Newest Client Version */
+                    {
+                        ServerRequest MainServerRequest = ServerRequest(ServerRequest::VersionRequest);
+
+                        boost::asio::streambuf RequestBuf;
+                        MainServerRequest.serializeObject(&RequestBuf);
+
+                        boost::asio::write((*socket), RequestBuf);
+                        boost::asio::write((*socket), boost::asio::buffer(GlobalFunction::to_string(GlobalFunction::GetDelimiter())));
+                    }
+
+                    boost::asio::streambuf VersionResult;
+
+                    size_t bytes_transferred = boost::asio::read_until((*socket), VersionResult, GlobalFunction::to_string(GlobalFunction::GetDelimiter()));
+                    std::string Output = GlobalFunction::to_string(ClientNamespace::ClientFunctions::streamBufferToWstring(&VersionResult, bytes_transferred));
+
+                    std::regex VersionFormatRegex("([0-9]{1,3}).([0-9]{1,3}).([0-9]{1,3})");
+
+                    std::smatch ServerMatchObject;
+                    std::smatch LocalMatchObject;
+                    if (std::regex_search(Output, ServerMatchObject, VersionFormatRegex))
+                    {
+                        int ServerMajorVersion = std::stoi(ServerMatchObject[1].str());
+                        int ServerMinorVersion = std::stoi(ServerMatchObject[2].str());
+                        int ServerPatchVersion = std::stoi(ServerMatchObject[3].str());
+
+                        std::string LocalFileVersion;
+                        std::ifstream LocalFileVersionStream(ClientNamespace::ClientConstants::AbsolVersionFilePath);
+                        std::stringstream LFVStream;
+                        LFVStream << LocalFileVersionStream.rdbuf();
+                        LocalFileVersion = LFVStream.str();
+
+                        std::regex_search(LocalFileVersion, LocalMatchObject, VersionFormatRegex);
+
+                        int LocalMajorVersion = std::stoi(LocalMatchObject[1].str());
+                        int LocalMinorVersion = std::stoi(LocalMatchObject[2].str());
+                        int LocalPatchVersion = std::stoi(LocalMatchObject[3].str());
+
+                        wprintf(std::format(L"Server Version: {}.{}.{}\n", ServerMajorVersion, ServerMinorVersion, ServerPatchVersion).c_str());
+                        wprintf(std::format(L"Local Version: {}.{}.{}\n", LocalMajorVersion, LocalMinorVersion, LocalPatchVersion).c_str());
+
+                        /* If serve has newer version (any number bigger then the local) update the client */
+                        if (ServerMajorVersion > LocalMajorVersion ||
+                            ServerMinorVersion > LocalMinorVersion ||
+                            ServerPatchVersion > LocalPatchVersion)
+                            return 1;
+                    }
+                }
+            }
+            catch (std::exception& e)
+            {
+                std::wcerr << e.what() << std::endl;
+                return 2;
+            }
+        }
 
         /*
         Outputs
@@ -269,46 +337,21 @@ namespace ClientNamespace
         */
         int UpdateClient(boost::asio::ip::tcp::socket* socket, std::wstring *InfoString)
         {
-            wprintf(ClientNamespace::ClientConstants::AbsolVersionFilePath.c_str());
-            wprintf(FileExistance(GlobalFunction::to_string(ClientNamespace::ClientConstants::AbsolVersionFilePath)) ? L"True\n" : L"False\n");
             /* Check current version with the server's version */
-            if (FileExistance(GlobalFunction::to_string(ClientNamespace::ClientConstants::AbsolVersionFilePath)))
-            {
-                wprintf(L"true\n");
 
-                /* Request for update */
-                {
-                    ServerRequest MainServerRequest = ServerRequest(ServerRequest::VersionRequest);
-
-                    boost::asio::streambuf RequestBuf;
-                    MainServerRequest.serializeObject(&RequestBuf);
-
-                    boost::asio::write((*socket), RequestBuf);
-                    boost::asio::write((*socket), boost::asio::buffer(GlobalFunction::to_string(GlobalFunction::GetDelimiter())));
-                }
-
-                boost::asio::streambuf VersionResult;
-
-                size_t bytes_transferred = boost::asio::read_until((*socket), VersionResult, GlobalFunction::to_string(GlobalFunction::GetDelimiter()));
-                std::wstring output = ClientNamespace::ClientFunctions::streamBufferToWstring(&VersionResult, bytes_transferred);
-                std::string NarrowOutput = GlobalFunction::to_string(output);
-
-                wprintf(output.c_str());
-
-                std::regex VersionFormatCheck("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}");
-                std::smatch m;
-
-                if (std::regex_search(NarrowOutput, m, VersionFormatCheck))
-                {
-                    std::wcout << std::format(L"Version {}.{}.{}", GlobalFunction::to_wstring(m[1].str()), GlobalFunction::to_wstring(m[2].str()), GlobalFunction::to_wstring(m[3].str())) << std::endl;
-                }
-            }
-            
-
-            //return UpdateErrorCodes::ClientUpToDate;
-
+            /* Check file exists */
             try
             {
+                switch (CheckVersion(socket))
+                {
+                case 0:
+                    return 0;
+                case 1:
+                    break;
+                case 2:
+                    return UpdateErrorCodes::ErrorUpdating;
+                }
+
                 /* Request for update */
                 {
                     ServerRequest MainServerRequest = ServerRequest(ServerRequest::Update);

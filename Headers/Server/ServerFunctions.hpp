@@ -17,8 +17,33 @@ namespace ServerNamespace
 {
     namespace ServerConstants
     {
-        const std::wstring UpdateFileDir = LR"(./Update/)";
-        const std::wstring ClientUpdateDir = UpdateFileDir + LR"(Client.exe)";
+        /*
+        !Files!
+        Allows for easier changing of filenames
+        */
+        const std::wstring ClientUpdateFileName = LR"(Client.exe)"; /* Main Client filename */
+        const std::wstring ClientVersionFileName = LR"(Client.VerInfo)"; /* Client Version info file (for version checking) */
+
+        /*
+        !sub directory!
+        Allows for easier subpath renamings with only needing to change on string instead of 100K.
+        */
+        const std::wstring UpdatePath = LR"(\Update\)"; /* Main sub directory with all the main program files*/
+        std::wstring AbsolutePath = std::filesystem::current_path().wstring();
+
+        /*
+        !Paths to file!
+        Allows for easier changing of changing where files gets stored.
+        */
+        const std::wstring ClientUpdateDir = UpdatePath + ClientUpdateFileName;
+        const std::wstring ClientVersionFilePath = UpdatePath + ClientVersionFileName;
+
+        /*
+        !Absolute paths!
+        Allows for easier changing of changing where files gets stored.
+        */
+        const std::wstring AbsolClientUpdateDir = AbsolutePath + ClientUpdateDir;
+        const std::wstring AbsolVersionFilePath = AbsolutePath + ClientVersionFilePath;
     }
 
     namespace ServerFunctions
@@ -179,6 +204,29 @@ namespace ServerNamespace
 #pragma endregion 
 
             return BytesSent + SendContentSegements(socket, FileAddress, ResumePos);
+        }
+    }
+
+    namespace UpdateService
+    {
+        void SendNewestVersion(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString)
+        {
+            GlobalFunction::StartSecondaryProgram(ServerNamespace::ServerConstants::AbsolClientUpdateDir.c_str(),
+                                                  &(ServerNamespace::ServerConstants::ClientUpdateFileName + L" -version")[0],
+                                                  (ServerNamespace::ServerConstants::AbsolutePath + ServerNamespace::ServerConstants::UpdatePath).c_str());
+
+            std::string LocalFileVersion;
+            std::ifstream LocalFileVersionStream(ServerNamespace::ServerConstants::AbsolVersionFilePath);
+            std::stringstream LFVStream;
+            LFVStream << LocalFileVersionStream.rdbuf();
+            LocalFileVersion = LFVStream.str();
+
+            size_t BytesSent = boost::asio::write((*socket), boost::asio::buffer(LocalFileVersion));
+            size_t DelimiterSize = boost::asio::write((*socket), boost::asio::buffer(GlobalFunction::to_string(GlobalFunction::GetDelimiter())));
+
+            *InfoString = L"Sending newest number\n";
+
+            return;
         }
     }
 }
