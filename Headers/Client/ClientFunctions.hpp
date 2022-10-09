@@ -27,18 +27,27 @@ namespace ClientNamespace
     public:
         enum UserType
         {
-            client_launcher,
+            clientLauncher,
             client
         };
+
+    	enum StaticPaths
+    	{
+    		clientFile, /* Main Client file */
+    		tempClientFile, /* Client file which will be used for updating */
+    		clientVersionFile, /* File containing Client version */
+    		DownloadPath, /* File containing Client version */
+    	};
     private:
 
         UserType ProgramUsing;
         std::wstring AbsolutePath;
         std::wstring SubPath;
         std::wstring Filename;
-    public:
 
-        FilePathStorage(const UserType programUsing, const std::wstring subPath, const std::wstring filename)
+        FilePathStorage(){}
+    public:
+        FilePathStorage(UserType programUsing, std::wstring subPath, std::wstring filename)
         {
             ProgramUsing = programUsing;
             SubPath = subPath;
@@ -46,13 +55,39 @@ namespace ClientNamespace
 
             switch (programUsing)
             {
-            case client_launcher:
+            case UserType::clientLauncher:
                 AbsolutePath = std::filesystem::current_path().wstring();
                 break;
-            case client:
+            case UserType::client:
                 AbsolutePath = std::filesystem::current_path().parent_path().wstring();
                 break;
             }
+        }
+
+        FilePathStorage(UserType programUsing, StaticPaths PathWanted)
+        {
+            *this = StaticPaths(programUsing, PathWanted);
+        }
+
+        static FilePathStorage StaticPaths(UserType programUsing, StaticPaths PathWanted)
+        {
+            FilePathStorage ReturnObject;
+            switch (PathWanted)
+            {
+            case clientFile:
+                ReturnObject = FilePathStorage(programUsing, LR"(\Main\)", LR"(Client.exe)");
+                break;
+            case tempClientFile:
+                ReturnObject = FilePathStorage(programUsing, LR"(\Temporary\)", LR"(Client.exe)");
+                break;
+            case clientVersionFile:
+                ReturnObject = FilePathStorage(programUsing, LR"(\Main\)", LR"(Client.VerInfo)");
+                break;
+            case DownloadPath:
+                ReturnObject = FilePathStorage(programUsing, LR"(\Downloads\)", L"");
+                break;
+            }
+            return ReturnObject;
         }
 
         std::wstring GetSubPath()
@@ -75,21 +110,6 @@ namespace ClientNamespace
         /* Connection info for update service */
         const std::string UpdateServiceHostName = DefaultHostname;
         const std::string UpdateServicePort = DefaultPort;
-
-        /*
-        !Files!
-        Allows for easier changing of filenames
-        */
-        const std::wstring ClientFileName = LR"(Client.exe)"; /* Main Client filename */
-        const std::wstring VersionFileName = LR"(Client.VerInfo)"; /* Client Version info file (for version checking) */
-
-        /*
-        !sub directory!
-        Allows for easier subpath renamings with only needing to change on string instead of 100K.
-        */
-        const std::wstring MainPath = LR"(\Main\)"; /* Main sub directory with all the main program files*/
-        const std::wstring DownloadPath = LR"(\Downloads\)"; /* Sub directory that stores all the downloaded files */
-        const std::wstring TemporaryPath = LR"(\Temporary\)"; /* Temporary sub directory to keep the update files */
     }
 
     namespace ClientFunctions
@@ -298,7 +318,7 @@ namespace ClientNamespace
         {
             try
             {
-                FilePathStorage VersionFile(FilePathStorage::UserType::client_launcher, ClientNamespace::ClientConstants::MainPath, ClientNamespace::ClientConstants::VersionFileName);
+                FilePathStorage VersionFile(FilePathStorage::UserType::clientLauncher, FilePathStorage::StaticPaths::clientVersionFile);
                 if (FileExistance(GlobalFunction::to_string(VersionFile.GetFilePath())))
                 {
                         /* Request for Newest Client Version */
@@ -405,8 +425,8 @@ namespace ClientNamespace
                 }
 
                 /* Download file (expecting the new client exe) */
-                FilePathStorage ClientFilePath(FilePathStorage::UserType::client_launcher, ClientNamespace::ClientConstants::MainPath, ClientNamespace::ClientConstants::ClientFileName);
-                FilePathStorage TempClientPath(FilePathStorage::UserType::client_launcher, ClientNamespace::ClientConstants::TemporaryPath, ClientNamespace::ClientConstants::ClientFileName);
+                FilePathStorage ClientFilePath(FilePathStorage::UserType::clientLauncher, FilePathStorage::StaticPaths::clientFile);
+                FilePathStorage TempClientPath(FilePathStorage::UserType::clientLauncher, FilePathStorage::StaticPaths::tempClientFile);
 
                 ClientNamespace::ClientFunctions::DownloadFile(socket, TempClientPath.GetSubPath(), 0, InfoString, false);
 
