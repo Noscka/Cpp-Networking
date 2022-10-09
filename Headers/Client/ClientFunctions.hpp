@@ -63,6 +63,10 @@ namespace ClientNamespace
         const std::wstring AbsolClientPath = AbsolutePath + ClientPath;
         const std::wstring AbsolTempClientPath = AbsolutePath + TempClientPath;
         const std::wstring AbsolVersionFilePath = AbsolutePath + VersionFilePath;
+
+        const std::wstring AbsolMainFolder = AbsolutePath + MainPath;
+        const std::wstring AbsolDownloadFolder = AbsolutePath + DownloadPath;
+        const std::wstring AbsolTemporaryFolder = AbsolutePath + TemporaryPath;
     }
 
     namespace ClientFunctions
@@ -233,9 +237,9 @@ namespace ClientNamespace
 #pragma endregion
 
 #pragma region Getting Directory and creating
-            std::wstring DirFilename = std::wstring(std::filesystem::current_path()) + OutputDirectory + Filename;
+            std::wstring DirFilename = OutputDirectory + Filename;
 
-            boost::filesystem::create_directories(std::wstring(std::filesystem::current_path()) + OutputDirectory);
+            boost::filesystem::create_directories(OutputDirectory);
 #pragma endregion
 
             ReceiveContentSegements(socket, DirFilename, ExpectedContentsize, ResumePos);
@@ -314,11 +318,23 @@ namespace ClientNamespace
                         wprintf(std::format(L"Server Version: {}.{}.{}\n", ServerMajorVersion, ServerMinorVersion, ServerPatchVersion).c_str());
                         wprintf(std::format(L"Local Version: {}.{}.{}\n", LocalMajorVersion, LocalMinorVersion, LocalPatchVersion).c_str());
 
-                        /* If serve has newer version (any number bigger then the local) update the client */
-                        if (ServerMajorVersion > LocalMajorVersion ||
-                            ServerMinorVersion > LocalMinorVersion ||
-                            ServerPatchVersion > LocalPatchVersion)
-                            return 1;
+                        std::wcout << L"Version Major: " << (ServerMajorVersion > LocalMajorVersion ? L"True" : L"False") << std::endl;
+                        std::wcout << L"Version Minor: " << (ServerMinorVersion > LocalMinorVersion ? L"True" : L"False") << std::endl;
+                        std::wcout << L"Version Patch: " << (ServerPatchVersion > LocalPatchVersion ? L"True" : L"False") << std::endl;
+
+                        std::wcout << L"Version Full check: " <<
+                            (ServerMajorVersion > LocalMajorVersion ||
+                             ServerMinorVersion > LocalMinorVersion ||
+                             ServerPatchVersion > LocalPatchVersion ? L"True" : L"False")
+                            << std::endl;
+
+                        /* If the local files are older (any number is smaller) update */
+                        if (ServerMajorVersion < LocalMajorVersion &&
+                            ServerMinorVersion < LocalMinorVersion &&
+                            ServerPatchVersion < LocalPatchVersion)
+                        {
+                            return 0;
+                        }
                     }
                 }
             }
@@ -327,6 +343,7 @@ namespace ClientNamespace
                 std::wcerr << e.what() << std::endl;
                 return 2;
             }
+            return 1;
         }
 
         /*
@@ -364,17 +381,17 @@ namespace ClientNamespace
                 }
 
                 /* Download file (expecting the new client exe) */
-                ClientNamespace::ClientFunctions::DownloadFile(socket, ClientNamespace::ClientConstants::TemporaryPath, 0, InfoString, false);
+                ClientNamespace::ClientFunctions::DownloadFile(socket, ClientNamespace::ClientConstants::AbsolTemporaryFolder, 0, InfoString, false);
 
                 std::wstring ClientPath = ClientNamespace::ClientConstants::AbsolClientPath;
                 std::wstring TempClientPath = ClientNamespace::ClientConstants::AbsolTempClientPath;
 
                 remove(GlobalFunction::to_string(ClientPath).c_str());
 
-                boost::filesystem::create_directories(ClientNamespace::ClientConstants::AbsolutePath + ClientNamespace::ClientConstants::MainPath);
+                boost::filesystem::create_directories(ClientNamespace::ClientConstants::AbsolMainFolder);
                 std::filesystem::rename(TempClientPath, ClientPath);
 
-                std::filesystem::remove(ClientNamespace::ClientConstants::AbsolutePath + ClientNamespace::ClientConstants::TemporaryPath);
+                std::filesystem::remove(ClientNamespace::ClientConstants::AbsolTemporaryFolder);
             }
             catch (std::exception& e)
             {

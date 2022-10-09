@@ -9,7 +9,7 @@
 
 #include <boost/asio.hpp>
 
-#define CLIENT_VERSION "0.0.1"
+#define CLIENT_VERSION "0.1.0"
 
 bool FileExistance(const std::string& name)
 {
@@ -83,11 +83,11 @@ int main(int argc, char** argv)
         {
         case ServerRequest::Download:
             wprintf(L"Downloading file\n");
-            ClientNamespace::ClientFunctions::DownloadFile(&socket, ClientNamespace::ClientConstants::DownloadPath, 0, &InfoString, true);
+            ClientNamespace::ClientFunctions::DownloadFile(&socket, ClientNamespace::ClientConstants::AbsolDownloadFolder, 0, &InfoString, true);
             break;
         case ServerRequest::Continue:
             wprintf(std::format(L"Continuing Downloading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
-            ClientNamespace::ClientFunctions::DownloadFile(&socket, ClientNamespace::ClientConstants::DownloadPath, MainServerRequest.ReturnDataLeft(), &InfoString, true);
+            ClientNamespace::ClientFunctions::DownloadFile(&socket, ClientNamespace::ClientConstants::AbsolDownloadFolder, MainServerRequest.ReturnDataLeft(), &InfoString, true);
             break;
         }
         
