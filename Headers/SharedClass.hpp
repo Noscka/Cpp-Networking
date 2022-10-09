@@ -4,9 +4,7 @@
 #include <iostream>
 #include <format>
 #include <string>
-#include <fstream>
 #include <filesystem>
-#include <vector>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
@@ -55,6 +53,7 @@ namespace GlobalFunction
 }
 
 class ServerRequest
+
 {
 public:
     enum RequestTypes {Download,Continue,Update,VersionRequest};

@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 
         std::wstring InfoString;
 
-        ClientNamespace::FilePathStorage DownloadDir(ClientNamespace::FilePathStorage::UserType::Client, ClientNamespace::ClientConstants::DownloadPath, L"");
+        ClientNamespace::FilePathStorage DownloadDir(ClientNamespace::FilePathStorage::UserType::client, ClientNamespace::ClientConstants::DownloadPath, L"");
 
         switch (MainServerRequest.ReturnRequestType())
         {

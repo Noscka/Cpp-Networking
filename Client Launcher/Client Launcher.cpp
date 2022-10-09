@@ -56,7 +56,7 @@ int main()
 
     getchar();
 
-    ClientNamespace::FilePathStorage ClientPath(ClientNamespace::FilePathStorage::UserType::ClientLauncher, ClientNamespace::ClientConstants::MainPath, ClientNamespace::ClientConstants::ClientFileName);
+    ClientNamespace::FilePathStorage ClientPath(ClientNamespace::FilePathStorage::UserType::client_launcher, ClientNamespace::ClientConstants::MainPath, ClientNamespace::ClientConstants::ClientFileName);
 
     GlobalFunction::StartSecondaryProgram(ClientPath.GetFilePath().c_str(),
                                           NULL,
