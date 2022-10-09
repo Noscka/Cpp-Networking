@@ -9,7 +9,7 @@
 
 #include <boost/asio.hpp>
 
-#define CLIENT_VERSION "0.1.0"
+#define CLIENT_VERSION "0.1.1"
 
 bool FileExistance(const std::string& name)
 {
@@ -66,8 +66,6 @@ int main(int argc, char** argv)
             }
         }
 
-        std::wcout << MainServerRequest.ReturnRequestType() << std::endl;
-
         {
             boost::asio::streambuf RequestBuf;
 
@@ -79,15 +77,17 @@ int main(int argc, char** argv)
 
         std::wstring InfoString;
 
+        ClientNamespace::FilePathStorage DownloadDir(ClientNamespace::FilePathStorage::UserType::Client, ClientNamespace::ClientConstants::DownloadPath, L"");
+
         switch (MainServerRequest.ReturnRequestType())
         {
         case ServerRequest::Download:
             wprintf(L"Downloading file\n");
-            ClientNamespace::ClientFunctions::DownloadFile(&socket, ClientNamespace::ClientConstants::AbsolDownloadFolder, 0, &InfoString, true);
+            ClientNamespace::ClientFunctions::DownloadFile(&socket, DownloadDir.GetSubPath(), 0, &InfoString, true);
             break;
         case ServerRequest::Continue:
             wprintf(std::format(L"Continuing Downloading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
-            ClientNamespace::ClientFunctions::DownloadFile(&socket, ClientNamespace::ClientConstants::AbsolDownloadFolder, MainServerRequest.ReturnDataLeft(), &InfoString, true);
+            ClientNamespace::ClientFunctions::DownloadFile(&socket, DownloadDir.GetSubPath(), MainServerRequest.ReturnDataLeft(), &InfoString, true);
             break;
         }
         

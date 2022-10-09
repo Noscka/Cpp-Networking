@@ -22,6 +22,50 @@
 
 namespace ClientNamespace
 {
+    class FilePathStorage
+    {
+    public:
+        enum UserType
+        {
+            ClientLauncher,
+            Client
+        };
+    private:
+
+        UserType ProgramUsing;
+        std::wstring AbsolutePath;
+        std::wstring SubPath;
+        std::wstring Filename;
+    public:
+
+        FilePathStorage(UserType programUsing, std::wstring subPath, std::wstring filename)
+        {
+            ProgramUsing = programUsing;
+            SubPath = subPath;
+            Filename = filename;
+
+            switch (programUsing)
+            {
+            case ClientLauncher:
+                AbsolutePath = std::filesystem::current_path().wstring();
+                break;
+            case Client:
+                AbsolutePath = std::filesystem::current_path().parent_path().wstring();
+                break;
+            }
+        }
+
+        std::wstring GetSubPath()
+        {
+            return AbsolutePath + SubPath;
+        }
+
+        std::wstring GetFilePath()
+        {
+            return GetSubPath() + Filename;
+        }
+    };
+
     namespace ClientConstants
     {
         /* Default Connection info */
@@ -46,27 +90,6 @@ namespace ClientNamespace
         const std::wstring MainPath = LR"(\Main\)"; /* Main sub directory with all the main program files*/
         const std::wstring DownloadPath = LR"(\Downloads\)"; /* Sub directory that stores all the downloaded files */
         const std::wstring TemporaryPath = LR"(\Temporary\)"; /* Temporary sub directory to keep the update files */
-        std::wstring AbsolutePath = std::filesystem::current_path().wstring();
-
-        /*
-        !Paths to file!
-        Allows for easier changing of changing where files gets stored.
-        */
-        const std::wstring ClientPath = MainPath + ClientFileName;
-        const std::wstring TempClientPath = TemporaryPath + ClientFileName;
-        const std::wstring VersionFilePath = MainPath + VersionFileName;
-
-        /*
-        !Absolute paths!
-        Allows for easier changing of changing where files gets stored.
-        */
-        const std::wstring AbsolClientPath = AbsolutePath + ClientPath;
-        const std::wstring AbsolTempClientPath = AbsolutePath + TempClientPath;
-        const std::wstring AbsolVersionFilePath = AbsolutePath + VersionFilePath;
-
-        const std::wstring AbsolMainFolder = AbsolutePath + MainPath;
-        const std::wstring AbsolDownloadFolder = AbsolutePath + DownloadPath;
-        const std::wstring AbsolTemporaryFolder = AbsolutePath + TemporaryPath;
     }
 
     namespace ClientFunctions
@@ -199,9 +222,9 @@ namespace ClientNamespace
         void DownloadFile(boost::asio::ip::tcp::socket* socket, std::wstring OutputDirectory, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
         {
 #pragma region GettingMetadata
-    /* Get file metadata */
+            /* Get file metadata */
 
-    /* vector for getting sectioned metadata and processing it */
+            /* vector for getting sectioned metadata and processing it */
             std::vector<Definition::byte> ReceivedRawData;
 
             {
@@ -275,9 +298,10 @@ namespace ClientNamespace
         {
             try
             {
-                if (FileExistance(GlobalFunction::to_string(ClientNamespace::ClientConstants::AbsolVersionFilePath)))
+                FilePathStorage VersionFile(FilePathStorage::UserType::ClientLauncher, ClientNamespace::ClientConstants::MainPath, ClientNamespace::ClientConstants::VersionFileName);
+                if (FileExistance(GlobalFunction::to_string(VersionFile.GetFilePath())))
                 {
-                    /* Request for Newest Client Version */
+                        /* Request for Newest Client Version */
                     {
                         ServerRequest MainServerRequest = ServerRequest(ServerRequest::VersionRequest);
 
@@ -304,7 +328,7 @@ namespace ClientNamespace
                         int ServerPatchVersion = std::stoi(ServerMatchObject[3].str());
 
                         std::string LocalFileVersion;
-                        std::ifstream LocalFileVersionStream(ClientNamespace::ClientConstants::AbsolVersionFilePath);
+                        std::ifstream LocalFileVersionStream(VersionFile.GetFilePath());
                         std::stringstream LFVStream;
                         LFVStream << LocalFileVersionStream.rdbuf();
                         LocalFileVersion = LFVStream.str();
@@ -381,17 +405,17 @@ namespace ClientNamespace
                 }
 
                 /* Download file (expecting the new client exe) */
-                ClientNamespace::ClientFunctions::DownloadFile(socket, ClientNamespace::ClientConstants::AbsolTemporaryFolder, 0, InfoString, false);
+                FilePathStorage ClientFilePath(FilePathStorage::UserType::ClientLauncher, ClientNamespace::ClientConstants::MainPath, ClientNamespace::ClientConstants::ClientFileName);
+                FilePathStorage TempClientPath(FilePathStorage::UserType::ClientLauncher, ClientNamespace::ClientConstants::TemporaryPath, ClientNamespace::ClientConstants::ClientFileName);
 
-                std::wstring ClientPath = ClientNamespace::ClientConstants::AbsolClientPath;
-                std::wstring TempClientPath = ClientNamespace::ClientConstants::AbsolTempClientPath;
+                ClientNamespace::ClientFunctions::DownloadFile(socket, TempClientPath.GetSubPath(), 0, InfoString, false);
 
-                remove(GlobalFunction::to_string(ClientPath).c_str());
+                remove(GlobalFunction::to_string(ClientFilePath.GetFilePath()).c_str());
 
-                boost::filesystem::create_directories(ClientNamespace::ClientConstants::AbsolMainFolder);
-                std::filesystem::rename(TempClientPath, ClientPath);
+                boost::filesystem::create_directories(ClientFilePath.GetSubPath());
+                std::filesystem::rename(TempClientPath.GetFilePath(), ClientFilePath.GetFilePath());
 
-                std::filesystem::remove(ClientNamespace::ClientConstants::AbsolTemporaryFolder);
+                std::filesystem::remove(TempClientPath.GetSubPath());
             }
             catch (std::exception& e)
             {

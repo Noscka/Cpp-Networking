@@ -55,8 +55,11 @@ int main()
     io_context.~io_context();
 
     getchar();
-    GlobalFunction::StartSecondaryProgram(ClientNamespace::ClientConstants::AbsolClientPath.c_str(),
+
+    ClientNamespace::FilePathStorage ClientPath(ClientNamespace::FilePathStorage::UserType::ClientLauncher, ClientNamespace::ClientConstants::MainPath, ClientNamespace::ClientConstants::ClientFileName);
+
+    GlobalFunction::StartSecondaryProgram(ClientPath.GetFilePath().c_str(),
                                           NULL,
-                                          (ClientNamespace::ClientConstants::AbsolutePath + ClientNamespace::ClientConstants::MainPath).c_str());
+                                          ClientPath.GetSubPath().c_str());
     return 0;
 }
