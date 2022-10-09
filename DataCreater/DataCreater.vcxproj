@@ -289,7 +289,7 @@
     <ClCompile Include="LoadingScreen\LoadingScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LoadingScreen\LoadingScreen.h" />
+    <ClInclude Include="LoadingScreen\LoadingScreen.hpp" />
     <ClInclude Include="LoadingScreen\Resource\resource.h" />
   </ItemGroup>
   <ItemGroup>

@@ -23,10 +23,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LoadingScreen\LoadingScreen.h">
+    <ClInclude Include="LoadingScreen\Resource\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LoadingScreen\Resource\resource.h">
+    <ClInclude Include="LoadingScreen\LoadingScreen.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

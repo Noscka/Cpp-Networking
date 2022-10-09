@@ -4,7 +4,7 @@
 #include <io.h>
 #include <Windows.h>
 
-#include "LoadingScreen/LoadingScreen.h"
+#include "LoadingScreen/LoadingScreen.hpp"
 
 #define Kilobyte (uint64_t)1024
 #define Megabyte (uint64_t)1024*Kilobyte
@@ -38,8 +38,9 @@ void CreateRandomData(LoadingScreen* Object)
         {
             DataWrite += "aaaaaaaaaa";
             Progress += 10;
-            Object->UpdateKnownProgressBar((float)Progress / (float)OutOf);
+            Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, L"Creating 500MB segement data");
         }
+        Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, L"Writing Data");
         OutFileStream.write(DataWrite.c_str(), DataWrite.size());
     }
 
@@ -50,8 +51,9 @@ void CreateRandomData(LoadingScreen* Object)
         {
             DataWrite += "a";
             Progress += 1;
-            Object->UpdateKnownProgressBar((float)Progress / (float)OutOf);
+            Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, L"Creating the rest of data");
         }
+        Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, L"Writing Data");
         OutFileStream.write(DataWrite.c_str(), DataWrite.size());
     }
 

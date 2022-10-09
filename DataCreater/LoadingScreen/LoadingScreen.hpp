@@ -7,22 +7,30 @@
 #include <functional>
 #include <thread>
 
-#include "./Resource/resource.h"
+#include "Resource/resource.h"
 
 class LoadingScreen
 {
+public:
+	enum LoadType
+	{
+		Unknown = 0,
+		Known = 1,
+	};
 private:
 	static std::wstring FontFile;
 
 	std::wstring SplashScreen;
 	int SplashScreenYSize;
 	float PercentageDone;
+	std::wstring StatusMessage;
 
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	HANDLE ConsoleHandle;
 	int columns, rows;
 
-
+	LoadType BarType;
+	void (*LoadingFunction)(LoadingScreen*);
 
 	void KnownProgressLoad();
 	void UnknownProgressLoad();
@@ -32,15 +40,6 @@ public:
 	static void InitilizeFont();
 	static void TerminateFont();
 	static void ClearCurrentLine(int Position);
-
-	enum LoadType
-	{
-		Unknown = 0,
-		Known = 1,
-	};
-
-	LoadType BarType;
-	void (*LoadingFunction)(LoadingScreen*);
 
 	bool CrossThreadFinishBoolean;
 
@@ -57,7 +56,7 @@ public:
 
 	void StartLoading();
 
-	void UpdateKnownProgressBar(float percentageDone);
+	void UpdateKnownProgressBar(float percentageDone, std::wstring statusMessage);
 
 	std::wstring MoveRight(std::wstring* string);
 

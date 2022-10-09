@@ -1,4 +1,4 @@
-﻿#include "LoadingScreen.h"
+﻿#include "LoadingScreen.hpp"
 
 std::wstring LoadingScreen::FontFile = L"Resources\\CustomConsola.ttf";
 
@@ -71,7 +71,6 @@ bool LoadingScreen::FileExists(const std::string& name)
 	return (stat(name.c_str(), &buffer) == 0);
 }
 
-
 void LoadingScreen::StartLoading()
 {
 	GetConsoleScreenBufferInfo(ConsoleHandle, &csbi);
@@ -82,7 +81,6 @@ void LoadingScreen::StartLoading()
 		SplashScreenYSize = 0;
 	else
 	{
-		//SplashScreenYSize = std::count(SplashScreen.begin(), SplashScreen.end(), '\n') + 3;
 		SplashScreenYSize = rows - 4;
 	}
 
@@ -97,9 +95,10 @@ void LoadingScreen::StartLoading()
 	}
 }
 
-void LoadingScreen::UpdateKnownProgressBar(float percentageDone)
+void LoadingScreen::UpdateKnownProgressBar(float percentageDone, std::wstring statusMessage)
 {
 	PercentageDone = percentageDone;
+	StatusMessage = statusMessage;
 }
 
 void LoadingScreen::KnownProgressLoad()
@@ -126,6 +125,7 @@ void LoadingScreen::KnownProgressLoad()
 		bar += std::wstring(floor(left / 0.5), L'▌');
 
 		wprintf((std::wstring(((columns / 2) - Lenght / 2), ' ') + bar + L'\n').c_str());
+		wprintf((std::wstring(((columns / 2) - StatusMessage.length() / 2), ' ') + StatusMessage + L'\n').c_str());
 
 		Sleep(100);
 		LoadingScreen::ClearCurrentLine(SplashScreenYSize);
@@ -144,7 +144,6 @@ void LoadingScreen::UnknownProgressLoad()
 	GetConsoleScreenBufferInfo(ConsoleHandle, &csbi);
 	columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
 
-	//std::wstring bar = L"▁▁ ▂▂ ▃▃ ▃▃ ▅▅ ▆▆ ▇▇ ██ ▇▇ ▆▆ ▅▅ ▄▄ ▃▃ ▂▂ ▁▁";
 	std::wstring bar = L"▁ ▂ ▃ ▄ ▅ ▆ ▇ █ ▇ ▆ ▅ ▄ ▃ ▂ ▁";
 
 	int MidPosition = std::ceil((float)bar.length() / 2); /* For tracking the middle character character */
@@ -160,11 +159,13 @@ void LoadingScreen::UnknownProgressLoad()
 		if (GoingRight)
 		{
 			wprintf((std::wstring(((columns / 2) - bar.length() / 2), ' ') + MoveRight(&bar) + L'\n').c_str());
+			wprintf((std::wstring(((columns / 2) - StatusMessage.length() / 2), ' ') + StatusMessage + L'\n').c_str());
 			MidPosition++;
 		}
 		else
 		{
 			wprintf((std::wstring(((columns / 2) - bar.length() / 2), ' ') + MoveLeft(&bar) + L'\n').c_str());
+			wprintf((std::wstring(((columns / 2) - StatusMessage.length() / 2), ' ') + StatusMessage + L'\n').c_str());
 			MidPosition--;
 		}
 
@@ -196,7 +197,7 @@ void LoadingScreen::ClearCurrentLine(int Position)
 
 	COORD tl = { 0, (SHORT)(Position) };
 	GetConsoleScreenBufferInfo(ConsoleHandle, &csbi);
-	DWORD written, cells = csbi.dwSize.X;
+	DWORD written, cells = csbi.dwSize.X*2;
 	FillConsoleOutputCharacter(ConsoleHandle, ' ', cells, tl, &written);
 	FillConsoleOutputAttribute(ConsoleHandle, csbi.wAttributes, cells, tl, &written);
 	SetConsoleCursorPosition(ConsoleHandle, tl);
