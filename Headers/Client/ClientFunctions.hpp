@@ -105,7 +105,7 @@ namespace ClientNamespace
     {
         /* Default Connection info */
         const std::string DefaultPort = "58233";
-        const std::string DefaultHostname = "192.168.1.30";
+        const std::string DefaultHostname = "localhost";
 
         /* Connection info for update service */
         const std::string UpdateServiceHostName = DefaultHostname;
