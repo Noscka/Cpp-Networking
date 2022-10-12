@@ -1,11 +1,15 @@
 ﻿#pragma once
 
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp> 
+
 #include <Windows.h>
 #include <string>
 #include <filesystem>
 #include <iostream>
 #include <functional>
 #include <thread>
+#include <algorithm>
 
 #include "Resource/resource.h"
 
@@ -21,13 +25,13 @@ private:
 	static inline std::wstring FontFile = L"Resources\\CustomConsola.ttf";
 
 	std::wstring SplashScreen;
-	int SplashScreenYSize;
+	int SplashScreenYSize, PreviousWriteCoords;
 	float PercentageDone;
 	std::wstring StatusMessage;
 
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	HANDLE ConsoleHandle;
-	int columns, rows;
+	static inline CONSOLE_SCREEN_BUFFER_INFO csbi;
+	static inline HANDLE ConsoleHandle;
+	static inline int columns, rows;
 
 	LoadType BarType;
 
@@ -56,10 +60,14 @@ private:
 			bar += std::wstring(floor(left / 0.5), L'▌');
 
 			wprintf((std::wstring(((columns / 2) - Lenght / 2), ' ') + bar + L'\n').c_str());
-			wprintf((std::wstring(((columns / 2) - StatusMessage.length() / 2), ' ') + StatusMessage + L'\n').c_str());
+			wprintf(StatusMessage.c_str());
 
 			Sleep(100);
-			LoadingScreen::ClearCurrentLine(SplashScreenYSize);
+			rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+			PreviousWriteCoords = SplashScreenYSize;
+			SplashScreenYSize = (rows - 4) - (std::count(StatusMessage.begin(), StatusMessage.end(), L'\n'));
+			LoadingScreen::ClearRangeLines(PreviousWriteCoords, std::count(StatusMessage.begin(), StatusMessage.end(), L'\n') + 1);
+			LoadingScreen::ClearRangeLines(SplashScreenYSize, std::count(StatusMessage.begin(), StatusMessage.end(), L'\n') + 1);
 			bar = L"";
 		}
 
@@ -90,13 +98,13 @@ private:
 			if (GoingRight)
 			{
 				wprintf((std::wstring(((columns / 2) - bar.length() / 2), ' ') + MoveRight(&bar) + L'\n').c_str());
-				wprintf((std::wstring(((columns / 2) - StatusMessage.length() / 2), ' ') + StatusMessage + L'\n').c_str());
+				wprintf(StatusMessage.c_str());
 				MidPosition++;
 			}
 			else
 			{
 				wprintf((std::wstring(((columns / 2) - bar.length() / 2), ' ') + MoveLeft(&bar) + L'\n').c_str());
-				wprintf((std::wstring(((columns / 2) - StatusMessage.length() / 2), ' ') + StatusMessage + L'\n').c_str());
+				wprintf(StatusMessage.c_str());
 				MidPosition--;
 			}
 
@@ -109,7 +117,11 @@ private:
 				sleepTime = ((float)(TrueMid + Difference + 1) / 15) * 50;
 			}
 			Sleep(sleepTime);
-			LoadingScreen::ClearCurrentLine(SplashScreenYSize);
+			rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+			PreviousWriteCoords = SplashScreenYSize;
+			SplashScreenYSize = (rows - 4) - (std::count(StatusMessage.begin(), StatusMessage.end(), L'\n'));
+			LoadingScreen::ClearRangeLines(PreviousWriteCoords, std::count(StatusMessage.begin(), StatusMessage.end(), L'\n') + 1);
+			LoadingScreen::ClearRangeLines(SplashScreenYSize, std::count(StatusMessage.begin(), StatusMessage.end(), L'\n') + 1);
 		}
 
 		FunctionThread.join();
@@ -126,6 +138,19 @@ private:
 	{
 		struct stat buffer;
 		return (stat(name.c_str(), &buffer) == 0);
+	}
+
+	static void ClearRangeLines(int Position, int range)
+	{
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		HANDLE ConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		COORD tl = { 0, (SHORT)(Position) };
+		GetConsoleScreenBufferInfo(ConsoleHandle, &csbi);
+		DWORD written, cells = csbi.dwSize.X * (1 + range);
+		FillConsoleOutputCharacter(ConsoleHandle, ' ', cells, tl, &written);
+		FillConsoleOutputAttribute(ConsoleHandle, csbi.wAttributes, cells, tl, &written);
+		SetConsoleCursorPosition(ConsoleHandle, tl);
 	}
 public:
 	static void InitilizeFont()
@@ -189,17 +214,28 @@ public:
 		}
 #pragma endregion
 	}
-	static void ClearCurrentLine(int Position)
-	{
-		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		HANDLE ConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
-		COORD tl = { 0, (SHORT)(Position) };
+	static std::wstring CenterString(std::wstring input, bool All)
+	{
 		GetConsoleScreenBufferInfo(ConsoleHandle, &csbi);
-		DWORD written, cells = csbi.dwSize.X * 2;
-		FillConsoleOutputCharacter(ConsoleHandle, ' ', cells, tl, &written);
-		FillConsoleOutputAttribute(ConsoleHandle, csbi.wAttributes, cells, tl, &written);
-		SetConsoleCursorPosition(ConsoleHandle, tl);
+		columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+		if (All)
+		{
+			std::vector<std::wstring> inputSplit;
+			std::wstring output = L"";
+			boost::split(inputSplit, input, boost::is_any_of(L"\n"));
+
+			for (std::wstring Singleinput : inputSplit)
+			{
+				output += (std::wstring(((columns / 2) - Singleinput.length() / 2), ' ') + Singleinput + L'\n');
+			}
+
+			return output;
+		}
+		else
+		{
+			return (std::wstring(((columns / 2) - input.length() / 2), ' ') + input + L'\n');
+		}
 	}
 
 	bool CrossThreadFinishBoolean;
