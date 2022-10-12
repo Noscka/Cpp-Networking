@@ -36,6 +36,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client\ClientFunctions.hpp" />
+    <ClInclude Include="External\LoadingScreen\LoadingScreen.hpp" />
+    <ClInclude Include="External\LoadingScreen\Resource\resource.h" />
     <ClInclude Include="Server\ServerFunctions.hpp" />
     <ClInclude Include="SharedClass.hpp" />
   </ItemGroup>
@@ -43,6 +45,9 @@
     <ClCompile Include="Client\ClientFunctions.cpp" />
     <ClCompile Include="Server\ServerFunctions.cpp" />
     <ClCompile Include="SharedClass.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="External\LoadingScreen\Resource\Console Loading Screen.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

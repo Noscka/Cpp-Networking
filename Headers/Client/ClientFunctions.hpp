@@ -2,6 +2,7 @@
 #define _CLIENTFUNCTIONS_HPP_
 
 #include "../SharedClass.hpp"
+#include "../External/LoadingScreen/LoadingScreen.hpp"
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/array.hpp>
@@ -239,8 +240,37 @@ namespace ClientNamespace
             }
         }
 
+        void ProcessMetadata(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, uint64_t ExpectedSize, std::wstring *Filname)
+        {
+            /* Get file metadata */
+
+            /* vector for getting sectioned metadata and processing it */
+            std::vector<Definition::byte> ReceivedRawData;
+
+            {
+                boost::system::error_code error;
+                boost::asio::streambuf streamBuffer;
+
+                /* Read until the delimiter is found. get just the metadata containing filename byte size, filename and content byte size  */
+                size_t bytes_transferred = boost::asio::read_until((*socket), streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
+                {
+                    /* convert stream buffer to wstring while removing the delimiter */
+                    std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
+                    /* insert wstring (containing raw data, no way to directly put streambuf into vector) into the raw data vector */
+                    ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
+                }
+            }
+
+            std::wstring Filename;
+            uint64_t ExpectedContentsize = ClientFunctions::DesectionMetadata(ReceivedRawData, &Filename, InfoString, true);
+
+            ReceivedRawData.~vector();
+            /* Get file metadata */
+        }
+
         void DownloadFile(boost::asio::ip::tcp::socket* socket, std::wstring OutputDirectory, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
         {
+            LoadingScreen MetadataProcessingLC(LoadingScreen::LoadType::Unknown);
 #pragma region GettingMetadata
             /* Get file metadata */
 
