@@ -240,7 +240,7 @@ namespace ClientNamespace
             }
         }
 
-        void ProcessMetadata(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, uint64_t ExpectedSize, std::wstring *Filname)
+        void ProcessMetadata(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, uint64_t *ExpectedSize, std::wstring *Filename)
         {
             /* Get file metadata */
 
@@ -261,8 +261,7 @@ namespace ClientNamespace
                 }
             }
 
-            std::wstring Filename;
-            uint64_t ExpectedContentsize = ClientFunctions::DesectionMetadata(ReceivedRawData, &Filename, InfoString, true);
+            *ExpectedSize = ClientFunctions::DesectionMetadata(ReceivedRawData, Filename, InfoString, true);
 
             ReceivedRawData.~vector();
             /* Get file metadata */
@@ -270,32 +269,11 @@ namespace ClientNamespace
 
         void DownloadFile(boost::asio::ip::tcp::socket* socket, std::wstring OutputDirectory, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
         {
-            LoadingScreen MetadataProcessingLC(LoadingScreen::LoadType::Unknown);
+            //LoadingScreen MetadataProcessingLC(LoadingScreen::LoadType::Unknown);
 #pragma region GettingMetadata
-            /* Get file metadata */
-
-            /* vector for getting sectioned metadata and processing it */
-            std::vector<Definition::byte> ReceivedRawData;
-
-            {
-                boost::system::error_code error;
-                boost::asio::streambuf streamBuffer;
-
-                /* Read until the delimiter is found. get just the metadata containing filename byte size, filename and content byte size  */
-                size_t bytes_transferred = boost::asio::read_until((*socket), streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
-                {
-                    /* convert stream buffer to wstring while removing the delimiter */
-                    std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
-                    /* insert wstring (containing raw data, no way to directly put streambuf into vector) into the raw data vector */
-                    ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
-                }
-            }
-
+            uint64_t ExpectedContentsize;
             std::wstring Filename;
-            uint64_t ExpectedContentsize = ClientFunctions::DesectionMetadata(ReceivedRawData, &Filename, InfoString, true);
-
-            ReceivedRawData.~vector();
-            /* Get file metadata */
+            ProcessMetadata(socket, InfoString, &ExpectedContentsize, &Filename);
 #pragma endregion
 
 #pragma region ConSndCnt
