@@ -286,7 +286,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DataCreater.cpp" />
-    <ClCompile Include="LoadingScreen\LoadingScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LoadingScreen\LoadingScreen.hpp" />

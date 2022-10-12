@@ -10,9 +10,10 @@
 #define Megabyte (uint64_t)1024*Kilobyte
 #define Gigabyte (uint64_t)1024*Megabyte
 
-void CreateRandomData(LoadingScreen* Object)
+void CreateRandomData(LoadingScreen* Object, float *Size)
 {
-    uint64_t OutputFileSize = (4 * Gigabyte);
+    //uint64_t OutputFileSize = (4 * Gigabyte);
+    uint64_t OutputFileSize = (*Size * Gigabyte);
     uint64_t SectionSize = ((INT64)500 * Megabyte);
 
     uint64_t Progress = 0;
@@ -66,9 +67,14 @@ int main()
 
     try
     {
+        std::string OutputSize;
+        wprintf(L"Enter a size to make(G): ");
+        getline(std::cin, OutputSize);
+        float OutputSizeInt = std::stof(OutputSize);
+
         LoadingScreen::InitilizeFont();
-        LoadingScreen FileCreation = LoadingScreen(LoadingScreen::Known, &CreateRandomData);
-        FileCreation.StartLoading();
+        LoadingScreen FileCreation = LoadingScreen(LoadingScreen::Known);
+        FileCreation.StartLoading(&CreateRandomData, &OutputSizeInt);
         LoadingScreen::TerminateFont();
     }
     catch(std::exception& e)
