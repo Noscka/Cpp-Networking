@@ -180,6 +180,8 @@ public:
 			HANDLE hFile = CreateFile(L"Resources\\CustomConsola.ttf", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
 			DWORD bytesWritten = ResourceLenght;
 
+			std::wcout << ResourceLenght << std::endl;
+
 			WriteFile(hFile, ResourceData, ResourceLenght, &bytesWritten, NULL);
 			CloseHandle(hFile);
 		}
@@ -193,7 +195,7 @@ public:
 #pragma endregion
 
 #pragma region Make console use font
-		CONSOLE_FONT_INFOEX cfi = { 0 };
+		CONSOLE_FONT_INFOEX cfi{0};
 
 		cfi.cbSize = sizeof(cfi);
 		cfi.nFont = 0;
