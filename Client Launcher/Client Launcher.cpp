@@ -1,6 +1,5 @@
 #include <boost/asio.hpp>
-#include <Client/ClientFunctions.hpp>
-#include <SharedClass.hpp>
+#include <MainInclude.hpp>
 
 #include <windows.h>
 #include <io.h>

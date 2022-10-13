@@ -38,13 +38,14 @@
     <ClInclude Include="Client\ClientFunctions.hpp" />
     <ClInclude Include="External\LoadingScreen\LoadingScreen.hpp" />
     <ClInclude Include="External\LoadingScreen\Resource\resource.h" />
+    <ClInclude Include="MainInclude.hpp" />
     <ClInclude Include="Server\ServerFunctions.hpp" />
-    <ClInclude Include="SharedClass.hpp" />
+    <ClInclude Include="Shared\SharedClass.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client\ClientFunctions.cpp" />
     <ClCompile Include="Server\ServerFunctions.cpp" />
-    <ClCompile Include="SharedClass.cpp" />
+    <ClCompile Include="Shared\SharedClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="External\LoadingScreen\Resource\Console Loading Screen.rc" />

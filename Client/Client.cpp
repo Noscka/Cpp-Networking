@@ -1,5 +1,4 @@
-#include <Client/ClientFunctions.hpp>
-#include <SharedClass.hpp>
+#include <MainInclude.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -29,7 +28,6 @@ int main(int argc, char** argv)
     }
 
     _setmode(_fileno(stdout), _O_U16TEXT);
-    LoadingScreen::InitilizeFont();
 
     boost::asio::io_context io_context;
 
@@ -99,7 +97,6 @@ int main(int argc, char** argv)
         std::wcerr << e.what() << std::endl;
     }
 
-    LoadingScreen::TerminateFont();
     wprintf(L"Press any button to continue"); getchar();
     return 0;
 }

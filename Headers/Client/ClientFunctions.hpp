@@ -1,7 +1,7 @@
 #ifndef _CLIENTFUNCTIONS_HPP_
 #define _CLIENTFUNCTIONS_HPP_
 
-#include "../SharedClass.hpp"
+#include "../Shared/SharedClass.hpp"
 #include "../External/LoadingScreen/LoadingScreen.hpp"
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>

@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SharedClass.hpp">
+    <ClInclude Include="Shared\SharedClass.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Server\ServerFunctions.hpp">
@@ -30,9 +30,12 @@
     <ClInclude Include="External\LoadingScreen\Resource\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MainInclude.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SharedClass.cpp">
+    <ClCompile Include="Shared\SharedClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Server\ServerFunctions.cpp">

@@ -4,7 +4,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
-#include "../SharedClass.hpp"
+#include "../Shared/SharedClass.hpp"
 
 #include <iostream>
 #include <format>
