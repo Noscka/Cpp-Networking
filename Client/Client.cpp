@@ -1,4 +1,5 @@
-#include <MainInclude.hpp>
+#include <Shared/SharedClass.hpp>
+#include <Client/ClientFunctions.hpp>
 
 #include <iostream>
 #include <fstream>

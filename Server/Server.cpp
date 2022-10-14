@@ -1,7 +1,8 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 
-#include <MainInclude.hpp>
+#include <Shared/SharedClass.hpp>
+#include <Server/ServerFunctions.hpp>
 
 #include <iostream>
 #include <string>
