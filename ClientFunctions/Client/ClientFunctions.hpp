@@ -21,7 +21,7 @@
 #include <string>
 #include <corecrt_io.h>
 
-#include "Shared/SharedClass.hpp"
+#include "Global/GlobalFunctions.hpp"
 #include "External/LoadingScreen/LoadingScreen.hpp"
 
 namespace ClientNamespace

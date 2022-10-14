@@ -1,4 +1,4 @@
-#include <Shared/SharedClass.hpp>
+#include <Global/GlobalFunctions.hpp>
 #include <Client/ClientFunctions.hpp>
 
 #include <iostream>

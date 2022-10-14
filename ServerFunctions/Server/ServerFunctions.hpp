@@ -14,7 +14,7 @@
 #include <filesystem>
 #include <vector>
 
-#include "Shared/SharedClass.hpp"
+#include "Global/GlobalFunctions.hpp"
 
 namespace ServerNamespace
 {

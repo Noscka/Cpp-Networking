@@ -175,7 +175,7 @@
     <ClInclude Include="External\LoadingScreen\Resource\resource.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Shared\SharedClass.hpp" />
+    <ClInclude Include="Global\GlobalFunctions.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />

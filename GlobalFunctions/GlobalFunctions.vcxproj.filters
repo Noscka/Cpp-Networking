@@ -21,7 +21,7 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shared\SharedClass.hpp">
+    <ClInclude Include="Global\GlobalFunctions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="External\LoadingScreen\Resource\resource.h">
