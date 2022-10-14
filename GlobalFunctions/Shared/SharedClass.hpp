@@ -1,16 +1,18 @@
 #ifndef _SHAREDCLASS_HPP_
 #define _SHAREDCLASS_HPP_
 
-#include <iostream>
-#include <format>
-#include <string>
-#include <filesystem>
+#include "../pch.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
+
+#include <iostream>
+#include <format>
+#include <string>
+#include <filesystem>
 
 /*
 Terminology

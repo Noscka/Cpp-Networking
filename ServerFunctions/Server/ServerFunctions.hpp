@@ -1,10 +1,11 @@
 #ifndef _SERVERFUNCTIONS_HPP_
 #define _SERVERFUNCTIONS_HPP_
 
+#include "../pch.h"
+
 #include <boost/filesystem.hpp>
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
-#include "../Shared/SharedClass.hpp"
 
 #include <iostream>
 #include <format>
@@ -12,6 +13,8 @@
 #include <fstream>
 #include <filesystem>
 #include <vector>
+
+#include "Shared/SharedClass.hpp"
 
 namespace ServerNamespace
 {

@@ -1,8 +1,8 @@
 #ifndef _CLIENTFUNCTIONS_HPP_
 #define _CLIENTFUNCTIONS_HPP_
 
-#include "../Shared/SharedClass.hpp"
-#include "../External/LoadingScreen/LoadingScreen.hpp"
+#include "../pch.h"
+
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/array.hpp>
@@ -20,6 +20,9 @@
 #include <fcntl.h>
 #include <string>
 #include <corecrt_io.h>
+
+#include "Shared/SharedClass.hpp"
+#include "External/LoadingScreen/LoadingScreen.hpp"
 
 namespace ClientNamespace
 {
@@ -70,7 +73,7 @@ namespace ClientNamespace
             *this = StaticPaths(programUsing, PathWanted);
         }
 
-        static FilePathStorage StaticPaths(UserType programUsing, StaticPaths PathWanted)
+        inline static FilePathStorage StaticPaths(UserType programUsing, StaticPaths PathWanted)
         {
             FilePathStorage ReturnObject;
             switch (PathWanted)
@@ -105,12 +108,12 @@ namespace ClientNamespace
     namespace ClientConstants
     {
         /* Default Connection info */
-        const std::string DefaultPort = "58233";
-        const std::string DefaultHostname = "localhost";
+        inline const std::string DefaultPort = "58233";
+        inline const std::string DefaultHostname = "localhost";
 
         /* Connection info for update service */
-        const std::string UpdateServiceHostName = DefaultHostname;
-        const std::string UpdateServicePort = DefaultPort;
+        inline const std::string UpdateServiceHostName = DefaultHostname;
+        inline const std::string UpdateServicePort = DefaultPort;
     }
 
     namespace ClientFunctions
