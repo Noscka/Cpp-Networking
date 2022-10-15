@@ -39,9 +39,9 @@ void CreateRandomData(LoadingScreen* Object, float *Size)
         {
             DataWrite += "aaaaaaaaaa";
             Progress += 10;
-            Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, L"Creating 500MB segement data");
+            Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, LoadingScreen::CenterString(L"Creating 500MB segement data", true));
         }
-        Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, L"Writing Data");
+        Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, LoadingScreen::CenterString(L"Writing Data",false));
         OutFileStream.write(DataWrite.c_str(), DataWrite.size());
     }
 
@@ -52,9 +52,9 @@ void CreateRandomData(LoadingScreen* Object, float *Size)
         {
             DataWrite += "a";
             Progress += 1;
-            Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, L"Creating the rest of data");
+            Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, LoadingScreen::CenterString(L"Creating the rest of data", false));
         }
-        Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, L"Writing Data");
+        Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, LoadingScreen::CenterString(L"Writing Data", false));
         OutFileStream.write(DataWrite.c_str(), DataWrite.size());
     }
 
