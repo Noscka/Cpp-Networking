@@ -4,16 +4,37 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client\Client.vcxproj", "{A277B01F-A4CF-4A91-A557-7DB12903840E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1} = {C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1}
+		{C585D14E-655D-46B5-B7A7-426EE2159C41} = {C585D14E-655D-46B5-B7A7-426EE2159C41}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcxproj", "{E65A8F2F-AADE-477C-9F4C-85C02D47DAD9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1} = {C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1}
+		{CCC8D94A-782A-4828-A65A-8EF04D8B0DF9} = {CCC8D94A-782A-4828-A65A-8EF04D8B0DF9}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DataCreater", "DataCreater\DataCreater.vcxproj", "{FE3F13E2-D70C-4632-A99E-AAEAF35E6324}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1} = {C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client Launcher", "Client Launcher\Client Launcher.vcxproj", "{60064906-E91A-4BB2-ABE2-F911562F0044}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1} = {C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1}
+		{C585D14E-655D-46B5-B7A7-426EE2159C41} = {C585D14E-655D-46B5-B7A7-426EE2159C41}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClientFunctions", "ClientFunctions\ClientFunctions.vcxproj", "{C585D14E-655D-46B5-B7A7-426EE2159C41}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1} = {C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServerFunctions", "ServerFunctions\ServerFunctions.vcxproj", "{CCC8D94A-782A-4828-A65A-8EF04D8B0DF9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1} = {C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GlobalFunctions", "GlobalFunctions\GlobalFunctions.vcxproj", "{C0307D45-2DCB-4A53-B1E4-FFAD35F8A9B1}"
 EndProject
