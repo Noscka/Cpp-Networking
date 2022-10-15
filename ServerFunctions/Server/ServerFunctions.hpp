@@ -208,6 +208,12 @@ namespace ServerNamespace
 
             return BytesSent + SendContentSegements(socket, FileAddress, ResumePos);
         }
+
+        void CreateRequiredPaths()
+        {
+            /* Create paths so the user doesn't have to. manual input currently. will get updated later */
+            boost::filesystem::create_directories(ServerNamespace::ServerConstants::AbsolutePath + ServerNamespace::ServerConstants::UpdatePath);
+        }
     }
 
     namespace UpdateService

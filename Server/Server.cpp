@@ -82,6 +82,8 @@ int main()
 
     try
     {
+        ServerNamespace::ServerFunctions::CreateRequiredPaths();
+
         boost::asio::io_context io_context;
         boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 58233));
 
