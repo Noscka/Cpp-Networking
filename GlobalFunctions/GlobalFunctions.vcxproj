@@ -189,6 +189,9 @@
   <ItemGroup>
     <ResourceCompile Include="External\LoadingScreen\Resource\Console Loading Screen.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="External\LoadingScreen\Resource\CustomConsola.ttf" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
