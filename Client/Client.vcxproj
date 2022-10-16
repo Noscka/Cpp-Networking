@@ -179,7 +179,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Build\GlobalFunctions\x64\$(Configuration)\Intermediate\;..\Build\GlobalFunctions\x64\$(Configuration)\;..\Build\ClientFunctions\x64\$(Configuration)\Intermediate\;..\Build\ClientFunctions\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Console Loading Screen.res;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Linux Debug|Win32'">
@@ -197,7 +197,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Build\GlobalFunctions\x64\$(Configuration)\Intermediate\;..\Build\GlobalFunctions\x64\$(Configuration)\;..\Build\ClientFunctions\x64\$(Configuration)\Intermediate\;..\Build\ClientFunctions\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Console Loading Screen.res;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -219,7 +219,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Build\GlobalFunctions\x64\$(Configuration)\Intermediate\;..\Build\GlobalFunctions\x64\$(Configuration)\;..\Build\ClientFunctions\x64\$(Configuration)\Intermediate\;..\Build\ClientFunctions\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Console Loading Screen.res;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Linux Release|Win32'">
@@ -241,7 +241,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Build\GlobalFunctions\x64\$(Configuration)\Intermediate\;..\Build\GlobalFunctions\x64\$(Configuration)\;..\Build\ClientFunctions\x64\$(Configuration)\Intermediate\;..\Build\ClientFunctions\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Console Loading Screen.res;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -259,7 +259,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Build\GlobalFunctions\x64\$(Configuration)\Intermediate\;..\Build\GlobalFunctions\x64\$(Configuration)\;..\Build\ClientFunctions\x64\$(Configuration)\Intermediate\;..\Build\ClientFunctions\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Console Loading Screen.res;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Linux Debug|x64'">
@@ -277,7 +277,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Build\GlobalFunctions\x64\$(Configuration)\Intermediate\;..\Build\GlobalFunctions\x64\$(Configuration)\;..\Build\ClientFunctions\x64\$(Configuration)\Intermediate\;..\Build\ClientFunctions\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Console Loading Screen.res;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -299,7 +299,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Build\GlobalFunctions\x64\$(Configuration)\Intermediate\;..\Build\GlobalFunctions\x64\$(Configuration)\;..\Build\ClientFunctions\x64\$(Configuration)\Intermediate\;..\Build\ClientFunctions\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Console Loading Screen.res;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Linux Release|x64'">
@@ -321,7 +321,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Build\GlobalFunctions\x64\$(Configuration)\Intermediate\;..\Build\GlobalFunctions\x64\$(Configuration)\;..\Build\ClientFunctions\x64\$(Configuration)\Intermediate\;..\Build\ClientFunctions\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Console Loading Screen.res;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
