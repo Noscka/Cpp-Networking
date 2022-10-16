@@ -243,7 +243,7 @@ namespace ClientNamespace
             }
         }
 
-        void ProcessMetadata(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, uint64_t *ExpectedSize, std::wstring *Filename)
+        void ProcessMetadata(LoadingScreen *LCObject, boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, uint64_t *ExpectedSize, std::wstring *Filename)
         {
             /* Get file metadata */
 
@@ -254,6 +254,8 @@ namespace ClientNamespace
                 boost::system::error_code error;
                 boost::asio::streambuf streamBuffer;
 
+                LCObject->UpdateKnownProgressBar(1 / 1, LoadingScreen::CenterString(L"Waiting for metadata", true));
+
                 /* Read until the delimiter is found. get just the metadata containing filename byte size, filename and content byte size  */
                 size_t bytes_transferred = boost::asio::read_until((*socket), streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
                 {
@@ -261,25 +263,30 @@ namespace ClientNamespace
                     std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
                     /* insert wstring (containing raw data, no way to directly put streambuf into vector) into the raw data vector */
                     ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
+                    LCObject->UpdateKnownProgressBar(1 / 1, LoadingScreen::CenterString(L"Received metadata", true));
                 }
             }
 
+            LCObject->UpdateKnownProgressBar(1 / 1, LoadingScreen::CenterString(L"Desectioning metadata", true));
             *ExpectedSize = ClientFunctions::DesectionMetadata(ReceivedRawData, Filename, InfoString, true);
 
             ReceivedRawData.~vector();
+            LCObject->Finish();
             /* Get file metadata */
         }
 
         void DownloadFile(boost::asio::ip::tcp::socket* socket, std::wstring OutputDirectory, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
         {
-            //LoadingScreen MetadataProcessingLC(LoadingScreen::LoadType::Unknown);
-#pragma region GettingMetadata
+            /* GettingMetadata */
             uint64_t ExpectedContentsize;
             std::wstring Filename;
-            ProcessMetadata(socket, InfoString, &ExpectedContentsize, &Filename);
-#pragma endregion
+            {
+                LoadingScreen MetadataProcessingLC(LoadingScreen::LoadType::Unknown);
+                MetadataProcessingLC.StartLoading(ProcessMetadata, socket, InfoString, &ExpectedContentsize, &Filename);
+            }
+            /* GettingMetadata */
 
-#pragma region ConSndCnt
+            /* ConSndCnt */
             /* Confirm and ask for content */
             boost::system::error_code error;
 
@@ -287,14 +294,14 @@ namespace ClientNamespace
 
             if (error)
                 return;
-    /* Confirm and ask for content */
-#pragma endregion
+            /* Confirm and ask for content */
+            /* ConSndCnt */
 
-#pragma region Getting Directory and creating
+            /* Getting Directoryand creating */
             std::wstring DirFilename = OutputDirectory + Filename;
 
             boost::filesystem::create_directories(OutputDirectory);
-#pragma endregion
+            /* Getting Directoryand creating */
 
             ReceiveContentSegements(socket, DirFilename, ExpectedContentsize, ResumePos);
 
