@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "Global/GlobalFunctions.hpp"
+#include "External/LoadingScreen/LoadingScreen.hpp"
 
 namespace ServerNamespace
 {
@@ -141,22 +142,30 @@ namespace ServerNamespace
                 return SendingRawByteBuffer;
             }
 
-            uint64_t SendContentSegements(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, uint64_t startPos)
+            uint64_t SendContentSegements(LoadingScreen *LCObject, boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, uint64_t startPos, uint64_t* ReturnValue)
             {
+                LCObject->UpdateKnownProgressBar(0, LoadingScreen::CenterString(L"Preparing for sending data", true));
                 /* SendingContents */
                 /* Open file stream to allow for reading of file */
                 std::ifstream filestream(FileAddress, std::ios::binary);
 
-                uint64_t TotalSendingSize = boost::filesystem::file_size(boost::filesystem::path(FileAddress)) - startPos; /* get total sending size */
+                /* TODO: Rename variables to actually fit needed (TotalSendingSize -> BytesLeft) or something like that */
+                uint64_t UnchangedTotalSize = boost::filesystem::file_size(boost::filesystem::path(FileAddress)); /* Will need better name, total size of amount needing to be sent */
+                uint64_t DataLeftToSend = 0; /* Data left to send */
+                uint64_t TotalSendingSize = UnchangedTotalSize - startPos; /* get total sending size */
                 uint64_t FullOperationAmount = (int)(TotalSendingSize / Definition::SegementSize); /* amount of times server has to send 500MB segements */
                 uint64_t BytesLeft = TotalSendingSize % Definition::SegementSize; /* Amount of bytes left which will get sent seperataly */
                 uint64_t CurrentOperationCount = 0; /* Storing current operation count */
 
                 /* Debug and info output to show the use what is happening */
-                wprintf(L"========================>Starting info<========================\n");
-                wprintf(std::wstring(L"Sending Size: " + std::to_wstring(TotalSendingSize) + L"\n").c_str());
-                wprintf(std::wstring(L"Byte Left: " + std::to_wstring(BytesLeft) + L"\n").c_str());
-                wprintf(L"===============================================================\n");
+                std::wstring LoadingScreenOutput = (
+                    L"========================>Starting info<========================\n"
+                    + std::wstring(L"Sending Size: " + std::to_wstring(TotalSendingSize) + L"\n")
+                    + std::wstring(L"Byte Left: " + std::to_wstring(BytesLeft) + L"\n")
+                    + L"===============================================================\n"
+                    );
+
+                LCObject->UpdateKnownProgressBar(0, LoadingScreen::CenterString(LoadingScreenOutput, true));
 
                 /* while loop until all bytes sent */
                 while (TotalSendingSize != 0)
@@ -165,10 +174,12 @@ namespace ServerNamespace
                     std::vector<Definition::byte>* DividedFileContents;
 
                     /* Debug and info output to show the use what is happening */
-                    wprintf(L"========================>Sending Info<========================\n");
-                    wprintf(std::wstring(L"Operation Count: " + std::to_wstring(FullOperationAmount) + L"\n").c_str());
-                    wprintf(std::wstring(L"Current Operation: " + std::to_wstring(CurrentOperationCount) + L"\n").c_str());
-                    wprintf(std::wstring(L"Mode: " + std::wstring((CurrentOperationCount < FullOperationAmount) ? L"500MB" : L"Left over") + L" Mode\n").c_str());
+                    LoadingScreenOutput = (
+                        L"========================>Sending Info<========================\n"
+                        + std::wstring(L"Operation Count: " + std::to_wstring(FullOperationAmount) + L"\n")
+                        + std::wstring(L"Current Operation: " + std::to_wstring(CurrentOperationCount) + L"\n")
+                        + std::wstring(L"Mode: " + std::wstring((CurrentOperationCount < FullOperationAmount) ? L"500MB" : L"Left over") + L" Mode\n")
+                        );
 
                     if (CurrentOperationCount < FullOperationAmount) /* if statement to check if the program should sent 500MB segements */
                     {
@@ -181,7 +192,7 @@ namespace ServerNamespace
                         filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), Definition::SegementSize);
 
                         /* output the range of bytes gotten to show progress, plus it looks nice */
-                        wprintf(std::wstring(std::to_wstring(CurrentOperationCount * Definition::SegementSize + startPos) + L" -> " + std::to_wstring((((CurrentOperationCount + 1) * Definition::SegementSize) + startPos)) + L"\n").c_str());
+                        LoadingScreenOutput += (std::wstring(std::to_wstring(CurrentOperationCount * Definition::SegementSize + startPos) + L" -> " + std::to_wstring((((CurrentOperationCount + 1) * Definition::SegementSize) + startPos)) + L"\n"));
                         CurrentOperationCount++;
                     }
                     else /* if false, send the rest of the data which is less then 500MB */
@@ -195,7 +206,7 @@ namespace ServerNamespace
                         filestream.read(reinterpret_cast<char*>(DividedFileContents->data()), BytesLeft);
 
                         /* output the range of bytes gotten to show progress, plus it looks nice */
-                        wprintf(std::wstring(std::to_wstring((FullOperationAmount * Definition::SegementSize) + startPos) + L" -> " + std::to_wstring((FullOperationAmount * Definition::SegementSize) + BytesLeft) + L"\n").c_str());
+                        LoadingScreenOutput += (std::wstring(std::to_wstring((FullOperationAmount * Definition::SegementSize) + startPos) + L" -> " + std::to_wstring((FullOperationAmount * Definition::SegementSize) + BytesLeft) + L"\n"));
                     }
 
                     /* write the vector into the socket stream for the client. also minus the amount of bytes sent from total */
@@ -203,20 +214,34 @@ namespace ServerNamespace
                     /* May not be necessery but just incase, destoy the vector to 100% prevent a memory leak */
                     DividedFileContents->~vector();
 
-                    wprintf(std::wstring(L"Amount Left: " + std::to_wstring(TotalSendingSize) + L"\n").c_str());
-                    wprintf(L"==============================================================\n");
+                    LoadingScreenOutput+=(std::wstring(L"Amount Left: " + std::to_wstring(TotalSendingSize) + L"\n"));
+                    LoadingScreenOutput+=(L"==============================================================\n");
+                    LCObject->UpdateKnownProgressBar((float)(UnchangedTotalSize - DataLeftToSend) / (float)UnchangedTotalSize, LoadingScreen::CenterString(LoadingScreenOutput, true));
                 }
                 /* SendingContents */
 
-                return TotalSendingSize;
+                *ReturnValue = UnchangedTotalSize;
+                return UnchangedTotalSize;
             }
+
+            size_t SendMetadata(LoadingScreen *LCObject, boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, size_t *ReturnValue)
+            {
+                LCObject->UpdateKnownProgressBar(0, LoadingScreen::CenterString(L"Sectioning Metadata", true));
+                *ReturnValue = boost::asio::write((*socket), boost::asio::buffer(ServerFunctions::SectionMetadata(FileAddress, InfoString, true)));
+                return *ReturnValue;
+            }
+
         }
 
         uint64_t UploadFile(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
         {
-            boost::system::error_code error;
+            size_t BytesSent = 0;
+            {
+                LoadingScreen MetadataLC(LoadingScreen::LoadType::Unknown);
+                MetadataLC.StartLoading(&SendMetadata, std::ref(socket), std::ref(FileAddress), std::ref(InfoString), &BytesSent);
+            }
 
-            size_t BytesSent = boost::asio::write((*socket), boost::asio::buffer(ServerFunctions::SectionMetadata(FileAddress, InfoString, true)), error);
+            /* TODO: Add functioned loading screen here */
 
             /* ResponseWaiting */
             /* Wait for response from client to send content */
@@ -233,7 +258,13 @@ namespace ServerNamespace
             /* Wait for response from client to send content */
             /* ResponseWaiting */
 
-            return BytesSent + SendContentSegements(socket, FileAddress, ResumePos);
+            size_t SegementedBytesSend = 0;
+            {
+                LoadingScreen MetadataLC(LoadingScreen::LoadType::Known);
+                MetadataLC.StartLoading(&SendContentSegements, std::ref(socket), std::ref(FileAddress), std::ref(ResumePos), &SegementedBytesSend);
+            }
+
+            return BytesSent + SegementedBytesSend;
         }
 
         void CreateRequiredPaths()

@@ -244,39 +244,40 @@ namespace ClientNamespace
                 /* SegementedReceive */
                 return;
             }
-        }
 
-        void ProcessMetadata(LoadingScreen *LCObject, boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, uint64_t *ExpectedSize, std::wstring *Filename)
-        {
-            /* Get file metadata */
-
-            /* vector for getting sectioned metadata and processing it */
-            std::vector<Definition::byte> ReceivedRawData;
-
+            void ProcessMetadata(LoadingScreen* LCObject, boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, uint64_t* ExpectedSize, std::wstring* Filename)
             {
-                boost::system::error_code error;
-                boost::asio::streambuf streamBuffer;
+                /* Get file metadata */
 
-                LCObject->UpdateKnownProgressBar(1, LoadingScreen::CenterString(L"Waiting for metadata", true));
+                /* vector for getting sectioned metadata and processing it */
+                std::vector<Definition::byte> ReceivedRawData;
 
-                /* Read until the delimiter is found. get just the metadata containing filename byte size, filename and content byte size  */
-                size_t bytes_transferred = boost::asio::read_until((*socket), streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
                 {
-                    /* convert stream buffer to wstring while removing the delimiter */
-                    std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
-                    /* insert wstring (containing raw data, no way to directly put streambuf into vector) into the raw data vector */
-                    ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
-                    LCObject->UpdateKnownProgressBar(1, LoadingScreen::CenterString(L"Received metadata", true));
+                    boost::system::error_code error;
+                    boost::asio::streambuf streamBuffer;
+
+                    LCObject->UpdateKnownProgressBar(1, LoadingScreen::CenterString(L"Waiting for metadata", true));
+
+                    /* Read until the delimiter is found. get just the metadata containing filename byte size, filename and content byte size  */
+                    size_t bytes_transferred = boost::asio::read_until((*socket), streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
+                    {
+                        /* convert stream buffer to wstring while removing the delimiter */
+                        std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
+                        /* insert wstring (containing raw data, no way to directly put streambuf into vector) into the raw data vector */
+                        ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
+                        LCObject->UpdateKnownProgressBar(1, LoadingScreen::CenterString(L"Received metadata", true));
+                    }
                 }
+
+                LCObject->UpdateKnownProgressBar(1, LoadingScreen::CenterString(L"Desectioning metadata", true));
+                *ExpectedSize = ClientFunctions::DesectionMetadata(ReceivedRawData, Filename, InfoString, true);
+
+                ReceivedRawData.~vector();
+                LCObject->Finish();
+                /* Get file metadata */
             }
-
-            LCObject->UpdateKnownProgressBar(1, LoadingScreen::CenterString(L"Desectioning metadata", true));
-            *ExpectedSize = ClientFunctions::DesectionMetadata(ReceivedRawData, Filename, InfoString, true);
-
-            ReceivedRawData.~vector();
-            LCObject->Finish();
-            /* Get file metadata */
         }
+
 
         void DownloadFile(boost::asio::ip::tcp::socket* socket, std::wstring OutputDirectory, uint64_t ResumePos, bool updateMessage, std::wstring* InfoString, bool displayInfo)
         {

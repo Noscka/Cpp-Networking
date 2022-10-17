@@ -3,6 +3,7 @@
 
 #include <Global/GlobalFunctions.hpp>
 #include <Server/ServerFunctions.hpp>
+#include <External/LoadingScreen/LoadingScreen.hpp>
 
 #include <iostream>
 #include <string>
@@ -79,6 +80,7 @@ public:
 int main()
 {
     _setmode(_fileno(stdout), _O_U16TEXT);
+    LoadingScreen::InitilizeFont();
 
     try
     {
@@ -117,5 +119,6 @@ int main()
         std::cerr << e.what() << std::endl;
     }
 
+    LoadingScreen::TerminateFont();
     return 0;
 }

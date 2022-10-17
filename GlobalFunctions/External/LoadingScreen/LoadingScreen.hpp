@@ -35,7 +35,8 @@ namespace GlobalFunction
 
 		std::wstring GetSubPath()
 		{
-			return AbsolutePath + SubPath;
+			//return AbsolutePath + SubPath;
+			return SubPath;
 		}
 
 		std::wstring GetFilePath()

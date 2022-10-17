@@ -1,5 +1,6 @@
 #include <Global/GlobalFunctions.hpp>
 #include <Client/ClientFunctions.hpp>
+#include <External/LoadingScreen/LoadingScreen.hpp>
 
 #include <boost/asio.hpp>
 
@@ -10,7 +11,7 @@
 int main()
 {
     _setmode(_fileno(stdout), _O_U16TEXT);
-    LoadingScreen::InitilizeFont(ClientNamespace::FilePathStorage::StaticPaths(ClientNamespace::FilePathStorage::UserType::client, ClientNamespace::FilePathStorage::StaticPaths::FontResourcePath).GetSubPath());
+    LoadingScreen::InitilizeFont(ClientNamespace::FilePathStorage::StaticPaths(ClientNamespace::FilePathStorage::UserType::clientLauncher, ClientNamespace::FilePathStorage::StaticPaths::FontResourcePath).GetSubPath().c_str());
 
     boost::asio::io_context io_context;
     boost::asio::ip::tcp::socket socket(io_context);
