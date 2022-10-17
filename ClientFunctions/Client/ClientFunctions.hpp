@@ -41,6 +41,7 @@ namespace ClientNamespace
     		tempClientFile, /* Client file which will be used for updating */
     		clientVersionFile, /* File containing Client version */
     		DownloadPath, /* File containing Client version */
+            FontResourcePath, /* Path to Font Resource used by loading screen */
     	};
     private:
 
@@ -89,6 +90,9 @@ namespace ClientNamespace
                 break;
             case DownloadPath:
                 ReturnObject = FilePathStorage(programUsing, LR"(\Downloads\)", L"");
+                break;
+            case FontResourcePath:
+                ReturnObject = FilePathStorage(programUsing, LR"(\Resources\)", L"");
                 break;
             }
             return ReturnObject;

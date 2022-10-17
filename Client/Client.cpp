@@ -30,8 +30,7 @@ int main(int argc, char** argv)
     }
 
     _setmode(_fileno(stdout), _O_U16TEXT);
-
-    LoadingScreen::InitilizeFont();
+    LoadingScreen::InitilizeFont(ClientNamespace::FilePathStorage::StaticPaths(ClientNamespace::FilePathStorage::UserType::client, ClientNamespace::FilePathStorage::StaticPaths::FontResourcePath).GetSubPath());
 
     boost::asio::io_context io_context;
 

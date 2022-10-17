@@ -10,6 +10,7 @@
 int main()
 {
     _setmode(_fileno(stdout), _O_U16TEXT);
+    LoadingScreen::InitilizeFont(ClientNamespace::FilePathStorage::StaticPaths(ClientNamespace::FilePathStorage::UserType::client, ClientNamespace::FilePathStorage::StaticPaths::FontResourcePath).GetSubPath());
 
     boost::asio::io_context io_context;
     boost::asio::ip::tcp::socket socket(io_context);
@@ -62,5 +63,6 @@ int main()
     GlobalFunction::StartSecondaryProgram(ClientPath.GetFilePath().c_str(),
                                           NULL,
                                           ClientPath.GetSubPath().c_str());
+    LoadingScreen::TerminateFont();
     return 0;
 }
