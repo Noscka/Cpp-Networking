@@ -191,8 +191,8 @@ namespace ServerNamespace
 
             size_t BytesSent = boost::asio::write((*socket), boost::asio::buffer(ServerFunctions::SectionMetadata(FileAddress, InfoString, true)), error);
 
-#pragma region ResponseWaiting
-        /* Wait for response from client to send content */
+            /* ResponseWaiting */
+            /* Wait for response from client to send content */
             {
                 boost::array<char, 100> OutputArray;
                 size_t BytesReceived = socket->read_some(boost::asio::buffer(OutputArray));
@@ -204,7 +204,7 @@ namespace ServerNamespace
                 }
             }
             /* Wait for response from client to send content */
-#pragma endregion 
+            /* ResponseWaiting */
 
             return BytesSent + SendContentSegements(socket, FileAddress, ResumePos);
         }
