@@ -216,7 +216,7 @@ namespace ServerNamespace
 
                     LoadingScreenOutput+=(std::wstring(L"Amount Left: " + std::to_wstring(TotalSendingSize) + L"\n"));
                     LoadingScreenOutput+=(L"==============================================================\n");
-                    LCObject->UpdateKnownProgressBar((float)(UnchangedTotalSize - DataLeftToSend) / (float)UnchangedTotalSize, LoadingScreen::CenterString(LoadingScreenOutput, true));
+                    LCObject->UpdateKnownProgressBar((float)(UnchangedTotalSize - TotalSendingSize) / (float)UnchangedTotalSize, LoadingScreen::CenterString(LoadingScreenOutput, true));
                 }
                 /* SendingContents */
 
