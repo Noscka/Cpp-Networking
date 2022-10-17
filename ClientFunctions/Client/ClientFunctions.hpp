@@ -282,7 +282,7 @@ namespace ClientNamespace
             std::wstring Filename;
             {
                 LoadingScreen MetadataProcessingLC(LoadingScreen::LoadType::Unknown);
-                MetadataProcessingLC.StartLoading(ProcessMetadata, std::ref(socket), std::ref(InfoString), &ExpectedContentsize, &Filename);
+                MetadataProcessingLC.StartLoading(&ProcessMetadata, std::ref(socket), std::ref(InfoString), &ExpectedContentsize, &Filename);
             }
             /* GettingMetadata */
 
