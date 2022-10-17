@@ -18,36 +18,63 @@
 
 namespace ServerNamespace
 {
-    namespace ServerConstants
+    class FilePathStorage
     {
-        /*
-        !Files!
-        Allows for easier changing of filenames
-        */
-        const std::wstring ClientUpdateFileName = LR"(Client.exe)"; /* Main Client filename */
-        const std::wstring ClientVersionFileName = LR"(Client.VerInfo)"; /* Client Version info file (for version checking) */
+    public:
 
-        /*
-        !sub directory!
-        Allows for easier subpath renamings with only needing to change on string instead of 100K.
-        */
-        const std::wstring UpdatePath = LR"(\Update\)"; /* Main sub directory with all the main program files*/
-        std::wstring AbsolutePath = std::filesystem::current_path().wstring();
+        enum StaticPaths
+        {
+            clientFile, /* Main Client file */
+            clientVersionFile, /* File containing Client version */
+            UpdatePath, /* File containing Client version */
+        };
+    private:
+        std::wstring AbsolutePath;
+        std::wstring SubPath;
+        std::wstring Filename;
 
-        /*
-        !Paths to file!
-        Allows for easier changing of changing where files gets stored.
-        */
-        const std::wstring ClientUpdateDir = UpdatePath + ClientUpdateFileName;
-        const std::wstring ClientVersionFilePath = UpdatePath + ClientVersionFileName;
+        FilePathStorage() {}
+    public:
+        FilePathStorage(std::wstring subPath, std::wstring filename)
+        {
+            SubPath = subPath;
+            Filename = filename;
+            AbsolutePath = std::filesystem::current_path().wstring();
+        }
 
-        /*
-        !Absolute paths!
-        Allows for easier changing of changing where files gets stored.
-        */
-        const std::wstring AbsolClientUpdateDir = AbsolutePath + ClientUpdateDir;
-        const std::wstring AbsolVersionFilePath = AbsolutePath + ClientVersionFilePath;
-    }
+        FilePathStorage(StaticPaths PathWanted)
+        {
+            *this = StaticPaths(PathWanted);
+        }
+
+        inline static FilePathStorage StaticPaths(StaticPaths PathWanted)
+        {
+            FilePathStorage ReturnObject;
+            switch (PathWanted)
+            {
+            case clientFile:
+                ReturnObject = FilePathStorage(LR"(\Update\)", LR"(Client.exe)");
+                break;
+            case clientVersionFile:
+                ReturnObject = FilePathStorage(LR"(\Update\)", LR"(Client.VerInfo)");
+                break;
+            case UpdatePath:
+                ReturnObject = FilePathStorage(LR"(\Update\)", L"");
+                break;
+            }
+            return ReturnObject;
+        }
+
+        std::wstring GetSubPath()
+        {
+            return AbsolutePath + SubPath;
+        }
+
+        std::wstring GetFilePath()
+        {
+            return GetSubPath() + Filename;
+        }
+    };
 
     namespace ServerFunctions
     {
@@ -56,7 +83,7 @@ namespace ServerNamespace
         {
             std::vector<Definition::byte> SectionMetadata(std::wstring FileAddress, std::wstring* InfoString, bool displayInfo)
             {
-        /* Open file stream to allow for reading of file */
+                /* Open file stream to allow for reading of file */
                 std::ifstream filestream(FileAddress, std::ios::binary);
 
                 /* Get Filename */
@@ -64,38 +91,39 @@ namespace ServerNamespace
 
                 filestream.close();
 
-#pragma region ConvertFileToBytes
-#pragma region MetadataSizeToByte
-    /* Get size of metadata (currently just string) */
+                /* MetadataSizeToByte*/
+                /* Get size of metadata (currently just string) */
                 int MetaData_section_size = Filename.size();
                 /* Convert metadata size to raw bytes so it can be into the sending vector */
                 Definition::byte MetaData_section_size_Bytes[sizeof MetaData_section_size];
                 std::copy(static_cast<const char*>(static_cast<const void*>(&MetaData_section_size)),
                           static_cast<const char*>(static_cast<const void*>(&MetaData_section_size)) + sizeof MetaData_section_size,
                           MetaData_section_size_Bytes);
-#pragma endregion
+                /* MetadataSizeToByte*/
 
-#pragma region ContentSizeToByte
-    /* Get size of file content */
+
+                /* ContentSizeToByte */
+                /* Get size of file content */
                 uint64_t Content_section_size = boost::filesystem::file_size(boost::filesystem::path(FileAddress));
                 /* Convert content size to raw bytes so it can be into the sending vector */
                 Definition::byte Content_section_size_Bytes[sizeof Content_section_size];
                 std::copy(static_cast<const char*>(static_cast<const void*>(&Content_section_size)),
                           static_cast<const char*>(static_cast<const void*>(&Content_section_size)) + sizeof Content_section_size,
                           Content_section_size_Bytes);
-#pragma endregion
+                /* ContentSizeToByte */
 
-    /*
-    Put all the data gathered (metadata size, metadata, content size, content) and put it in the
-    unsigned char vector (using unsigned char as it is the closest type to raw bytes as it goes from 0 -> 255), put the data in order
-    so it can sectioned in the client.
 
-    Underneath is a `diagram` showing the structer of the vector (without the | character)
-    Structer of the vector |(int)metadata size|(metadata object)metadata|(int)content size|(wstring)Delimiter|
+                /*
+                Put all the data gathered (metadata size, metadata, content size, content) and put it in the
+                unsigned char vector (using unsigned char as it is the closest type to raw bytes as it goes from 0 -> 255), put the data in order
+                so it can sectioned in the client.
 
-    Later and seperate:
-    (vector<unsigned char>)content
-    */
+                Underneath is a `diagram` showing the structer of the vector (without the | character)
+                Structer of the vector |(int)metadata size|(metadata object)metadata|(int)content size|(wstring)Delimiter|
+
+                Later and seperate:
+                (vector<unsigned char>)content
+                */
                 std::vector<Definition::byte> SendingRawByteBuffer;
                 SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), MetaData_section_size_Bytes, MetaData_section_size_Bytes + sizeof MetaData_section_size);
                 SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), Filename.begin(), Filename.end());
@@ -104,7 +132,6 @@ namespace ServerNamespace
                     std::string DelimiterTemp = GlobalFunction::to_string(GlobalFunction::GetDelimiter());
                     SendingRawByteBuffer.insert(SendingRawByteBuffer.end(), DelimiterTemp.begin(), DelimiterTemp.end());
                 }
-#pragma endregion
 
                 if (displayInfo)
                 {
@@ -116,8 +143,8 @@ namespace ServerNamespace
 
             uint64_t SendContentSegements(boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, uint64_t startPos)
             {
-#pragma region SendingContents
-            /* Open file stream to allow for reading of file */
+                /* SendingContents */
+                /* Open file stream to allow for reading of file */
                 std::ifstream filestream(FileAddress, std::ios::binary);
 
                 uint64_t TotalSendingSize = boost::filesystem::file_size(boost::filesystem::path(FileAddress)) - startPos; /* get total sending size */
@@ -126,7 +153,7 @@ namespace ServerNamespace
                 uint64_t CurrentOperationCount = 0; /* Storing current operation count */
 
                 /* Debug and info output to show the use what is happening */
-                wprintf(L"========================-Starting info-========================\n");
+                wprintf(L"========================>Starting info<========================\n");
                 wprintf(std::wstring(L"Sending Size: " + std::to_wstring(TotalSendingSize) + L"\n").c_str());
                 wprintf(std::wstring(L"Byte Left: " + std::to_wstring(BytesLeft) + L"\n").c_str());
                 wprintf(L"===============================================================\n");
@@ -179,7 +206,7 @@ namespace ServerNamespace
                     wprintf(std::wstring(L"Amount Left: " + std::to_wstring(TotalSendingSize) + L"\n").c_str());
                     wprintf(L"==============================================================\n");
                 }
-#pragma endregion
+                /* SendingContents */
 
                 return TotalSendingSize;
             }
@@ -212,7 +239,7 @@ namespace ServerNamespace
         void CreateRequiredPaths()
         {
             /* Create paths so the user doesn't have to. manual input currently. will get updated later */
-            boost::filesystem::create_directories(ServerNamespace::ServerConstants::AbsolutePath + ServerNamespace::ServerConstants::UpdatePath);
+            boost::filesystem::create_directories(ServerNamespace::FilePathStorage::StaticPaths(ServerNamespace::FilePathStorage::StaticPaths::UpdatePath).GetSubPath());
         }
     }
 
@@ -220,12 +247,13 @@ namespace ServerNamespace
     {
         void SendNewestVersion(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString)
         {
-            GlobalFunction::StartSecondaryProgram(ServerNamespace::ServerConstants::AbsolClientUpdateDir.c_str(),
-                                                  &(ServerNamespace::ServerConstants::ClientUpdateFileName + L" -version")[0],
-                                                  (ServerNamespace::ServerConstants::AbsolutePath + ServerNamespace::ServerConstants::UpdatePath).c_str());
+            FilePathStorage ClientPath = ServerNamespace::FilePathStorage(ServerNamespace::FilePathStorage::StaticPaths::UpdatePath);
+            GlobalFunction::StartSecondaryProgram(ClientPath.GetFilePath().c_str(),
+                                                  &(ClientPath.GetFilePath() + L" -version")[0],
+                                                  (ClientPath.GetSubPath()).c_str());
 
             std::string LocalFileVersion;
-            std::ifstream LocalFileVersionStream(ServerNamespace::ServerConstants::AbsolVersionFilePath);
+            std::ifstream LocalFileVersionStream(ServerNamespace::FilePathStorage::StaticPaths(ServerNamespace::FilePathStorage::StaticPaths::clientVersionFile).GetFilePath());
             std::stringstream LFVStream;
             LFVStream << LocalFileVersionStream.rdbuf();
             LocalFileVersion = LFVStream.str();

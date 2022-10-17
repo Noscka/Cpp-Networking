@@ -123,8 +123,7 @@ namespace ClientNamespace
         {
             uint64_t DesectionMetadata(std::vector<Definition::byte> ReceivedRawData, std::wstring* filename, std::wstring* InfoString, bool displayInfo)
             {
-#pragma region GetMetadataLenght
-    /* Getting Metadata Lenght */
+                /* Getting Metadata Lenght */
                 int Metadata_length;
                 {
                     Definition::byte Metadata_lenght_bytes[4]{};
@@ -137,17 +136,14 @@ namespace ClientNamespace
                     std::memcpy(&Metadata_length, Metadata_lenght_bytes, sizeof Metadata_lenght_bytes);
                 }
                 /* Getting Metadata Lenght */
-#pragma endregion
 
-#pragma region GetMetadata
-    /* Getting Metadata */
+
+                /* Getting Metadata */
                 std::wstring Filename(&ReceivedRawData[4], &ReceivedRawData[4] + Metadata_length);
                 *filename = Filename;
                 /* Getting Metadata */
-#pragma endregion
 
-#pragma region GetContentSize
-    /* Getting Content Lenght */
+                /* Getting Content Lenght */
                 uint64_t content_length;
                 int offsetRead = 4 + (Metadata_length);
                 {
@@ -160,8 +156,6 @@ namespace ClientNamespace
                     std::memcpy(&content_length, content_lenght_bytes, sizeof content_lenght_bytes);
                 }
                 /* Getting Content Lenght */
-
-#pragma endregion
 
                 if (displayInfo)
                 {
