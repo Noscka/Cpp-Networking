@@ -182,10 +182,11 @@ namespace ClientNamespace
                 return std::wstring{ boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_received - GlobalFunction::GetDelimiter().size() };
             }
 
-            void ReceiveContentSegements(boost::asio::ip::tcp::socket* socket, std::wstring Filename, uint64_t ExpectedContentsize, uint64_t ResumePos)
+            void ReceiveContentSegements(LoadingScreen* LCObject, boost::asio::ip::tcp::socket* socket, std::wstring Filename, uint64_t ExpectedContentsize, uint64_t ResumePos)
             {
-#pragma region SegementedReceive
-        /* Read from stream with 500MB sized content segements */
+                LCObject->UpdateKnownProgressBar(0, LoadingScreen::CenterString(L"Preparing for receiving data",true));
+                /* SegementedReceive */
+                /* Read from stream with 500MB sized content segements */
                 std::ofstream OutFileStream;
 
                 /* If program is resuming download, append instead of overwriting */
@@ -197,7 +198,7 @@ namespace ClientNamespace
                 OutFileStream.seekp(ResumePos);
 
                 ExpectedContentsize -= ResumePos;
-                uint64_t TotalDataReceived = 0;
+                uint64_t TotalDataReceived = 0, TotalFileSize = ExpectedContentsize;
 
                 while (ExpectedContentsize != 0)
                 {
@@ -221,11 +222,15 @@ namespace ClientNamespace
                     /* Convert to string temporarily to allow for writing into file */
                     std::string TempString((char*)ContentArray->data(), ReceivedByteCount);
 
-                    wprintf(L"========================>Receiving Info<========================\n");
-                    wprintf(std::wstring(L"Received Data:       " + std::to_wstring(ReceivedByteCount) + L"\n").c_str());
-                    wprintf(std::wstring(L"Data Left:           " + std::to_wstring(ExpectedContentsize) + L"\n").c_str());
-                    wprintf(std::wstring(L"Total Data Received: " + std::to_wstring(TotalDataReceived) + L"\n").c_str());
-                    wprintf(L"================================================================\n");
+                    std::wstring LCOutput = (
+                          L"========================>Receiving Info<========================\n"
+                        + std::wstring(L"Received Data:       " + std::to_wstring(ReceivedByteCount) + L"\n")
+                        + std::wstring(L"Data Left:           " + std::to_wstring(ExpectedContentsize) + L"\n")
+                        + std::wstring(L"Total Data Received: " + std::to_wstring(TotalDataReceived) + L"\n")
+                        + std::wstring(L"Total File Size:     " + std::to_wstring(TotalFileSize) + L"\n")
+                        + L"================================================================\n");
+
+                    LCObject->UpdateKnownProgressBar((float)TotalDataReceived /(float)TotalFileSize, LoadingScreen::CenterString(LCOutput, true));
 
                     /* write content into file */
                     OutFileStream.write(TempString.c_str(), TempString.size());
@@ -238,7 +243,7 @@ namespace ClientNamespace
 
                 remove("DownloadInfo");
                 /* Read from stream with 500MB sized content segements */
-#pragma endregion
+                /* SegementedReceive */
                 return;
             }
         }
@@ -303,7 +308,10 @@ namespace ClientNamespace
             boost::filesystem::create_directories(OutputDirectory);
             /* Getting Directoryand creating */
 
-            ReceiveContentSegements(socket, DirFilename, ExpectedContentsize, ResumePos);
+            {
+                LoadingScreen ReceivingContentLC(LoadingScreen::LoadType::Known);
+                ReceivingContentLC.StartLoading(&ReceiveContentSegements, std::ref(socket), std::ref(DirFilename), std::ref(ExpectedContentsize), std::ref(ResumePos));
+            }
 
             return;
         }
