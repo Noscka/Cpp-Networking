@@ -281,11 +281,8 @@ namespace ClientNamespace
             uint64_t ExpectedContentsize;
             std::wstring Filename;
             {
-                uint64_t *PECS = &ExpectedContentsize;
-                std::wstring* PFN = &Filename;
-
                 LoadingScreen MetadataProcessingLC(LoadingScreen::LoadType::Unknown);
-                MetadataProcessingLC.StartLoading(ProcessMetadata, std::ref(socket), std::ref(InfoString), std::ref(PECS), std::ref(PFN));
+                MetadataProcessingLC.StartLoading(ProcessMetadata, std::ref(socket), std::ref(InfoString), &ExpectedContentsize, &Filename);
             }
             /* GettingMetadata */
 
