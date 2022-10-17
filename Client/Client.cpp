@@ -86,11 +86,11 @@ int main(int argc, char** argv)
         {
         case ServerRequest::Download:
             wprintf(L"Downloading file\n");
-            ClientNamespace::ClientFunctions::DownloadFile(&socket, DownloadDir.GetSubPath(), 0, &InfoString, true);
+            ClientNamespace::ClientFunctions::DownloadFile(&socket, DownloadDir.GetSubPath(), 0, false, &InfoString, true);
             break;
         case ServerRequest::Continue:
             wprintf(std::format(L"Continuing Downloading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
-            ClientNamespace::ClientFunctions::DownloadFile(&socket, DownloadDir.GetSubPath(), MainServerRequest.ReturnDataLeft(), &InfoString, true);
+            ClientNamespace::ClientFunctions::DownloadFile(&socket, DownloadDir.GetSubPath(), MainServerRequest.ReturnDataLeft(),false, &InfoString, true);
             break;
         }
         

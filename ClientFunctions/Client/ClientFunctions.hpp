@@ -182,7 +182,7 @@ namespace ClientNamespace
                 return std::wstring{ boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_received - GlobalFunction::GetDelimiter().size() };
             }
 
-            void ReceiveContentSegements(LoadingScreen* LCObject, boost::asio::ip::tcp::socket* socket, std::wstring Filename, uint64_t ExpectedContentsize, uint64_t ResumePos)
+            void ReceiveContentSegements(LoadingScreen* LCObject, boost::asio::ip::tcp::socket* socket, std::wstring Filename, bool updateMessage, uint64_t ExpectedContentsize, uint64_t ResumePos)
             {
                 LCObject->UpdateKnownProgressBar(0, LoadingScreen::CenterString(L"Preparing for receiving data",true));
                 /* SegementedReceive */
@@ -223,7 +223,7 @@ namespace ClientNamespace
                     std::string TempString((char*)ContentArray->data(), ReceivedByteCount);
 
                     std::wstring LCOutput = (
-                          L"========================>Receiving Info<========================\n"
+                        L"========================>" + std::wstring(updateMessage ? L"Update Info" : L"Receiving Info") + L"<======================= = \n"
                         + std::wstring(L"Received Data:       " + std::to_wstring(ReceivedByteCount) + L"\n")
                         + std::wstring(L"Data Left:           " + std::to_wstring(ExpectedContentsize) + L"\n")
                         + std::wstring(L"Total Data Received: " + std::to_wstring(TotalDataReceived) + L"\n")
@@ -280,7 +280,7 @@ namespace ClientNamespace
             /* Get file metadata */
         }
 
-        void DownloadFile(boost::asio::ip::tcp::socket* socket, std::wstring OutputDirectory, uint64_t ResumePos, std::wstring* InfoString, bool displayInfo)
+        void DownloadFile(boost::asio::ip::tcp::socket* socket, std::wstring OutputDirectory, uint64_t ResumePos, bool updateMessage, std::wstring* InfoString, bool displayInfo)
         {
             /* GettingMetadata */
             uint64_t ExpectedContentsize;
@@ -310,7 +310,7 @@ namespace ClientNamespace
 
             {
                 LoadingScreen ReceivingContentLC(LoadingScreen::LoadType::Known);
-                ReceivingContentLC.StartLoading(&ReceiveContentSegements, std::ref(socket), std::ref(DirFilename), std::ref(ExpectedContentsize), std::ref(ResumePos));
+                ReceivingContentLC.StartLoading(&ReceiveContentSegements, std::ref(socket), std::ref(DirFilename), std::ref(updateMessage), std::ref(ExpectedContentsize), std::ref(ResumePos));
             }
 
             return;
@@ -454,7 +454,7 @@ namespace ClientNamespace
                 FilePathStorage ClientFilePath(FilePathStorage::UserType::clientLauncher, FilePathStorage::StaticPaths::clientFile);
                 FilePathStorage TempClientPath(FilePathStorage::UserType::clientLauncher, FilePathStorage::StaticPaths::tempClientFile);
 
-                ClientNamespace::ClientFunctions::DownloadFile(socket, TempClientPath.GetSubPath(), 0, InfoString, false);
+                ClientNamespace::ClientFunctions::DownloadFile(socket, TempClientPath.GetSubPath(), 0,true, InfoString, false);
 
                 remove(GlobalFunction::to_string(ClientFilePath.GetFilePath()).c_str());
 
