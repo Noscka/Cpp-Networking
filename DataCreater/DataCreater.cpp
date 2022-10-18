@@ -32,29 +32,29 @@ void CreateRandomData(LoadingScreen* Object, float *Size)
     LeftOverAmount = OutputFileSize % SectionSize;
 
     /* foreach loop for all the sections */
-    for(int i = 0; i < FullOperationAmount; i++)
+    for(uint64_t i = 0; i < FullOperationAmount; i++)
     {
         std::string DataWrite;
-        for(int i = 0; i <= SectionSize; i += 10)
+        for(uint64_t j = 0; j <= SectionSize; j += 10)
         {
             DataWrite += "aaaaaaaaaa";
             Progress += 10;
-            Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, LoadingScreen::CenterString(L"Creating 500MB segement data", true));
+            Object->UpdateKnownProgressBar((double)Progress / (double)OutOf, LoadingScreen::CenterString(std::format(L"Creating 500MB segement data\n{}", (double)Progress / (double)OutOf), true));
         }
-        Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, LoadingScreen::CenterString(L"Writing Data",false));
+        Object->UpdateKnownProgressBar((double)Progress / (double)OutOf, LoadingScreen::CenterString(L"Writing Data",false));
         OutFileStream.write(DataWrite.c_str(), DataWrite.size());
     }
 
     /* Remaining data */
     {
         std::string DataWrite;
-        for(int i = 0; i <= LeftOverAmount; i++)
+        for(uint64_t i = 0; i <= LeftOverAmount; i++)
         {
             DataWrite += "a";
             Progress += 1;
-            Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, LoadingScreen::CenterString(L"Creating the rest of data", false));
+            Object->UpdateKnownProgressBar((double)Progress / (double)OutOf, LoadingScreen::CenterString(L"Creating the rest of data", false));
         }
-        Object->UpdateKnownProgressBar((float)Progress / (float)OutOf, LoadingScreen::CenterString(L"Writing Data", false));
+        Object->UpdateKnownProgressBar((double)Progress / (double)OutOf, LoadingScreen::CenterString(L"Writing Data", false));
         OutFileStream.write(DataWrite.c_str(), DataWrite.size());
     }
 
