@@ -3,6 +3,7 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp> 
 
+#include <future>
 #include <Windows.h>
 #include <string>
 #include <filesystem>
@@ -13,6 +14,38 @@
 
 #include "Resource/resource.h"
 
+namespace GlobalFunction
+{
+	class FilePathStorage
+	{
+	private:
+
+		std::wstring AbsolutePath;
+		std::wstring SubPath;
+		std::wstring Filename;
+
+	public:
+		FilePathStorage(){}
+
+		FilePathStorage(std::wstring subPath, std::wstring filename)
+		{
+			SubPath = subPath;
+			Filename = filename;
+			AbsolutePath = std::filesystem::current_path().wstring();
+		}
+
+		std::wstring GetSubPath()
+		{
+			return AbsolutePath + SubPath;
+		}
+
+		std::wstring GetFilePath()
+		{
+			return GetSubPath() + Filename;
+		}
+	};
+}
+
 class LoadingScreen
 {
 public:
@@ -22,7 +55,7 @@ public:
 		Known = 1,
 	};
 private:
-	static inline std::wstring FontFile = L"Resources\\CustomConsola.ttf";
+	static inline GlobalFunction::FilePathStorage FontFilePath;
 
 	std::wstring SplashScreen;
 	int SplashScreenYSize, PreviousWriteCoords;
@@ -134,12 +167,6 @@ private:
 		(CrossThreadFinishBoolean) = !(CrossThreadFinishBoolean);
 	}
 
-	static bool FileExists(const std::string& name)
-	{
-		struct stat buffer;
-		return (stat(name.c_str(), &buffer) == 0);
-	}
-
 	static void ClearRangeLines(int Position, int range)
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -153,21 +180,19 @@ private:
 		SetConsoleCursorPosition(ConsoleHandle, tl);
 	}
 public:
-	static void InitilizeFont()
+	static void InitilizeFont(std::wstring Path = LR"(\Resources\)")
 	{
-#pragma region Change working directory to exe
+		if (!(Path[Path.length() - 1] == L'\\'))
 		{
-			wchar_t buffer[_MAX_PATH];
-			GetModuleFileName(NULL, buffer, _MAX_PATH);
-
-			std::filesystem::current_path(std::wstring(buffer).substr(0, std::wstring(buffer).find_last_of(L"\\/") + 1));
+			throw std::invalid_argument("Isn't a valid path. Cannot have file name included in the path");
+			return;
 		}
-#pragma endregion
 
-#pragma region Extract font from resource
-		std::filesystem::create_directory("Resources"); /* Make Resources Direcory */
+		FontFilePath = GlobalFunction::FilePathStorage(Path, L"CustomConsola.ttf");
+		
+		std::filesystem::create_directories(std::filesystem::path(FontFilePath.GetSubPath())); /* Make Resources Direcory */
 
-		if (!FileExists("Resources\\CustomConsola.ttf")) /* Check if Font file already exists*/
+		if (!std::filesystem::exists(FontFilePath.GetFilePath())) /* Check if Font file already exists*/
 		{
 			HINSTANCE hResInstance = (HINSTANCE)GetModuleHandle(NULL);
 			HRSRC ResourceHandle = FindResource(hResInstance, MAKEINTRESOURCE(IDR_CUSTOM_CONSOLA_FONT), L"XFONT");
@@ -177,22 +202,22 @@ public:
 			void* ResourceData = LockResource(ResourceMemory);
 
 			size_t ResourceLenght = SizeofResource(hResInstance, ResourceHandle);
-			HANDLE hFile = CreateFile(L"Resources\\CustomConsola.ttf", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+			HANDLE hFile = CreateFile(FontFilePath.GetFilePath().c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
 			DWORD bytesWritten = ResourceLenght;
 
 			WriteFile(hFile, ResourceData, ResourceLenght, &bytesWritten, NULL);
 			CloseHandle(hFile);
 		}
-#pragma endregion
+		/* Extract font from resource */
 
-#pragma region Add Font Resource
-		if (AddFontResourceEx(FontFile.c_str(), NULL, NULL) == 0)
+		/* Add Font Resource */
+		if (AddFontResourceEx(FontFilePath.GetFilePath().c_str(), NULL, NULL) == 0)
 		{
 			throw std::exception("Font add fails");
 		}
-#pragma endregion
+		/* Add Font Resource */
 
-#pragma region Make console use font
+		/* Make console use font */
 		CONSOLE_FONT_INFOEX cfi = { 0 };
 
 		cfi.cbSize = sizeof(cfi);
@@ -203,16 +228,17 @@ public:
 		cfi.FontWeight = FW_NORMAL;
 		wcscpy_s(cfi.FaceName, L"Custom Consolas");
 		SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &cfi);
-#pragma endregion
+		/* Make console use font */
 	}
+
 	static void TerminateFont()
 	{
-#pragma region Remove Font Resource
-		if (RemoveFontResourceEx(FontFile.c_str(), NULL, NULL) == 0)
+		/* Remove Font Resource */
+		if (RemoveFontResourceEx(FontFilePath.GetFilePath().c_str(), NULL, NULL) == 0)
 		{
 			throw std::exception("Font remove fails");
 		}
-#pragma endregion
+		/* Remove Font Resource */	
 	}
 
 	static std::wstring CenterString(std::wstring input, bool All)
@@ -275,10 +301,18 @@ public:
 		}
 	}
 
-	void UpdateKnownProgressBar(float percentageDone, std::wstring statusMessage = L"")
+	void UpdateKnownProgressBar(float percentageDone, std::wstring statusMessage = L"", bool centerString = true, bool centerAll = true)
 	{
 		PercentageDone = percentageDone;
-		StatusMessage = statusMessage;
+		if (centerString)
+			StatusMessage = std::async(std::launch::async, CenterString, statusMessage, centerAll).get();
+		else
+			StatusMessage = statusMessage;
+	}
+
+	void Finish()
+	{
+		CrossThreadFinishBoolean = true;
 	}
 
 	std::wstring MoveRight(std::wstring* string)
