@@ -75,6 +75,11 @@ namespace ServerNamespace
         {
             return GetSubPath() + Filename;
         }
+
+        std::wstring GetFileName()
+        {
+            return Filename;
+        }
     };
 
     namespace ServerFunctions
@@ -280,7 +285,7 @@ namespace ServerNamespace
         {
             FilePathStorage ClientPath = ServerNamespace::FilePathStorage(ServerNamespace::FilePathStorage::StaticPaths::clientFile);
             GlobalFunction::StartSecondaryProgram(ClientPath.GetFilePath().c_str(),
-                                                  &(std::wstring(L"\"" + ClientPath.GetFilePath() + L"\"" + std::wstring(L" -version")))[0],
+                                                  &(ClientPath.GetFileName() + std::wstring(L" -version"))[0],
                                                   (ClientPath.GetSubPath()).c_str());
 
             std::string LocalFileVersion;

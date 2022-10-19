@@ -20,12 +20,9 @@ bool FileExistance(const std::string& name)
 int main(int argc, char** argv)
 {
     /* Output Client Version */
-    std::ofstream VersionStream(ClientNamespace::FilePathStorage::StaticPaths(ClientNamespace::FilePathStorage::UserType::client, ClientNamespace::FilePathStorage::StaticPaths::clientVersionFile).GetFilePath(), std::ios::binary | std::ios::trunc);
+    std::ofstream VersionStream(ClientNamespace::FilePathStorage::StaticPaths(ClientNamespace::FilePathStorage::UserType::currentDir, ClientNamespace::FilePathStorage::StaticPaths::clientVersionFile).GetFilePath(), std::ios::binary | std::ios::trunc);
     VersionStream << CLIENT_VERSION;
     VersionStream.close();
-
-    std::wcout << argv[0] << std::endl;
-    std::wcout << argv[1] << std::endl;
 
     if (argc == 2 && argv[1] == std::string("-version"))
     {

@@ -33,7 +33,8 @@ namespace ClientNamespace
         enum UserType
         {
             clientLauncher,
-            client
+            client,
+            currentDir,
         };
 
     	enum StaticPaths
@@ -67,6 +68,11 @@ namespace ClientNamespace
             case UserType::client:
                 AbsolutePath = std::filesystem::current_path().parent_path().wstring();
                 break;
+            case UserType::currentDir:
+                wchar_t buffer[MAX_PATH];
+                GetModuleFileNameW(NULL, buffer, MAX_PATH);
+                AbsolutePath = std::wstring(buffer).substr(0, std::wstring(buffer).find_last_of(L"\\/"));
+                break;
             }
         }
 
@@ -81,19 +87,19 @@ namespace ClientNamespace
             switch (PathWanted)
             {
             case clientFile:
-                ReturnObject = FilePathStorage(programUsing, LR"(\Main\)", LR"(Client.exe)");
+                ReturnObject = FilePathStorage(programUsing, (programUsing == currentDir ? LR"(\)" : LR"(\Main\)") , LR"(Client.exe)");
                 break;
             case tempClientFile:
-                ReturnObject = FilePathStorage(programUsing, LR"(\Temporary\)", LR"(Client.exe)");
+                ReturnObject = FilePathStorage(programUsing, (programUsing == currentDir ? LR"(\)" : LR"(\Temporary\)"), LR"(Client.exe)");
                 break;
             case clientVersionFile:
-                ReturnObject = FilePathStorage(programUsing, LR"(\Main\)", LR"(Client.VerInfo)");
+                ReturnObject = FilePathStorage(programUsing, (programUsing == currentDir ? LR"(\)" : LR"(\Main\)"), LR"(Client.VerInfo)");
                 break;
             case DownloadPath:
-                ReturnObject = FilePathStorage(programUsing, LR"(\Downloads\)", L"");
+                ReturnObject = FilePathStorage(programUsing, (programUsing == currentDir ? LR"(\)" : LR"(\Downloads\)"), L"");
                 break;
             case FontResourcePath:
-                ReturnObject = FilePathStorage(programUsing, LR"(\Resources\)", L"");
+                ReturnObject = FilePathStorage(programUsing, (programUsing == currentDir ? LR"(\)" : LR"(\Resources\)"), L"");
                 break;
             }
             return ReturnObject;
@@ -107,6 +113,11 @@ namespace ClientNamespace
         std::wstring GetFilePath()
         {
             return GetSubPath() + Filename;
+        }
+
+        std::wstring GetFileName()
+        {
+            return Filename;
         }
     };
 
@@ -347,13 +358,14 @@ namespace ClientNamespace
             {
                 FilePathStorage VersionFile(FilePathStorage::UserType::clientLauncher, FilePathStorage::StaticPaths::clientVersionFile);
                 FilePathStorage ClientPath(FilePathStorage::UserType::clientLauncher, FilePathStorage::StaticPaths::clientFile);
+
                 /* Check file exists */
                 if (!std::filesystem::exists(VersionFile.GetFilePath()))
                 {
                     if (std::filesystem::exists(ClientPath.GetFilePath()))
                     {
                         GlobalFunction::StartSecondaryProgram(ClientPath.GetFilePath().c_str(),
-                                                              &(ClientPath.GetFilePath() + L" -version")[0],
+                                                              &(ClientPath.GetFileName() + L" -version")[0],
                                                               (ClientPath.GetFilePath()).c_str());
                     }
                     else
@@ -408,15 +420,15 @@ namespace ClientNamespace
                     std::wcout << L"Version Patch: " << (ServerPatchVersion > LocalPatchVersion ? L"True" : L"False") << std::endl;
 
                     std::wcout << L"Version Full check: " <<
-                        (ServerMajorVersion > LocalMajorVersion ||
-                            ServerMinorVersion > LocalMinorVersion ||
-                            ServerPatchVersion > LocalPatchVersion ? L"True" : L"False")
+                        (ServerMajorVersion <= LocalMajorVersion&&
+                         ServerMinorVersion <= LocalMinorVersion&&
+                         ServerPatchVersion <= LocalPatchVersion ? L"True" : L"False")
                         << std::endl;
 
                     /* If the local files are older (any number is smaller) update */
-                    if (ServerMajorVersion < LocalMajorVersion &&
-                        ServerMinorVersion < LocalMinorVersion &&
-                        ServerPatchVersion < LocalPatchVersion)
+                    if (ServerMajorVersion <= LocalMajorVersion &&
+                        ServerMinorVersion <= LocalMinorVersion &&
+                        ServerPatchVersion <= LocalPatchVersion)
                     {
                         return 0;
                     }
