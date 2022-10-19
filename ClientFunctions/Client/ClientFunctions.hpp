@@ -20,6 +20,7 @@
 #include <fcntl.h>
 #include <string>
 #include <corecrt_io.h>
+#include <filesystem>
 
 #include "Global/GlobalFunctions.hpp"
 #include "External/LoadingScreen/LoadingScreen.hpp"
@@ -221,7 +222,7 @@ namespace ClientNamespace
                     std::string TempString((char*)ContentArray->data(), ReceivedByteCount);
 
                     std::wstring LCOutput = (
-                        L"========================>" + std::wstring(updateMessage ? L"Update Info" : L"Receiving Info") + L"<======================= = \n"
+                        L"========================>" + std::wstring(updateMessage ? L"Update Info" : L"Receiving Info") + L"<========================\n"
                         + std::wstring(L"Received Data:       " + std::to_wstring(ReceivedByteCount) + L"\n")
                         + std::wstring(L"Data Left:           " + std::to_wstring(ExpectedContentsize) + L"\n")
                         + std::wstring(L"Total Data Received: " + std::to_wstring(TotalDataReceived) + L"\n")
@@ -341,69 +342,83 @@ namespace ClientNamespace
         */
         int CheckVersion(boost::asio::ip::tcp::socket* socket)
         {
+            /* Check current version with the server's version */
             try
             {
                 FilePathStorage VersionFile(FilePathStorage::UserType::clientLauncher, FilePathStorage::StaticPaths::clientVersionFile);
-                if (FileExistance(GlobalFunction::to_string(VersionFile.GetFilePath())))
+                FilePathStorage ClientPath(FilePathStorage::UserType::clientLauncher, FilePathStorage::StaticPaths::clientFile);
+                /* Check file exists */
+                if (!std::filesystem::exists(VersionFile.GetFilePath()))
                 {
-                        /* Request for Newest Client Version */
+                    if (std::filesystem::exists(ClientPath.GetFilePath()))
                     {
-                        ServerRequest MainServerRequest = ServerRequest(ServerRequest::VersionRequest);
-
-                        boost::asio::streambuf RequestBuf;
-                        MainServerRequest.serializeObject(&RequestBuf);
-
-                        boost::asio::write((*socket), RequestBuf);
-                        boost::asio::write((*socket), boost::asio::buffer(GlobalFunction::to_string(GlobalFunction::GetDelimiter())));
+                        GlobalFunction::StartSecondaryProgram(ClientPath.GetFilePath().c_str(),
+                                                              &(ClientPath.GetFilePath() + L" -version")[0],
+                                                              (ClientPath.GetFilePath()).c_str());
                     }
-
-                    boost::asio::streambuf VersionResult;
-
-                    size_t bytes_transferred = boost::asio::read_until((*socket), VersionResult, GlobalFunction::to_string(GlobalFunction::GetDelimiter()));
-                    std::string Output = GlobalFunction::to_string(ClientNamespace::ClientFunctions::streamBufferToWstring(&VersionResult, bytes_transferred));
-
-                    std::regex VersionFormatRegex("([0-9]{1,3}).([0-9]{1,3}).([0-9]{1,3})");
-
-                    std::smatch ServerMatchObject;
-                    std::smatch LocalMatchObject;
-                    if (std::regex_search(Output, ServerMatchObject, VersionFormatRegex))
+                    else
                     {
-                        int ServerMajorVersion = std::stoi(ServerMatchObject[1].str());
-                        int ServerMinorVersion = std::stoi(ServerMatchObject[2].str());
-                        int ServerPatchVersion = std::stoi(ServerMatchObject[3].str());
+                        return 1;
+                    }
+                }
 
-                        std::string LocalFileVersion;
-                        std::ifstream LocalFileVersionStream(VersionFile.GetFilePath());
-                        std::stringstream LFVStream;
-                        LFVStream << LocalFileVersionStream.rdbuf();
-                        LocalFileVersion = LFVStream.str();
+                /* Request for Newest Client Version */
+                {
+                    ServerRequest MainServerRequest = ServerRequest(ServerRequest::VersionRequest);
 
-                        std::regex_search(LocalFileVersion, LocalMatchObject, VersionFormatRegex);
+                    boost::asio::streambuf RequestBuf;
+                    MainServerRequest.serializeObject(&RequestBuf);
 
-                        int LocalMajorVersion = std::stoi(LocalMatchObject[1].str());
-                        int LocalMinorVersion = std::stoi(LocalMatchObject[2].str());
-                        int LocalPatchVersion = std::stoi(LocalMatchObject[3].str());
+                    boost::asio::write((*socket), RequestBuf);
+                    boost::asio::write((*socket), boost::asio::buffer(GlobalFunction::to_string(GlobalFunction::GetDelimiter())));
+                }
 
-                        wprintf(std::format(L"Server Version: {}.{}.{}\n", ServerMajorVersion, ServerMinorVersion, ServerPatchVersion).c_str());
-                        wprintf(std::format(L"Local Version: {}.{}.{}\n", LocalMajorVersion, LocalMinorVersion, LocalPatchVersion).c_str());
+                boost::asio::streambuf VersionResult;
 
-                        std::wcout << L"Version Major: " << (ServerMajorVersion > LocalMajorVersion ? L"True" : L"False") << std::endl;
-                        std::wcout << L"Version Minor: " << (ServerMinorVersion > LocalMinorVersion ? L"True" : L"False") << std::endl;
-                        std::wcout << L"Version Patch: " << (ServerPatchVersion > LocalPatchVersion ? L"True" : L"False") << std::endl;
+                size_t bytes_transferred = boost::asio::read_until((*socket), VersionResult, GlobalFunction::to_string(GlobalFunction::GetDelimiter()));
+                std::string Output = GlobalFunction::to_string(ClientNamespace::ClientFunctions::streamBufferToWstring(&VersionResult, bytes_transferred));
 
-                        std::wcout << L"Version Full check: " <<
-                            (ServerMajorVersion > LocalMajorVersion ||
-                             ServerMinorVersion > LocalMinorVersion ||
-                             ServerPatchVersion > LocalPatchVersion ? L"True" : L"False")
-                            << std::endl;
+                std::regex VersionFormatRegex("([0-9]{1,3}).([0-9]{1,3}).([0-9]{1,3})");
 
-                        /* If the local files are older (any number is smaller) update */
-                        if (ServerMajorVersion < LocalMajorVersion &&
-                            ServerMinorVersion < LocalMinorVersion &&
-                            ServerPatchVersion < LocalPatchVersion)
-                        {
-                            return 0;
-                        }
+                std::smatch ServerMatchObject;
+                std::smatch LocalMatchObject;
+                if (std::regex_search(Output, ServerMatchObject, VersionFormatRegex))
+                {
+                    int ServerMajorVersion = std::stoi(ServerMatchObject[1].str());
+                    int ServerMinorVersion = std::stoi(ServerMatchObject[2].str());
+                    int ServerPatchVersion = std::stoi(ServerMatchObject[3].str());
+
+                    std::string LocalFileVersion;
+                    std::ifstream LocalFileVersionStream(VersionFile.GetFilePath());
+                    std::stringstream LFVStream;
+                    LFVStream << LocalFileVersionStream.rdbuf();
+                    LocalFileVersion = LFVStream.str();
+
+                    std::regex_search(LocalFileVersion, LocalMatchObject, VersionFormatRegex);
+
+                    int LocalMajorVersion = std::stoi(LocalMatchObject[1].str());
+                    int LocalMinorVersion = std::stoi(LocalMatchObject[2].str());
+                    int LocalPatchVersion = std::stoi(LocalMatchObject[3].str());
+
+                    wprintf(std::format(L"Server Version: {}.{}.{}\n", ServerMajorVersion, ServerMinorVersion, ServerPatchVersion).c_str());
+                    wprintf(std::format(L"Local Version: {}.{}.{}\n", LocalMajorVersion, LocalMinorVersion, LocalPatchVersion).c_str());
+
+                    std::wcout << L"Version Major: " << (ServerMajorVersion > LocalMajorVersion ? L"True" : L"False") << std::endl;
+                    std::wcout << L"Version Minor: " << (ServerMinorVersion > LocalMinorVersion ? L"True" : L"False") << std::endl;
+                    std::wcout << L"Version Patch: " << (ServerPatchVersion > LocalPatchVersion ? L"True" : L"False") << std::endl;
+
+                    std::wcout << L"Version Full check: " <<
+                        (ServerMajorVersion > LocalMajorVersion ||
+                            ServerMinorVersion > LocalMinorVersion ||
+                            ServerPatchVersion > LocalPatchVersion ? L"True" : L"False")
+                        << std::endl;
+
+                    /* If the local files are older (any number is smaller) update */
+                    if (ServerMajorVersion < LocalMajorVersion &&
+                        ServerMinorVersion < LocalMinorVersion &&
+                        ServerPatchVersion < LocalPatchVersion)
+                    {
+                        return 0;
                     }
                 }
             }
@@ -423,9 +438,6 @@ namespace ClientNamespace
         */
         int UpdateClient(boost::asio::ip::tcp::socket* socket, std::wstring *InfoString)
         {
-            /* Check current version with the server's version */
-
-            /* Check file exists */
             try
             {
                 switch (CheckVersion(socket))

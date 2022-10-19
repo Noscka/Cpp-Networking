@@ -24,6 +24,9 @@ int main(int argc, char** argv)
     VersionStream << CLIENT_VERSION;
     VersionStream.close();
 
+    std::wcout << argv[0] << std::endl;
+    std::wcout << argv[1] << std::endl;
+
     if (argc == 2 && argv[1] == std::string("-version"))
     {
         return 0;

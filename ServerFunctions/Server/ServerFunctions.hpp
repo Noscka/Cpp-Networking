@@ -278,9 +278,9 @@ namespace ServerNamespace
     {
         void SendNewestVersion(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString)
         {
-            FilePathStorage ClientPath = ServerNamespace::FilePathStorage(ServerNamespace::FilePathStorage::StaticPaths::UpdatePath);
+            FilePathStorage ClientPath = ServerNamespace::FilePathStorage(ServerNamespace::FilePathStorage::StaticPaths::clientFile);
             GlobalFunction::StartSecondaryProgram(ClientPath.GetFilePath().c_str(),
-                                                  &(ClientPath.GetFilePath() + L" -version")[0],
+                                                  &(std::wstring(L"\"" + ClientPath.GetFilePath() + L"\"" + std::wstring(L" -version")))[0],
                                                   (ClientPath.GetSubPath()).c_str());
 
             std::string LocalFileVersion;
