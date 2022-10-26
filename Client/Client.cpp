@@ -32,9 +32,7 @@ int main(int argc, char** argv)
     }
 
     _setmode(_fileno(stdout), _O_U16TEXT);
-    /* TODO: make Loading screen use ClientFilePath and implement it here */
-    //NosStdLib::LoadingScreen::InitilizeFont(ClientNamespace::ClientFilePath::StaticPaths(ClientNamespace::ClientFilePath::UserType::client, ClientNamespace::ClientFilePath::StaticPaths::FontResourcePath).GetAbsolutePath());
-    NosStdLib::LoadingScreen::InitilizeFont(LR"(\..\Resources\)");
+    NosStdLib::LoadingScreen::InitilizeFont((NosStdLib::FileManagement::FilePath)ClientNamespace::ClientFilePath::StaticPaths(ClientNamespace::ClientFilePath::UserType::client, ClientNamespace::ClientFilePath::StaticPaths::FontResourcePath));
 
     boost::asio::io_context io_context;
 
