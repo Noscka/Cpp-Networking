@@ -3,7 +3,6 @@
 
 #include <Global/GlobalFunctions.hpp>
 #include <Server/ServerFunctions.hpp>
-#include <External/LoadingScreen/LoadingScreen.hpp>
 
 #include <iostream>
 #include <string>
@@ -12,6 +11,9 @@
 #include <io.h>
 #include <fcntl.h>
 #include <filesystem>
+
+#include <NosStdLib/Global.hpp>
+#include <NosStdLib/DynamicLoadingScreen.hpp>
 
 class tcp_connection
 {
@@ -80,7 +82,7 @@ public:
 int main()
 {
     _setmode(_fileno(stdout), _O_U16TEXT);
-    LoadingScreen::InitilizeFont();
+    NosStdLib::LoadingScreen::InitilizeFont();
 
     try
     {
@@ -119,6 +121,6 @@ int main()
         std::cerr << e.what() << std::endl;
     }
 
-    LoadingScreen::TerminateFont();
+    NosStdLib::LoadingScreen::TerminateFont();
     return 0;
 }

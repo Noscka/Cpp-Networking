@@ -1,8 +1,6 @@
 #ifndef _SERVERFUNCTIONS_HPP_
 #define _SERVERFUNCTIONS_HPP_
 
-#include "../pch.h"
-
 #include <boost/filesystem.hpp>
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
@@ -15,7 +13,8 @@
 #include <vector>
 
 #include "Global/GlobalFunctions.hpp"
-#include "External/LoadingScreen/LoadingScreen.hpp"
+#include <NosStdLib/Global.hpp>
+#include <NosStdLib/DynamicLoadingScreen.hpp>
 
 namespace ServerNamespace
 {
@@ -147,9 +146,9 @@ namespace ServerNamespace
                 return SendingRawByteBuffer;
             }
 
-            uint64_t SendContentSegements(LoadingScreen *LCObject, boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, uint64_t startPos, uint64_t* ReturnValue)
+            uint64_t SendContentSegements(NosStdLib::LoadingScreen *LCObject, boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, uint64_t startPos, uint64_t* ReturnValue)
             {
-                LCObject->UpdateKnownProgressBar(0, LoadingScreen::CenterString(L"Preparing for sending data", true));
+                LCObject->UpdateKnownProgressBar(0, L"Preparing for sending data", true);
                 /* SendingContents */
                 /* Open file stream to allow for reading of file */
                 std::ifstream filestream(FileAddress, std::ios::binary);
@@ -170,7 +169,7 @@ namespace ServerNamespace
                     + L"===============================================================\n"
                     );
 
-                LCObject->UpdateKnownProgressBar(0, LoadingScreen::CenterString(LoadingScreenOutput, true));
+                LCObject->UpdateKnownProgressBar(0, LoadingScreenOutput, true);
 
                 /* while loop until all bytes sent */
                 while (TotalSendingSize != 0)
@@ -221,7 +220,7 @@ namespace ServerNamespace
 
                     LoadingScreenOutput+=(std::wstring(L"Amount Left: " + std::to_wstring(TotalSendingSize) + L"\n"));
                     LoadingScreenOutput+=(L"==============================================================\n");
-                    LCObject->UpdateKnownProgressBar((float)(UnchangedTotalSize - TotalSendingSize) / (float)UnchangedTotalSize, LoadingScreen::CenterString(LoadingScreenOutput, true));
+                    LCObject->UpdateKnownProgressBar((float)(UnchangedTotalSize - TotalSendingSize) / (float)UnchangedTotalSize, LoadingScreenOutput, true);
                 }
                 /* SendingContents */
 
@@ -229,9 +228,9 @@ namespace ServerNamespace
                 return UnchangedTotalSize;
             }
 
-            size_t SendMetadata(LoadingScreen *LCObject, boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, size_t *ReturnValue)
+            size_t SendMetadata(NosStdLib::LoadingScreen *LCObject, boost::asio::ip::tcp::socket* socket, std::wstring FileAddress, std::wstring* InfoString, size_t *ReturnValue)
             {
-                LCObject->UpdateKnownProgressBar(0, LoadingScreen::CenterString(L"Sectioning Metadata", true));
+                LCObject->UpdateKnownProgressBar(0, L"Sectioning Metadata", true);
                 *ReturnValue = boost::asio::write((*socket), boost::asio::buffer(ServerFunctions::SectionMetadata(FileAddress, InfoString, true)));
                 return *ReturnValue;
             }
@@ -242,7 +241,7 @@ namespace ServerNamespace
         {
             size_t BytesSent = 0;
             {
-                LoadingScreen MetadataLC(LoadingScreen::LoadType::Unknown);
+                NosStdLib::LoadingScreen MetadataLC(NosStdLib::LoadingScreen::LoadType::Unknown);
                 MetadataLC.StartLoading(&SendMetadata, std::ref(socket), std::ref(FileAddress), std::ref(InfoString), &BytesSent);
             }
 
@@ -265,7 +264,7 @@ namespace ServerNamespace
 
             size_t SegementedBytesSend = 0;
             {
-                LoadingScreen MetadataLC(LoadingScreen::LoadType::Known);
+                NosStdLib::LoadingScreen MetadataLC(NosStdLib::LoadingScreen::LoadType::Known);
                 MetadataLC.StartLoading(&SendContentSegements, std::ref(socket), std::ref(FileAddress), std::ref(ResumePos), &SegementedBytesSend);
             }
 

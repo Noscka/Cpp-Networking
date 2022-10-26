@@ -24,12 +24,6 @@
     <ClInclude Include="Global\GlobalFunctions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="External\LoadingScreen\Resource\resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="External\LoadingScreen\LoadingScreen.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -38,13 +32,5 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="External\LoadingScreen\Resource\Console Loading Screen.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Font Include="External\LoadingScreen\Resource\CustomConsola.ttf" />
   </ItemGroup>
 </Project>

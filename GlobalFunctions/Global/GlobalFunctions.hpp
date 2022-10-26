@@ -1,8 +1,6 @@
 #ifndef _SHAREDCLASS_HPP_
 #define _SHAREDCLASS_HPP_
 
-#include "../pch.h"
-
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>

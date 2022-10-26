@@ -1,8 +1,6 @@
 #ifndef _CLIENTFUNCTIONS_HPP_
 #define _CLIENTFUNCTIONS_HPP_
 
-#include "../pch.h"
-
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/array.hpp>
@@ -23,7 +21,8 @@
 #include <filesystem>
 
 #include "Global/GlobalFunctions.hpp"
-#include "External/LoadingScreen/LoadingScreen.hpp"
+#include <NosStdLib/Global.hpp>
+#include <NosStdLib/DynamicLoadingScreen.hpp>
 
 namespace ClientNamespace
 {
@@ -192,9 +191,9 @@ namespace ClientNamespace
                 return std::wstring{ boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_received - GlobalFunction::GetDelimiter().size() };
             }
 
-            void ReceiveContentSegements(LoadingScreen* LCObject, boost::asio::ip::tcp::socket* socket, std::wstring Filename, bool updateMessage, uint64_t ExpectedContentsize, uint64_t ResumePos)
+            void ReceiveContentSegements(NosStdLib::LoadingScreen* LCObject, boost::asio::ip::tcp::socket* socket, std::wstring Filename, bool updateMessage, uint64_t ExpectedContentsize, uint64_t ResumePos)
             {
-                LCObject->UpdateKnownProgressBar(0, LoadingScreen::CenterString(L"Preparing for receiving data",true));
+                LCObject->UpdateKnownProgressBar(0, L"Preparing for receiving data", true);
                 /* SegementedReceive */
                 /* Read from stream with 500MB sized content segements */
                 std::ofstream OutFileStream;
@@ -240,7 +239,7 @@ namespace ClientNamespace
                         + std::wstring(L"Total File Size:     " + std::to_wstring(TotalFileSize) + L"\n")
                         + L"================================================================\n");
 
-                    LCObject->UpdateKnownProgressBar((float)TotalDataReceived /(float)TotalFileSize, LoadingScreen::CenterString(LCOutput, true));
+                    LCObject->UpdateKnownProgressBar((float)TotalDataReceived /(float)TotalFileSize, LCOutput, true);
 
                     /* write content into file */
                     OutFileStream.write(TempString.c_str(), TempString.size());
@@ -257,7 +256,7 @@ namespace ClientNamespace
                 return;
             }
 
-            void ProcessMetadata(LoadingScreen* LCObject, boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, uint64_t* ExpectedSize, std::wstring* Filename)
+            void ProcessMetadata(NosStdLib::LoadingScreen* LCObject, boost::asio::ip::tcp::socket* socket, std::wstring* InfoString, uint64_t* ExpectedSize, std::wstring* Filename)
             {
                 /* Get file metadata */
 
@@ -268,7 +267,7 @@ namespace ClientNamespace
                     boost::system::error_code error;
                     boost::asio::streambuf streamBuffer;
 
-                    LCObject->UpdateKnownProgressBar(1, LoadingScreen::CenterString(L"Waiting for metadata", true));
+                    LCObject->UpdateKnownProgressBar(1, L"Waiting for metadata", true);
 
                     /* Read until the delimiter is found. get just the metadata containing filename byte size, filename and content byte size  */
                     size_t bytes_transferred = boost::asio::read_until((*socket), streamBuffer, GlobalFunction::to_string(GlobalFunction::GetDelimiter()), error);
@@ -277,11 +276,11 @@ namespace ClientNamespace
                         std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
                         /* insert wstring (containing raw data, no way to directly put streambuf into vector) into the raw data vector */
                         ReceivedRawData.insert(ReceivedRawData.end(), output.begin(), output.end());
-                        LCObject->UpdateKnownProgressBar(1, LoadingScreen::CenterString(L"Received metadata", true));
+                        LCObject->UpdateKnownProgressBar(1, L"Received metadata", true);
                     }
                 }
 
-                LCObject->UpdateKnownProgressBar(1, LoadingScreen::CenterString(L"Desectioning metadata", true));
+                LCObject->UpdateKnownProgressBar(1, L"Desectioning metadata", true);
                 *ExpectedSize = ClientFunctions::DesectionMetadata(ReceivedRawData, Filename, InfoString, true);
 
                 ReceivedRawData.~vector();
@@ -297,7 +296,7 @@ namespace ClientNamespace
             uint64_t ExpectedContentsize;
             std::wstring Filename;
             {
-                LoadingScreen MetadataProcessingLC(LoadingScreen::LoadType::Unknown);
+                NosStdLib::LoadingScreen MetadataProcessingLC(NosStdLib::LoadingScreen::LoadType::Unknown);
                 MetadataProcessingLC.StartLoading(&ProcessMetadata, std::ref(socket), std::ref(InfoString), &ExpectedContentsize, &Filename);
             }
             /* GettingMetadata */
@@ -320,7 +319,7 @@ namespace ClientNamespace
             /* Getting Directoryand creating */
 
             {
-                LoadingScreen ReceivingContentLC(LoadingScreen::LoadType::Known);
+                NosStdLib::LoadingScreen ReceivingContentLC(NosStdLib::LoadingScreen::LoadType::Known);
                 ReceivingContentLC.StartLoading(&ReceiveContentSegements, std::ref(socket), std::ref(DirFilename), std::ref(updateMessage), std::ref(ExpectedContentsize), std::ref(ResumePos));
             }
 

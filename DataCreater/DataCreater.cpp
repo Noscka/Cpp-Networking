@@ -4,13 +4,14 @@
 #include <io.h>
 #include <Windows.h>
 
-#include "LoadingScreen/LoadingScreen.hpp"
+#include <NosStdLib/Global.hpp>
+#include <NosStdLib/DynamicLoadingScreen.hpp>
 
 #define Kilobyte (uint64_t)1024
 #define Megabyte (uint64_t)1024*Kilobyte
 #define Gigabyte (uint64_t)1024*Megabyte
 
-void CreateRandomData(LoadingScreen* Object, float *Size)
+void CreateRandomData(NosStdLib::LoadingScreen* Object, float *Size)
 {
     //uint64_t OutputFileSize = (4 * Gigabyte);
     uint64_t OutputFileSize = (uint64_t)(*Size * Gigabyte);
@@ -31,28 +32,28 @@ void CreateRandomData(LoadingScreen* Object, float *Size)
     for(uint64_t i = 0; i < FullOperationAmount; i++)
     {
         std::string DataWrite;
-        std::wstring statusMessage = LoadingScreen::CenterString(L"Creating 500MB segement data", true);
+        std::wstring statusMessage = NosStdLib::Global::String::CenterString<wchar_t>(L"Creating 500MB segement data", true);
         for(uint64_t j = 0; j <= SectionSize; j += 100)
         {
             DataWrite += "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
             Progress += 100;
-            Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, statusMessage, false, false);
+            Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, statusMessage);
         }
-        Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, L"Writing Data");
+        Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, L"Writing Data", true);
         OutFileStream.write(DataWrite.c_str(), DataWrite.size());
     }
 
     /* Remaining data */
     {
         std::string DataWrite;
-        std::wstring statusMessage = LoadingScreen::CenterString(L"Creating the rest of data", true);
+        std::wstring statusMessage = NosStdLib::Global::String::CenterString<wchar_t>(L"Creating the rest of data", true);
         for(uint64_t i = 0; i <= LeftOverAmount; i++)
         {
             DataWrite += "a";
             Progress += 1;
-            Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, statusMessage, false, false);
+            Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, statusMessage);
         }
-        Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, L"Writing Data");
+        Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, L"Writing Data", true);
         OutFileStream.write(DataWrite.c_str(), DataWrite.size());
     }
 
@@ -70,10 +71,12 @@ int main()
         getline(std::cin, OutputSize);
         float OutputSizeInt = std::stof(OutputSize);
 
-        LoadingScreen::InitilizeFont();
-        LoadingScreen FileCreation = LoadingScreen(LoadingScreen::Known);
+        NosStdLib::LoadingScreen::InitilizeFont();
+        NosStdLib::LoadingScreen FileCreation(NosStdLib::LoadingScreen::LoadType::Known);
+
         FileCreation.StartLoading(&CreateRandomData, &OutputSizeInt);
-        LoadingScreen::TerminateFont();
+
+        NosStdLib::LoadingScreen::TerminateFont();
     }
     catch(std::exception& e)
     {
