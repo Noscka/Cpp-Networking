@@ -15,69 +15,50 @@
 #include "Global/GlobalFunctions.hpp"
 #include <NosStdLib/Global.hpp>
 #include <NosStdLib/DynamicLoadingScreen.hpp>
+#include <NosStdLib/FileManagement.hpp>
 
 namespace ServerNamespace
 {
-    class FilePathStorage
+    class ServerFilePath : public NosStdLib::FileManagement::FilePath
     {
     public:
-
         enum StaticPaths
         {
             clientFile, /* Main Client file */
             clientVersionFile, /* File containing Client version */
             UpdatePath, /* File containing Client version */
         };
-    private:
-        std::wstring AbsolutePath;
-        std::wstring SubPath;
-        std::wstring Filename;
 
-        FilePathStorage() {}
-    public:
-        FilePathStorage(std::wstring subPath, std::wstring filename)
+        ServerFilePath() {}
+
+        ServerFilePath(const std::wstring subPath, const std::wstring filename)
         {
-            SubPath = subPath;
-            Filename = filename;
-            AbsolutePath = std::filesystem::current_path().wstring();
+            NosStdLib::FileManagement::FilePath::RelativePath = subPath;
+            NosStdLib::FileManagement::FilePath::Filename = filename;
+            NosStdLib::FileManagement::FilePath::AbsolutePath = std::filesystem::current_path().wstring();
         }
 
-        FilePathStorage(StaticPaths PathWanted)
+        ServerFilePath(const StaticPaths PathWanted)
         {
             *this = StaticPaths(PathWanted);
         }
 
-        inline static FilePathStorage StaticPaths(StaticPaths PathWanted)
+        inline static ServerFilePath StaticPaths(StaticPaths PathWanted)
         {
-            FilePathStorage ReturnObject;
+            ServerFilePath ReturnObject;
             switch (PathWanted)
             {
             case clientFile:
-                ReturnObject = FilePathStorage(LR"(\Update\)", LR"(Client.exe)");
+                ReturnObject = ServerFilePath(LR"(\Update\)", LR"(Client.exe)");
                 break;
             case clientVersionFile:
-                ReturnObject = FilePathStorage(LR"(\Update\)", LR"(Client.VerInfo)");
+                ReturnObject = ServerFilePath(LR"(\Update\)", LR"(Client.VerInfo)");
                 break;
             case UpdatePath:
-                ReturnObject = FilePathStorage(LR"(\Update\)", L"");
+                ReturnObject = ServerFilePath(LR"(\Update\)", L"");
                 break;
             }
             return ReturnObject;
-        }
-
-        std::wstring GetSubPath()
-        {
-            return AbsolutePath + SubPath;
-        }
-
-        std::wstring GetFilePath()
-        {
-            return GetSubPath() + Filename;
-        }
-
-        std::wstring GetFileName()
-        {
-            return Filename;
         }
     };
 
@@ -274,7 +255,7 @@ namespace ServerNamespace
         void CreateRequiredPaths()
         {
             /* Create paths so the user doesn't have to. manual input currently. will get updated later */
-            boost::filesystem::create_directories(ServerNamespace::FilePathStorage::StaticPaths(ServerNamespace::FilePathStorage::StaticPaths::UpdatePath).GetSubPath());
+            boost::filesystem::create_directories(ServerNamespace::ServerFilePath::StaticPaths(ServerNamespace::ServerFilePath::StaticPaths::UpdatePath).GetAbsolutePath());
         }
     }
 
@@ -282,13 +263,13 @@ namespace ServerNamespace
     {
         void SendNewestVersion(boost::asio::ip::tcp::socket* socket, std::wstring* InfoString)
         {
-            FilePathStorage ClientPath = ServerNamespace::FilePathStorage(ServerNamespace::FilePathStorage::StaticPaths::clientFile);
+            ServerFilePath ClientPath = ServerNamespace::ServerFilePath(ServerNamespace::ServerFilePath::StaticPaths::clientFile);
             GlobalFunction::StartSecondaryProgram(ClientPath.GetFilePath().c_str(),
-                                                  &(ClientPath.GetFileName() + std::wstring(L" -version"))[0],
-                                                  (ClientPath.GetSubPath()).c_str());
+                                                  &(ClientPath.GetFilename() + std::wstring(L" -version"))[0],
+                                                  (ClientPath.GetAbsolutePath()).c_str());
 
             std::string LocalFileVersion;
-            std::ifstream LocalFileVersionStream(ServerNamespace::FilePathStorage::StaticPaths(ServerNamespace::FilePathStorage::StaticPaths::clientVersionFile).GetFilePath());
+            std::ifstream LocalFileVersionStream(ServerNamespace::ServerFilePath::StaticPaths(ServerNamespace::ServerFilePath::StaticPaths::clientVersionFile).GetFilePath());
             std::stringstream LFVStream;
             LFVStream << LocalFileVersionStream.rdbuf();
             LocalFileVersion = LFVStream.str();

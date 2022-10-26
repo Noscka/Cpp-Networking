@@ -22,7 +22,7 @@ bool FileExistance(const std::string& name)
 int main(int argc, char** argv)
 {
     /* Output Client Version */
-    std::ofstream VersionStream(ClientNamespace::FilePathStorage::StaticPaths(ClientNamespace::FilePathStorage::UserType::currentDir, ClientNamespace::FilePathStorage::StaticPaths::clientVersionFile).GetFilePath(), std::ios::binary | std::ios::trunc);
+    std::ofstream VersionStream(ClientNamespace::ClientFilePath::StaticPaths(ClientNamespace::ClientFilePath::UserType::currentDir, ClientNamespace::ClientFilePath::StaticPaths::clientVersionFile).GetFilePath(), std::ios::binary | std::ios::trunc);
     VersionStream << CLIENT_VERSION;
     VersionStream.close();
 
@@ -32,8 +32,8 @@ int main(int argc, char** argv)
     }
 
     _setmode(_fileno(stdout), _O_U16TEXT);
-    /* TODO: make Loading screen use FilePathStorage and implement it here */
-    //NosStdLib::LoadingScreen::InitilizeFont(ClientNamespace::FilePathStorage::StaticPaths(ClientNamespace::FilePathStorage::UserType::client, ClientNamespace::FilePathStorage::StaticPaths::FontResourcePath).GetSubPath());
+    /* TODO: make Loading screen use ClientFilePath and implement it here */
+    //NosStdLib::LoadingScreen::InitilizeFont(ClientNamespace::ClientFilePath::StaticPaths(ClientNamespace::ClientFilePath::UserType::client, ClientNamespace::ClientFilePath::StaticPaths::FontResourcePath).GetSubPath());
     NosStdLib::LoadingScreen::InitilizeFont(LR"(\..\Resources\)");
 
     boost::asio::io_context io_context;
@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 
         std::wstring InfoString;
 
-        ClientNamespace::FilePathStorage DownloadDir(ClientNamespace::FilePathStorage::UserType::client, ClientNamespace::FilePathStorage::StaticPaths::DownloadPath);
+        ClientNamespace::ClientFilePath DownloadDir(ClientNamespace::ClientFilePath::UserType::client, ClientNamespace::ClientFilePath::StaticPaths::DownloadPath);
 
         switch (MainServerRequest.ReturnRequestType())
         {
