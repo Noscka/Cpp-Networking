@@ -23,10 +23,11 @@
 #include "Global/GlobalFunctions.hpp"
 #include <NosStdLib/Global.hpp>
 #include <NosStdLib/DynamicLoadingScreen.hpp>
+#include <NosStdLib/FileManagement.hpp>
 
 namespace ClientNamespace
 {
-    class ClientFilePath
+    class ClientFilePath : public NosStdLib::FileManagement::FilePath
     {
     public:
         enum UserType
@@ -45,19 +46,16 @@ namespace ClientNamespace
             FontResourcePath, /* Path to Font Resource used by loading screen */
     	};
     private:
-
         UserType ProgramUsing;
-        std::wstring AbsolutePath;
-        std::wstring SubPath;
-        std::wstring Filename;
 
-        ClientFilePath(){}
     public:
-        ClientFilePath(UserType programUsing, std::wstring subPath, std::wstring filename)
+        ClientFilePath() {}
+
+        ClientFilePath(const UserType programUsing, const std::wstring relativePath, const std::wstring filename)
         {
             ProgramUsing = programUsing;
-            SubPath = subPath;
-            Filename = filename;
+            NosStdLib::FileManagement::FilePath::RelativePath = relativePath;
+            NosStdLib::FileManagement::FilePath::Filename = filename;
 
             switch (programUsing)
             {
@@ -102,21 +100,6 @@ namespace ClientNamespace
                 break;
             }
             return ReturnObject;
-        }
-
-        std::wstring GetSubPath()
-        {
-            return AbsolutePath + SubPath;
-        }
-
-        std::wstring GetFilePath()
-        {
-            return GetSubPath() + Filename;
-        }
-
-        std::wstring GetFileName()
-        {
-            return Filename;
         }
     };
 
@@ -364,7 +347,7 @@ namespace ClientNamespace
                     if (std::filesystem::exists(ClientPath.GetFilePath()))
                     {
                         GlobalFunction::StartSecondaryProgram(ClientPath.GetFilePath().c_str(),
-                                                              &(ClientPath.GetFileName() + L" -version")[0],
+                                                              &(ClientPath.GetFilename() + L" -version")[0],
                                                               (ClientPath.GetFilePath()).c_str());
                     }
                     else
@@ -476,14 +459,14 @@ namespace ClientNamespace
                 ClientFilePath clientFilePath(ClientFilePath::UserType::clientLauncher, ClientFilePath::StaticPaths::clientFile);
                 ClientFilePath TempClientPath(ClientFilePath::UserType::clientLauncher, ClientFilePath::StaticPaths::tempClientFile);
 
-                ClientNamespace::ClientFunctions::DownloadFile(socket, TempClientPath.GetSubPath(), 0,true, InfoString, false);
+                ClientNamespace::ClientFunctions::DownloadFile(socket, TempClientPath.GetAbsolutePath(), 0,true, InfoString, false);
 
                 remove(GlobalFunction::to_string(clientFilePath.GetFilePath()).c_str());
 
-                boost::filesystem::create_directories(clientFilePath.GetSubPath());
+                boost::filesystem::create_directories(clientFilePath.GetAbsolutePath());
                 std::filesystem::rename(TempClientPath.GetFilePath(), clientFilePath.GetFilePath());
 
-                std::filesystem::remove(TempClientPath.GetSubPath());
+                std::filesystem::remove(TempClientPath.GetAbsolutePath());
             }
             catch (std::exception& e)
             {

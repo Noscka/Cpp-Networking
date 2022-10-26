@@ -14,7 +14,7 @@ int main()
 {
     _setmode(_fileno(stdout), _O_U16TEXT);
     /* TODO: make Loading screen use ClientFilePath and implement it here */
-    //NosStdLib::LoadingScreen::InitilizeFont(ClientNamespace::ClientFilePath::StaticPaths(ClientNamespace::ClientFilePath::UserType::clientLauncher, ClientNamespace::ClientFilePath::StaticPaths::FontResourcePath).GetSubPath().c_str());
+    //NosStdLib::LoadingScreen::InitilizeFont(ClientNamespace::ClientFilePath::StaticPaths(ClientNamespace::ClientFilePath::UserType::clientLauncher, ClientNamespace::ClientFilePath::StaticPaths::FontResourcePath).GetAbsolutePath().c_str());
     NosStdLib::LoadingScreen::InitilizeFont();
 
     boost::asio::io_context io_context;
@@ -67,7 +67,7 @@ int main()
 
     GlobalFunction::StartSecondaryProgram(ClientPath.GetFilePath().c_str(),
                                           NULL,
-                                          ClientPath.GetSubPath().c_str());
+                                          ClientPath.GetAbsolutePath().c_str());
     NosStdLib::LoadingScreen::TerminateFont();
     return 0;
 }

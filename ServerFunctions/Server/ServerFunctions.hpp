@@ -31,9 +31,9 @@ namespace ServerNamespace
 
         ServerFilePath() {}
 
-        ServerFilePath(const std::wstring subPath, const std::wstring filename)
+        ServerFilePath(const std::wstring relativePath, const std::wstring filename)
         {
-            NosStdLib::FileManagement::FilePath::RelativePath = subPath;
+            NosStdLib::FileManagement::FilePath::RelativePath = relativePath;
             NosStdLib::FileManagement::FilePath::Filename = filename;
             NosStdLib::FileManagement::FilePath::AbsolutePath = std::filesystem::current_path().wstring();
         }

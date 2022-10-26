@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 
     _setmode(_fileno(stdout), _O_U16TEXT);
     /* TODO: make Loading screen use ClientFilePath and implement it here */
-    //NosStdLib::LoadingScreen::InitilizeFont(ClientNamespace::ClientFilePath::StaticPaths(ClientNamespace::ClientFilePath::UserType::client, ClientNamespace::ClientFilePath::StaticPaths::FontResourcePath).GetSubPath());
+    //NosStdLib::LoadingScreen::InitilizeFont(ClientNamespace::ClientFilePath::StaticPaths(ClientNamespace::ClientFilePath::UserType::client, ClientNamespace::ClientFilePath::StaticPaths::FontResourcePath).GetAbsolutePath());
     NosStdLib::LoadingScreen::InitilizeFont(LR"(\..\Resources\)");
 
     boost::asio::io_context io_context;
@@ -89,11 +89,11 @@ int main(int argc, char** argv)
         {
         case ServerRequest::Download:
             wprintf(L"Downloading file\n");
-            ClientNamespace::ClientFunctions::DownloadFile(&socket, DownloadDir.GetSubPath(), 0, false, &InfoString, true);
+            ClientNamespace::ClientFunctions::DownloadFile(&socket, DownloadDir.GetAbsolutePath(), 0, false, &InfoString, true);
             break;
         case ServerRequest::Continue:
             wprintf(std::format(L"Continuing Downloading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
-            ClientNamespace::ClientFunctions::DownloadFile(&socket, DownloadDir.GetSubPath(), MainServerRequest.ReturnDataLeft(),false, &InfoString, true);
+            ClientNamespace::ClientFunctions::DownloadFile(&socket, DownloadDir.GetAbsolutePath(), MainServerRequest.ReturnDataLeft(),false, &InfoString, true);
             break;
         }
         
