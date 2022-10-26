@@ -32,12 +32,11 @@ void CreateRandomData(NosStdLib::LoadingScreen* Object, float *Size)
     for(uint64_t i = 0; i < FullOperationAmount; i++)
     {
         std::string DataWrite;
-        std::wstring statusMessage = NosStdLib::Global::String::CenterString<wchar_t>(L"Creating 500MB segement data", true);
         for(uint64_t j = 0; j <= SectionSize; j += 100)
         {
             DataWrite += "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
             Progress += 100;
-            Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, statusMessage);
+            Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, L"Creating 500MB segement data", true);
         }
         Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, L"Writing Data", true);
         OutFileStream.write(DataWrite.c_str(), DataWrite.size());
@@ -46,12 +45,11 @@ void CreateRandomData(NosStdLib::LoadingScreen* Object, float *Size)
     /* Remaining data */
     {
         std::string DataWrite;
-        std::wstring statusMessage = NosStdLib::Global::String::CenterString<wchar_t>(L"Creating the rest of data", true);
         for(uint64_t i = 0; i <= LeftOverAmount; i++)
         {
             DataWrite += "a";
             Progress += 1;
-            Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, statusMessage);
+            Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, L"Creating the rest of data", true);
         }
         Object->UpdateKnownProgressBar((double)Progress / (double)OutputFileSize, L"Writing Data", true);
         OutFileStream.write(DataWrite.c_str(), DataWrite.size());
