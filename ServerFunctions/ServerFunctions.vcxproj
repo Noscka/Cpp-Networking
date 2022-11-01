@@ -94,7 +94,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\GlobalFunctions\;C:\Users\Adam\Documents\Programing Projects\C++\NosStdLib\NosStdLib\;C:\Program Files\Boost\boost_1_80_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GlobalFunctions\;D:\NosStdLib\NosStdLib\;C:\Program Files\Boost\boost_1_80_0</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -103,7 +103,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>C:\Users\Adam\Documents\Programing Projects\C++\NosStdLib\Build\NosStdLib\x64\$(Configuration)\Intermediate\;C:\Users\Adam\Documents\Programing Projects\C++\NosStdLib\Build\NosStdLib\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\NosStdLib\Build\NosStdLib\x64\$(Configuration)\Intermediate\;D:\NosStdLib\Build\NosStdLib\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -119,7 +119,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>..\GlobalFunctions\;C:\Users\Adam\Documents\Programing Projects\C++\NosStdLib\NosStdLib\;C:\Program Files\Boost\boost_1_80_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GlobalFunctions\;D:\NosStdLib\NosStdLib\;C:\Program Files\Boost\boost_1_80_0</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -128,7 +128,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>C:\Users\Adam\Documents\Programing Projects\C++\NosStdLib\Build\NosStdLib\x64\$(Configuration)\Intermediate\;C:\Users\Adam\Documents\Programing Projects\C++\NosStdLib\Build\NosStdLib\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\NosStdLib\Build\NosStdLib\x64\$(Configuration)\Intermediate\;D:\NosStdLib\Build\NosStdLib\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -140,7 +140,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\GlobalFunctions\;C:\Users\Adam\Documents\Programing Projects\C++\NosStdLib\NosStdLib\;C:\Program Files\Boost\boost_1_80_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GlobalFunctions\;D:\NosStdLib\NosStdLib\;C:\Program Files\Boost\boost_1_80_0</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -149,7 +149,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>C:\Users\Adam\Documents\Programing Projects\C++\NosStdLib\Build\NosStdLib\x64\$(Configuration)\Intermediate\;C:\Users\Adam\Documents\Programing Projects\C++\NosStdLib\Build\NosStdLib\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\NosStdLib\Build\NosStdLib\x64\$(Configuration)\Intermediate\;D:\NosStdLib\Build\NosStdLib\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -165,7 +165,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>..\GlobalFunctions\;C:\Users\Adam\Documents\Programing Projects\C++\NosStdLib\NosStdLib\;C:\Program Files\Boost\boost_1_80_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GlobalFunctions\;D:\NosStdLib\NosStdLib\;C:\Program Files\Boost\boost_1_80_0</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -174,7 +174,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>C:\Users\Adam\Documents\Programing Projects\C++\NosStdLib\Build\NosStdLib\x64\$(Configuration)\Intermediate\;C:\Users\Adam\Documents\Programing Projects\C++\NosStdLib\Build\NosStdLib\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\NosStdLib\Build\NosStdLib\x64\$(Configuration)\Intermediate\;D:\NosStdLib\Build\NosStdLib\x64\$(Configuration)\;C:\Program Files\Boost\boost_1_80_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
