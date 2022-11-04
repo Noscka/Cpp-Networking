@@ -19,10 +19,6 @@ int main()
 
     boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket(io_context, ssl_context);
 
-    boost::asio::io_context io_context;
-
-    boost::asio::ip::tcp::socket socket(io_context);
-
     try
     {
         wprintf(L"Type in hostname: ");
@@ -36,7 +32,8 @@ int main()
         Host - Hostname/Ip address
         Service - Service(Hostname for ports)/Port number
         */
-        boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve(HostName, "58233"));
+        boost::asio::connect(socket.next_layer(), boost::asio::ip::tcp::resolver(io_context).resolve(HostName, "58233"));
+        socket.handshake(boost::asio::ssl::stream_base::client);
 
         wprintf(L"Connected to server\n");
         
