@@ -6,10 +6,18 @@
 #include <fcntl.h>
 
 #include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
+
+/* https://dens.website/tutorials/cpp-asio/ssl-tls */
 
 int main()
 {
     _setmode(_fileno(stdout), _O_U16TEXT);
+
+    boost::asio::io_context io_context;
+    boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls);
+
+    boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket(io_context, ssl_context);
 
     boost::asio::io_context io_context;
 

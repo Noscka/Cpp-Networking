@@ -10,6 +10,7 @@
 #include <format>
 
 #include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
 #include <boost/thread.hpp>
 #include <boost/array.hpp>
 
@@ -53,7 +54,10 @@ int main()
     try
     {
         boost::asio::io_context io_context;
+        boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls);
         boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 58233));
+
+        boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket(io_context, ssl_context);
 
         SetConsoleTitle(std::wstring(L"File Server at " + GlobalFunction::ReturnAddress(acceptor.local_endpoint())).c_str());
 
