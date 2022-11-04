@@ -1,12 +1,16 @@
+
 #include <SharedClass.hpp>
+
+#include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
+
+#include <windows.h>
 
 #include <iostream>
 #include <fstream>
 #include <io.h>
 #include <fcntl.h>
 
-#include <boost/asio.hpp>
-#include <boost/asio/ssl.hpp>
 
 /* https://dens.website/tutorials/cpp-asio/ssl-tls */
 

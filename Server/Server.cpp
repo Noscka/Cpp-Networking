@@ -1,4 +1,12 @@
+
 #include <SharedClass.hpp>
+
+#include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
+#include <boost/thread.hpp>
+#include <boost/array.hpp>
+
+#include <Windows.h>
 
 #include <iostream>
 #include <string>
@@ -9,10 +17,6 @@
 #include <filesystem>
 #include <format>
 
-#include <boost/asio.hpp>
-#include <boost/asio/ssl.hpp>
-#include <boost/thread.hpp>
-#include <boost/array.hpp>
 
 class tcp_connection
 {
