@@ -28,33 +28,32 @@ and now works:                              file(500MB) -> send, repeat untill a
 */
 
 
-static class Definition
+namespace Definition
 {
-public:
     inline static const std::wstring Delimiter = L"\n\r\n\r\n\013\x4\n";
     inline static const int SegementSize = 524288000;
     typedef unsigned char byte;
 };
 
-static class GlobalFunction
+namespace GlobalFunction
 {
-public:
-    static std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint);
+    std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint)
+    {
+        return std::format(L"{}:{}", GlobalFunction::to_wstring(Endpoint.address().to_v4().to_string()), GlobalFunction::to_wstring(std::to_string(Endpoint.port())));
+    }
 
-    static std::wstring GetDelimiter();
+    std::wstring GetDelimiter()
+    {
+        return Definition::Delimiter;
+    }
 
-    static std::wstring GetRawDelimiter();
-
-    static std::wstring to_wstring(const std::string& str);
-
-    static std::string to_string(const std::wstring& wstr);
-};
-
-class FileInMemoryEntry
-{
-public:
-    std::string Filename;
-    std::string FileSHA256Checksum;
-    std::vector<Definition::byte> FileContents;
-    static std::vector<FileInMemoryEntry> FIMEArray;
+    std::wstring GetRawDelimiter()
+    {
+        std::wstring returnString = Definition::Delimiter;
+        boost::replace_all(returnString, L"\n", L"\\n");
+        boost::replace_all(returnString, L"\r", L"\\r");
+        boost::replace_all(returnString, L"\013", L"\\013");
+        boost::replace_all(returnString, L"\x4", L"\\x4");
+        return returnString;
+    }
 };
