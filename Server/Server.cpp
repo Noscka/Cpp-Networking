@@ -1,10 +1,11 @@
-
 #include <SharedClass.hpp>
 
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/thread.hpp>
 #include <boost/array.hpp>
+
+#include <NosStdLib/String.hpp>
 
 #include <Windows.h>
 
@@ -42,7 +43,7 @@ public:
             size_t len = socket.read_some(boost::asio::buffer(buf), error);
             std::string StreamOutput(buf.data(), len);
 
-            wprintf(GlobalFunction::to_wstring(StreamOutput).c_str());
+            wprintf(NosStdLib::String::ToWstring(StreamOutput).c_str());
             
         }
         catch (std::exception& e)

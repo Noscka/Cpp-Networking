@@ -10,6 +10,8 @@
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
 
+#include <NosStdLib/String.hpp>
+
 /*
 Terminology
 
@@ -39,7 +41,7 @@ namespace GlobalFunction
 {
     std::wstring ReturnAddress(boost::asio::ip::tcp::endpoint Endpoint)
     {
-        return std::format(L"{}:{}", GlobalFunction::to_wstring(Endpoint.address().to_v4().to_string()), GlobalFunction::to_wstring(std::to_string(Endpoint.port())));
+        return std::format(L"{}:{}", NosStdLib::String::ToWstring(Endpoint.address().to_v4().to_string()), NosStdLib::String::ToWstring(std::to_string(Endpoint.port())));
     }
 
     std::wstring GetDelimiter()
