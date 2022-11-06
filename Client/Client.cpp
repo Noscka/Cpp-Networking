@@ -21,6 +21,9 @@ int main()
     boost::asio::io_context io_context;
     boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls);
 
+    ssl_context.load_verify_file("rootCACert.pem");
+    ssl_context.set_verify_mode(boost::asio::ssl::context::verify_peer);
+
     boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket(io_context, ssl_context);
 
     try

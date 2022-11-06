@@ -61,6 +61,10 @@ int main()
     {
         boost::asio::io_context io_context;
         boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls);
+        
+        ssl_context.use_certificate_chain_file("rootCACert.pem");
+        ssl_context.use_private_key_file("rootCAKey.pem", boost::asio::ssl::context::pem);
+
         boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 58233));
 
         boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket(io_context, ssl_context);
