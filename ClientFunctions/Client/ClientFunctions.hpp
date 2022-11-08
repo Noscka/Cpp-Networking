@@ -6,6 +6,7 @@
 #include <boost/array.hpp>
 #include <boost/filesystem.hpp>
 
+#include <Windows.h>
 #include <regex>
 #include <iostream>
 #include <format>
@@ -14,7 +15,6 @@
 #include <filesystem>
 #include <vector>
 #include <strsafe.h>
-#include <Windows.h>
 #include <fcntl.h>
 #include <string>
 #include <corecrt_io.h>

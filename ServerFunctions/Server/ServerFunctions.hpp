@@ -5,6 +5,7 @@
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 
+#include <Windows.h>
 #include <iostream>
 #include <format>
 #include <string>
