@@ -1,4 +1,5 @@
 #include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
 
 #include <Global/GlobalFunctions.hpp>
 #include <Client/ClientFunctions.hpp>
@@ -13,7 +14,7 @@
 #include <NosStdLib/Global.hpp>
 #include <NosStdLib/DynamicLoadingScreen.hpp>
 
-#define CLIENT_VERSION "0.1.1"
+#define CLIENT_VERSION "0.2.0"
 
 bool FileExistance(const std::string& name)
 {
@@ -36,8 +37,12 @@ int main(int argc, char** argv)
     NosStdLib::LoadingScreen::InitilizeFont((NosStdLib::FileManagement::FilePath)ClientNamespace::ClientFilePath::StaticPaths(ClientNamespace::ClientFilePath::UserType::client, ClientNamespace::ClientFilePath::StaticPaths::FontResourcePath));
 
     boost::asio::io_context io_context;
+    boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls);
 
-    boost::asio::ip::tcp::socket socket(io_context);
+    ssl_context.load_verify_file("rootCACert.pem");
+    ssl_context.set_verify_mode(boost::asio::ssl::context::verify_peer);
+
+    boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket(io_context, ssl_context);
 
     try
     {
@@ -52,7 +57,8 @@ int main(int argc, char** argv)
         Host - Hostname/Ip address
         Service - Service(Hostname for ports)/Port number
         */
-        boost::asio::connect(socket, boost::asio::ip::tcp::resolver(io_context).resolve(HostName, ClientNamespace::ClientConstants::DefaultPort));
+        boost::asio::connect(socket.next_layer(), boost::asio::ip::tcp::resolver(io_context).resolve(HostName, ClientNamespace::ClientConstants::DefaultPort));
+        socket.handshake(boost::asio::ssl::stream_base::client);
 
         wprintf(L"Connected to server\n");
 
@@ -88,11 +94,11 @@ int main(int argc, char** argv)
         {
         case ServerRequest::Download:
             wprintf(L"Downloading file\n");
-            ClientNamespace::ClientFunctions::DownloadFile(&socket, DownloadDir.GetAbsolutePath(), 0, false, &InfoString, true);
+            ClientNamespace::ClientFunctions::DownloadFile(&socket.next_layer(), DownloadDir.GetAbsolutePath(), 0, false, &InfoString, true);
             break;
         case ServerRequest::Continue:
             wprintf(std::format(L"Continuing Downloading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
-            ClientNamespace::ClientFunctions::DownloadFile(&socket, DownloadDir.GetAbsolutePath(), MainServerRequest.ReturnDataLeft(),false, &InfoString, true);
+            ClientNamespace::ClientFunctions::DownloadFile(&socket.next_layer(), DownloadDir.GetAbsolutePath(), MainServerRequest.ReturnDataLeft(),false, &InfoString, true);
             break;
         }
         
