@@ -43,7 +43,7 @@ public:
                 {
                     boost::asio::streambuf RequestBuf;
 
-                    boost::asio::read_until(socket, RequestBuf, GlobalFunction::to_string(GlobalFunction::GetDelimiter()));
+                    boost::asio::read_until(socket.next_layer(), RequestBuf, GlobalFunction::to_string(GlobalFunction::GetDelimiter()));
                     MainServerRequest.DeserializeObject(&RequestBuf);
                 }
 
