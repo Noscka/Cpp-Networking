@@ -37,7 +37,7 @@ int main(int argc, char** argv)
     NosStdLib::LoadingScreen::InitilizeFont((NosStdLib::FileManagement::FilePath)ClientNamespace::ClientFilePath::StaticPaths(ClientNamespace::ClientFilePath::UserType::client, ClientNamespace::ClientFilePath::StaticPaths::FontResourcePath));
 
     boost::asio::io_context io_context;
-    boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls);
+    boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tlsv13);
 
     ssl_context.load_verify_file("rootCACert.pem");
     ssl_context.set_verify_mode(boost::asio::ssl::context::verify_peer);

@@ -19,7 +19,7 @@ int main()
     NosStdLib::LoadingScreen::InitilizeFont((NosStdLib::FileManagement::FilePath)ClientNamespace::ClientFilePath::StaticPaths(ClientNamespace::ClientFilePath::UserType::clientLauncher, ClientNamespace::ClientFilePath::StaticPaths::FontResourcePath));
 
     boost::asio::io_context io_context;
-    boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls);
+    boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tlsv13);
 
     ssl_context.load_verify_file("rootCACert.pem");
     ssl_context.set_verify_mode(boost::asio::ssl::context::verify_peer);
@@ -38,7 +38,7 @@ int main()
         boost::asio::connect(socket.next_layer(), boost::asio::ip::tcp::resolver(io_context).resolve(ClientNamespace::ClientConstants::UpdateServiceHostName, ClientNamespace::ClientConstants::DefaultPort));
         socket.handshake(boost::asio::ssl::stream_base::client);
         std::wstring InfoString;
-        result = ClientNamespace::ClientLauncherFunctions::UpdateClient(&socket, &InfoString);
+        result = ClientNamespace::ClientLauncherFunctions::UpdateClient(&socket.next_layer(), &InfoString);
         wprintf(InfoString.c_str());
     }
     catch (std::exception& e)

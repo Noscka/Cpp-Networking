@@ -30,6 +30,7 @@ public:
 
     void start(std::wstring SendingFileName)
     {
+        socket.handshake(boost::asio::ssl::stream_base::server);
         wprintf(std::format(L"Client Connected from {}\n", GlobalFunction::ReturnAddress(socket.next_layer().local_endpoint())).c_str());
 
         try
@@ -91,7 +92,7 @@ int main()
         ServerNamespace::ServerFunctions::CreateRequiredPaths();
 
         boost::asio::io_context io_context;
-        boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls);
+        boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tlsv13);
 
         ssl_context.use_certificate_chain_file("rootCACert.pem");
         ssl_context.use_private_key_file("rootCAKey.pem", boost::asio::ssl::context::pem);
