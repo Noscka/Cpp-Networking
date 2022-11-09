@@ -1,8 +1,8 @@
+#include <Windows.h>
 #include <iostream>
 #include <fstream>
 #include <fcntl.h>
 #include <io.h>
-#include <Windows.h>
 
 #include <NosStdLib/Global.hpp>
 #include <NosStdLib/DynamicLoadingScreen.hpp>

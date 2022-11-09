@@ -1,9 +1,7 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 
-#include <Global/GlobalFunctions.hpp>
-#include <Server/ServerFunctions.hpp>
-
+#include <Windows.h>
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -11,6 +9,9 @@
 #include <io.h>
 #include <fcntl.h>
 #include <filesystem>
+
+#include <Global/GlobalFunctions.hpp>
+#include <Server/ServerFunctions.hpp>
 
 #include <NosStdLib/Global.hpp>
 #include <NosStdLib/DynamicLoadingScreen.hpp>

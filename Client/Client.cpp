@@ -1,13 +1,14 @@
+#include <boost/asio.hpp>
+
 #include <Global/GlobalFunctions.hpp>
 #include <Client/ClientFunctions.hpp>
 
+#include <Windows.h>
 #include <iostream>
 #include <fstream>
 #include <io.h>
 #include <fcntl.h>
 #include <string>
-
-#include <boost/asio.hpp>
 
 #include <NosStdLib/Global.hpp>
 #include <NosStdLib/DynamicLoadingScreen.hpp>
