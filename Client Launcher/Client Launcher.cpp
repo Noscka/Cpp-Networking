@@ -38,7 +38,7 @@ int main()
         boost::asio::connect(socket.next_layer(), boost::asio::ip::tcp::resolver(io_context).resolve(ClientNamespace::ClientConstants::UpdateServiceHostName, ClientNamespace::ClientConstants::DefaultPort));
         socket.handshake(boost::asio::ssl::stream_base::client);
         std::wstring InfoString;
-        result = ClientNamespace::ClientLauncherFunctions::UpdateClient(&socket.next_layer(), &InfoString);
+        result = ClientNamespace::ClientLauncherFunctions::UpdateClient(&(socket.next_layer()), &InfoString);
         wprintf(InfoString.c_str());
     }
     catch (std::exception& e)

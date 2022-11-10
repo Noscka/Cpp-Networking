@@ -53,22 +53,22 @@ public:
                 {
                 case ServerRequest::Download:
                     wprintf(L"uploading file\n");
-                    wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&socket.next_layer(), SendingFileName, 0, &InfoString, true)) + L"\n").c_str());
+                    wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&(socket.next_layer()), SendingFileName, 0, &InfoString, true)) + L"\n").c_str());
                     break;
 
                 case ServerRequest::Continue:
                     wprintf(std::format(L"Continuing uploading from: {}\n", MainServerRequest.ReturnDataLeft()).c_str());
-                    wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&socket.next_layer(), SendingFileName, MainServerRequest.ReturnDataLeft(), &InfoString, true)) + L"\n").c_str());
+                    wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&(socket.next_layer()), SendingFileName, MainServerRequest.ReturnDataLeft(), &InfoString, true)) + L"\n").c_str());
                     break;
 
                 case ServerRequest::Update:
                     wprintf(L"Update Requested\n");
-                    wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&socket.next_layer(), ServerNamespace::ServerFilePath::StaticPaths(ServerNamespace::ServerFilePath::StaticPaths::clientFile).GetFilePath(), 0, &InfoString, true)) + L"\n").c_str());
+                    wprintf(std::wstring(L"Bytes sent: " + std::to_wstring((int)ServerNamespace::ServerFunctions::UploadFile(&(socket.next_layer()), ServerNamespace::ServerFilePath::StaticPaths(ServerNamespace::ServerFilePath::StaticPaths::clientFile).GetFilePath(), 0, &InfoString, true)) + L"\n").c_str());
                     break;
 
                 case ServerRequest::VersionRequest:
                     wprintf(L"Newest version requested\n");
-                    ServerNamespace::UpdateService::SendNewestVersion(&socket.next_layer(), &InfoString);
+                    ServerNamespace::UpdateService::SendNewestVersion(&(socket.next_layer()), &InfoString);
                     break;
                 }
 
