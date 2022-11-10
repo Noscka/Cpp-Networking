@@ -19,9 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Server.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="include\asio.hpp" />
     <ClInclude Include="include\asio\any_io_executor.hpp" />
     <ClInclude Include="include\asio\associated_allocator.hpp" />
@@ -675,6 +672,9 @@
     <ClInclude Include="include\asio\write.hpp" />
     <ClInclude Include="include\asio\write_at.hpp" />
     <ClInclude Include="include\asio\yield.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Server-NoTLS.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

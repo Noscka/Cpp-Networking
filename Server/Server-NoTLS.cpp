@@ -1,23 +1,18 @@
-#include <SharedClass.hpp>
-
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/thread.hpp>
-#include <boost/array.hpp>
-
-#include <NosStdLib/String.hpp>
 
 #include <Windows.h>
 
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <format>
 #include <io.h>
-#include <fcntl.h>
-#include <filesystem>
 #include <format>
 
+#include <NosStdLib/Global.hpp>
+#include <NosStdLib/String.hpp>
+#include "Server/ServerFunctions.hpp"
 
 class tcp_connection
 {
@@ -36,14 +31,7 @@ public:
 
         try
         {
-            boost::system::error_code error;
-
-            boost::array<char, 128> buf;
-            size_t len = socket.read_some(boost::asio::buffer(buf), error);
-            std::string StreamOutput(buf.data(), len);
-
-            wprintf(NosStdLib::String::ToWstring(StreamOutput).c_str());
-
+            wprintf(ServerNamespace::ServerFunctions::ReceiveAsioMessage(&socket).c_str());
         }
         catch (std::exception& e)
         {
@@ -54,7 +42,8 @@ public:
 
 int main()
 {
-    _setmode(_fileno(stdout), _O_U16TEXT);
+    NosStdLib::Global::Console::InitializeModifiers::EnableUnicode();
+    NosStdLib::Global::Console::InitializeModifiers::EnableANSI();
 
     try
     {

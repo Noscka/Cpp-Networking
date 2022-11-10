@@ -167,9 +167,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Client.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="include\asio.hpp" />
     <ClInclude Include="include\asio\any_io_executor.hpp" />
     <ClInclude Include="include\asio\associated_allocator.hpp" />
@@ -823,6 +820,9 @@
     <ClInclude Include="include\asio\write.hpp" />
     <ClInclude Include="include\asio\write_at.hpp" />
     <ClInclude Include="include\asio\yield.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Client-NoTLS.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -46,7 +46,6 @@ int main()
         std::getline(std::wcin, message);
         
         ClientNamespace::ClientFunctions::SendAsioMessage(&(socket.next_layer()), message);
-
     }
     catch (std::exception& e)
     {
