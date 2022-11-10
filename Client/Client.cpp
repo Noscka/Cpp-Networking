@@ -1,22 +1,18 @@
-
-#include <SharedClass.hpp>
-
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 
 #include <windows.h>
 
 #include <iostream>
-#include <fstream>
 #include <io.h>
-#include <fcntl.h>
 
-
-/* https://dens.website/tutorials/cpp-asio/ssl-tls */
+#include <NosStdLib/Global.hpp>
+#include "Client/ClientFunctions.hpp"
 
 int main()
 {
-    _setmode(_fileno(stdout), _O_U16TEXT);
+    NosStdLib::Global::Console::InitializeModifiers::EnableUnicode();
+    NosStdLib::Global::Console::InitializeModifiers::EnableANSI();
 
     boost::asio::io_context io_context;
     boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls);
@@ -44,14 +40,13 @@ int main()
 
         wprintf(L"Connected to server\n");
         
-        boost::system::error_code error;
-        std::string message;
+        std::wstring message;
 
         wprintf(L"type a message: ");
-        std::getline(std::cin, message);
-        message += "\n";
+        std::getline(std::wcin, message);
+        
+        ClientNamespace::ClientFunctions::SendAsioMessage(&(socket.next_layer()), message);
 
-        boost::asio::write(socket, boost::asio::buffer(message), error);
     }
     catch (std::exception& e)
     {
