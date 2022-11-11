@@ -32,7 +32,8 @@ public:
 
         try
         {
-            wprintf(ServerNamespace::ServerFunctions::ReceiveAsioMessage(&(socket.next_layer())).c_str());
+            wprintf(ServerClientFunctions::ReceiveAsioMessage(&(socket.next_layer())).c_str());
+            ServerClientFunctions::SendAsioMessage(&(socket.next_layer()), L"Received the message, innit\n");
         }
         catch (std::exception& e)
         {
@@ -53,6 +54,7 @@ int main()
         
         ssl_context.use_certificate_chain_file("rootCACert.pem");
         ssl_context.use_private_key_file("rootCAKey.pem", boost::asio::ssl::context::pem);
+        ssl_context.set_verify_mode(boost::asio::ssl::context::verify_peer);
 
         boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 58233));
 

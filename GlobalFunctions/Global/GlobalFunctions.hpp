@@ -40,38 +40,32 @@ namespace GlobalFunction
     {
         return std::format(L"{}:{}", NosStdLib::String::ConvertStringTypes<char, wchar_t>(Endpoint.address().to_v4().to_string()), NosStdLib::String::ConvertStringTypes<char, wchar_t>(std::to_string(Endpoint.port())));
     }
+}
 
-    bool StartSecondaryProgram(LPCTSTR lpApplicationName, LPWSTR lpCommandLineArguments, LPCTSTR lpCurrentDirectory)
+namespace ServerClientFunctions
+{
+    std::wstring streamBufferToWstring(boost::asio::streambuf* streamBuffer, size_t bytes_received)
     {
-        // additional information
-        STARTUPINFO si;
-        PROCESS_INFORMATION pi;
+        return std::wstring{ boost::asio::buffers_begin(streamBuffer->data()), boost::asio::buffers_begin(streamBuffer->data()) + bytes_received - GlobalFunction::GetDelimiter().size() };
+    }
 
-        // set the size of the structures
-        ZeroMemory(&si, sizeof(si));
-        si.cb = sizeof(si);
-        ZeroMemory(&pi, sizeof(pi));
+    std::wstring ReceiveAsioMessage(boost::asio::ip::tcp::socket* socket)
+    {
+        boost::system::error_code error;
+        boost::asio::streambuf streamBuffer;
+        size_t bytes_transferred = boost::asio::read_until((*socket), streamBuffer, NosStdLib::String::ConvertStringTypes<wchar_t, char>(GlobalFunction::GetDelimiter()), error);
+        std::wstring output = streamBufferToWstring(&streamBuffer, bytes_transferred);
 
-       // start the program up
-        bool result = CreateProcess(lpApplicationName,   // the path
-                                    lpCommandLineArguments, // Command line
-                                    NULL,                   // Process handle not inheritable
-                                    NULL,                   // Thread handle not inheritable
-                                    FALSE,                  // Set handle inheritance to FALSE
-                                    0,                      // No creation flags
-                                    NULL,                   // Use parent's environment block
-                                    lpCurrentDirectory,     // Use parent's starting directory 
-                                    &si,                    // Pointer to STARTUPINFO structure
-                                    &pi                     // Pointer to PROCESS_INFORMATION structure (removed extra parentheses)
-        );
+        return output;
+    }
 
-        WaitForSingleObject(pi.hProcess, INFINITE);
+    void SendAsioMessage(boost::asio::ip::tcp::socket* socket, std::wstring messageToSend)
+    {
+        boost::system::error_code error;
+        messageToSend += L"\n";
 
-        // Close process and thread handles. 
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-
-        return result;
+        std::string DelimiterTemp = NosStdLib::String::ConvertStringTypes<wchar_t, char>(GlobalFunction::GetDelimiter());
+        boost::asio::write((*socket), boost::asio::buffer(NosStdLib::String::ConvertStringTypes<wchar_t, char>(messageToSend) + DelimiterTemp), error);
     }
 }
 #endif
