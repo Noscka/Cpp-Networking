@@ -31,7 +31,8 @@ public:
 
         try
         {
-            wprintf(ServerNamespace::ServerFunctions::ReceiveAsioMessage(&socket).c_str());
+            wprintf(ServerClientFunctions::ReceiveAsioMessage(&socket).c_str());
+            ServerClientFunctions::SendAsioMessage(&socket, L"Received the message, innit\n");
         }
         catch (std::exception& e)
         {

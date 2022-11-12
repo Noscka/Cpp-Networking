@@ -40,7 +40,8 @@ int main()
         wprintf(L"type a message: ");
         std::getline(std::wcin, message);
 
-        ClientNamespace::ClientFunctions::SendAsioMessage(&socket, message);
+        ServerClientFunctions::SendAsioMessage(&socket, message);
+        wprintf(ServerClientFunctions::ReceiveAsioMessage(&socket).c_str());
     }
     catch (std::exception& e)
     {

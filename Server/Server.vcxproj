@@ -674,7 +674,7 @@
     <ClInclude Include="include\asio\yield.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Server.cpp" />
+    <ClCompile Include="Server-NoTLS.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

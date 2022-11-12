@@ -1976,7 +1976,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Server.cpp">
+    <ClCompile Include="Server-NoTLS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
