@@ -15,12 +15,9 @@ int main()
     NosStdLib::Global::Console::InitializeModifiers::EnableANSI();
 
     boost::asio::io_context io_context;
-    boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls);
+    boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls_client);
 
-    ssl_context.load_verify_file("rootCACert.pem");
-    ssl_context.use_certificate_chain_file("rootCACert.pem");
-    ssl_context.use_certificate_file("rootCACert.pem", boost::asio::ssl::context::pem);
-    ssl_context.use_private_key_file("rootCAKey.pem", boost::asio::ssl::context::pem);
+    ssl_context.load_verify_file(R"(.\certs\server.crt)");
     ssl_context.set_verify_mode(boost::asio::ssl::context::verify_peer);
 
     boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket(io_context, ssl_context);
