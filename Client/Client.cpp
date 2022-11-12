@@ -17,7 +17,11 @@ int main()
     boost::asio::io_context io_context;
     boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls);
 
-    ssl_context.set_verify_mode(boost::asio::ssl::context::verify_none);
+    ssl_context.load_verify_file("rootCACert.pem");
+    ssl_context.use_certificate_chain_file("rootCACert.pem");
+    ssl_context.use_certificate_file("rootCACert.pem", boost::asio::ssl::context::pem);
+    ssl_context.use_private_key_file("rootCAKey.pem", boost::asio::ssl::context::pem);
+    ssl_context.set_verify_mode(boost::asio::ssl::context::verify_peer);
 
     boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket(io_context, ssl_context);
 
@@ -27,14 +31,14 @@ int main()
         std::string HostName;
         std::getline(std::cin, HostName);
         if (HostName.empty())
-            HostName = "localhost";
+            HostName = ClientNamespace::ClientConstants::DefaultHostname;
 
         /*
         Connects to the function using `resolver` which resolves the address e.g. (Noscka.com -> 123.123.123.123)
         Host - Hostname/Ip address
         Service - Service(Hostname for ports)/Port number
         */
-        boost::asio::connect(socket.next_layer(), boost::asio::ip::tcp::resolver(io_context).resolve(HostName, "58233"));
+        boost::asio::connect(socket.next_layer(), boost::asio::ip::tcp::resolver(io_context).resolve(HostName, ClientNamespace::ClientConstants::DefaultPort));
         socket.handshake(boost::asio::ssl::stream_base::client);
 
         wprintf(L"Connected to server\n");

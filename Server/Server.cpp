@@ -52,9 +52,11 @@ int main()
         boost::asio::io_context io_context;
         boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls);
         
+        ssl_context.load_verify_file("rootCACert.pem");
         ssl_context.use_certificate_chain_file("rootCACert.pem");
+        ssl_context.use_certificate_file("rootCACert.pem", boost::asio::ssl::context::pem);
         ssl_context.use_private_key_file("rootCAKey.pem", boost::asio::ssl::context::pem);
-        ssl_context.set_verify_mode(boost::asio::ssl::context::verify_peer);
+        ssl_context.set_verify_mode(boost::asio::ssl::verify_peer | boost::asio::ssl::verify_fail_if_no_peer_cert);
 
         boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 58233));
 
